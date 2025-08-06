@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllCounties, getLocality } from "@/lib/api";
 import markdownToHtml from "@/lib/markdownToHtml";
+import { titleCase } from "@/lib/utils";
 
 export default async function County(props: Params) {
   const params = await props.params;
@@ -15,7 +16,7 @@ export default async function County(props: Params) {
 
   return (
     <>
-      {params.county}
+      {titleCase(params.county)}
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </>
   );
@@ -35,7 +36,7 @@ export async function generateMetadata(props: Params): Promise<Metadata> {
     return notFound();
   }
 
-  const title = `Next.js Blog Example`;
+  const title = `${titleCase(params.county)}`;
 
   return {
     title,
