@@ -9,4 +9,5 @@ export type County = {
   };
   content: string;
   preview?: boolean;
+  county: string;
 };
