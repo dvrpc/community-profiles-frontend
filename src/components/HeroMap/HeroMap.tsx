@@ -3,7 +3,7 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
-import { HEADER_HEIGHT, NAV_HEIGHT } from "@/consts";
+import { HEADER_HEIGHT, NAV_HEIGHT, REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 import sources from "./mapSources";
 import layers from "./mapLayers";
 
@@ -46,9 +46,7 @@ export default function HeroMap() {
 
   return (
     <div
-      className={`absolute h-[calc(100vh-${
-        HEADER_HEIGHT + NAV_HEIGHT
-      }px)] w-2/3`}
+      className={`absolute ${REMAINING_VIEWPORT_HEIGHT_PROPERTY} w-2/3`}
       id="map-container"
       ref={mapContainer}
     />
