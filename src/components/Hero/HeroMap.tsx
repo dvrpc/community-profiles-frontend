@@ -3,7 +3,11 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useRef, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
-import { HEADER_HEIGHT, NAV_HEIGHT, REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
+import {
+  HEADER_HEIGHT,
+  NAV_HEIGHT,
+  REMAINING_VIEWPORT_HEIGHT_PROPERTY,
+} from "@/consts";
 import sources from "./mapSources";
 import layers from "./mapLayers";
 
