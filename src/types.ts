@@ -8,6 +8,8 @@ export interface SourceMap {
   [key: string]: SourceSpecification;
 }
 
+export type ProfileData = CountyData
+
 export interface CountyData {
   fips: string
   state: string

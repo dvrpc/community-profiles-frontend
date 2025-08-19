@@ -45,7 +45,6 @@ export default function HeroMap(props: Props) {
 
   const mapContainer = useRef<HTMLDivElement>(null);
 
-  console.log(fips)
   useEffect(() => {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 

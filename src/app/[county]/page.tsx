@@ -8,6 +8,7 @@ import { countyInfoMap, REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 import Hero from "@/components/Hero/Hero";
 import { getFipsFromCountyName } from "@/utils";
 import { CountyData } from "@/types";
+import CategoryNav from "@/components/CategoryNav/CategoryNav";
 
 
 export default async function County(props: Params) {
@@ -28,7 +29,8 @@ export default async function County(props: Params) {
   return (
     <div>
       {/* {titleCase(params.county)} */}
-      <Hero geographyName={countyName} countyData={countyData} />
+      <Hero geographyName={countyName} profileData={countyData} />
+      <CategoryNav />
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </div>
   );

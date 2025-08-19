@@ -1,22 +1,22 @@
 import FadeMask from "./FadeMask";
 import HeroMap from "./HeroMap";
 import HeroLeftContent from "./HeroLeftContent";
-import { CountyData } from "@/types";
+import { CountyData, ProfileData } from "@/types";
 
 interface Props {
   geographyName?: string;
-  countyData?: CountyData;
+  profileData?: ProfileData;
 }
 
 export default function Hero(props: Props) {
-  const { geographyName, countyData } = props;
+  const { geographyName, profileData } = props;
   const title = geographyName ? geographyName : "Community Profiles";
 
   return (
     <div className="flex">
-      <HeroLeftContent title={title} />
+      <HeroLeftContent title={title} profileData={profileData} />
       <FadeMask />
-      <HeroMap buffer_box={countyData?.buffer_bbox} fips={countyData?.fips} />
+      <HeroMap buffer_box={profileData?.buffer_bbox} fips={profileData?.fips} />
     </div>
   );
 }

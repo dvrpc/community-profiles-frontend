@@ -1,18 +1,20 @@
 import Image from "next/image";
+import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
+import React, { JSX, ReactNode } from "react";
 
 interface Props {
   name: string;
-  imagePath: string;
+  icon: JSX.Element;
   href: string;
 }
 
 export default function CategoryButton(props: Props) {
-  const { name, imagePath, href } = props;
+  const { name, icon, href } = props;
 
   return (
-    <a href={href}>
-      <Image src={imagePath} width={72} height={72} alt="" />
-      <span>{name}</span>
+    <a href={href} className="text-white flex justify-start flex-col">
+      {icon}
+      <span className="text-center text-lg text-li">{name}</span>
     </a>
   );
 }
