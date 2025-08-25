@@ -1,47 +1,51 @@
+import { countyInfoMap, municipalityInfoMap } from "@/consts";
 import { County } from "@/interfaces/county";
 import { Municipality } from "@/interfaces/municipality";
 import fs from "fs";
 import matter from "gray-matter";
 import { join } from "path";
 
-const countyDirectory = join(process.cwd(), "_counties");
-const municipalityDirectory = join(process.cwd(), "_municipalities");
+const markdownDirectiory = join(process.cwd(), "markdown");
 
-export function getCountySlugs() {
-  return fs.readdirSync(countyDirectory);
-}
-
-export function getMunicipalitySlugs() {
-  return fs.readdirSync(municipalityDirectory);
-}
-
-export function getLocality(county: string, municipality?: string) {
-  const directory = !municipality ? countyDirectory : municipalityDirectory;
-  const realSlug = !municipality
-    ? county.replace(/\.md$/, "")
-    : municipality.replace(/\.md$/, "");
-  const fullPath = join(directory, `${realSlug}.md`);
+export function getCounty(county: string) {
+  const fullPath = join(markdownDirectiory, 'county.md');
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
 
   return {
     ...data,
+    slug: county,
     county: county,
     content,
-    ...(municipality && { municipality: municipality }),
+  };
+}
+
+export function getMunicipality(county: string, municipality: string) {
+  const fullPath = join(markdownDirectiory, 'municipality.md');
+  const fileContents = fs.readFileSync(fullPath, "utf8");
+  const { data, content } = matter(fileContents);
+
+  return {
+    ...data,
+    slug: municipality,
+    county: county,
+    municipality: municipality,
+    content,
   };
 }
 
 export function getAllCounties(): County[] {
-  const slugs = getCountySlugs();
-  const counties = slugs.map((slug) => getLocality(slug));
-  return counties;
+  const counties = Object.keys(countyInfoMap)
+  const slugs = counties.map((slug) => getCounty(slug));
+  // return counties;
+  return slugs;
 }
 
 export function getAllMunicipalities(county: string): Municipality[] {
-  const slugs = getMunicipalitySlugs();
-  const municipalities = slugs.map((municipality) =>
-    getLocality(county, municipality),
-  );
-  return municipalities;
+  console.log(county)
+
+  const municipalities = Object.keys(municipalityInfoMap[county])
+  const slugs = municipalities.map((slug) => getMunicipality(county, slug));
+
+  return slugs;
 }
