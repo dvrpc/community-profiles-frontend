@@ -46,6 +46,10 @@ export interface SourceMap {
 
 export type ProfileData = CountyData | MunicipalityData;
 
+export interface Content {
+  category: CategoryKeys;
+  content: string;
+}
 export interface CountyData {
   geoid: string;
   state: string;

@@ -10,7 +10,7 @@ export const categoryTitleMap: Record<CategoryKeys, string> = {
   economy: "Economy",
   environment: "Environment",
   freight: "Freight",
-  roadways: "roadways",
+  roadways: "Roadways",
   "safety-health": "Safety & Health",
   transit: "Transit",
 };
