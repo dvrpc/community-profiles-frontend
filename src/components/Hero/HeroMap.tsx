@@ -65,7 +65,14 @@ export default function HeroMap(props: Props) {
 
     const hoverId = hoverIdRef.current;
 
-    map.getCanvas().style.cursor = "pointer";
+    const topSource = e.features[0].source;
+
+    console.log(topSource);
+    if (hoverSource == topSource) {
+      map.getCanvas().style.cursor = "pointer";
+    } else {
+      map.getCanvas().style.cursor = "";
+    }
 
     const foundHoverId = e.features[0].id + "";
 
@@ -147,6 +154,7 @@ export default function HeroMap(props: Props) {
         scrollZoom: false,
         dragPan: false,
         bounds: bounds,
+        interactive: false,
       });
 
       const map = mapRef.current;
@@ -155,10 +163,6 @@ export default function HeroMap(props: Props) {
         for (const source in sources) map.addSource(source, sources[source]);
 
         let layers = getLayers(geoid, geoLevel);
-
-        if (geoLevel == "county") {
-          getLayers("municipality");
-        }
 
         for (const layer in layers) {
           const beforeId =

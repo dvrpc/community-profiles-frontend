@@ -9,6 +9,7 @@ import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import { displayNumber } from "@/lib/utils";
 import Link from "next/link";
+import SearchInput from "./SearchInput";
 
 interface Props {
   title: string;
@@ -37,6 +38,7 @@ export default function HeroLeftContent(props: Props) {
       <h1 className="text-5xl text-dvrpc-blue-1 font-bold mb-16 mt-4">
         {title}
       </h1>
+      {!profileData && <SearchInput />}
       {profileData && (
         <div className="grid grid-cols-2 flex-1">
           <div className="flex">

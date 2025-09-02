@@ -6,6 +6,10 @@ const defaultMaskFilter = ["==", "dvrpc_reg", "Yes"];
 function getLayers(geoid?: string, geoLevel?: GeoLevel) {
   if (geoid) {
     if (geoLevel == "county") {
+      //TODO: Add philadelphia planning districts
+      if (geoid == "42101") {
+        return getCountyLayers(geoid);
+      }
       return { ...getCountyLayers(geoid), ...getMunicipalityLayers(geoid) };
     } else {
       return getMunicipalityLayers(geoid);
