@@ -40,6 +40,11 @@ const defaultBounds = new LngLatBounds(
   { lng: -74.32525634765625, lat: 40.614734298694216 }
 );
 
+const popup = new mapboxgl.Popup({
+  closeButton: false,
+  closeOnClick: false
+});
+
 export default function HeroMap(props: Props) {
   const [hoverId, _setHoverId] = useState<string>("");
   const router = useRouter();
@@ -97,6 +102,11 @@ export default function HeroMap(props: Props) {
         },
         { hover: true }
       );
+      // Populate the popup and set its coordinates based on the feature found.
+      const properties = e.features[0].properties
+      if (!properties) return
+      const tooltipHTML = geoLevel ? properties.mun_name : properties.co_name + ' County'
+      popup.setLngLat(e.lngLat.wrap()).setHTML(tooltipHTML).addTo(map);
     }
   };
 
@@ -120,6 +130,7 @@ export default function HeroMap(props: Props) {
       );
     }
     setHoverId("");
+    popup.remove()
   };
 
   const handleClick = (e: MouseEvent) => {
