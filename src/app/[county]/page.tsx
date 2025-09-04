@@ -5,6 +5,7 @@ import Hero from "@/components/Hero/Hero";
 import { Content, CountyData, CountySlug } from "@/types";
 import CategoryNav from "@/components/CategoryNav/CategoryNav";
 import CategorySection from "@/components/CategorySection/CategorySection";
+import VizMap from "@/components/Visualizations/VizMap";
 
 interface Params {
   params: Promise<{
@@ -14,11 +15,6 @@ interface Params {
 
 export default async function County(props: Params) {
   const params = await props.params;
-  // const county = getLocality(params.county);
-
-  // if (!county) {
-  //   return notFound();
-  // }
 
   const countyName = countyInfoMap[params.county].label;
   const geoid = countyInfoMap[params.county].geoid;
@@ -33,7 +29,6 @@ export default async function County(props: Params) {
 
   return (
     <div>
-      {/* {titleCase(params.county)} */}
       <Hero
         geographyName={countyName}
         profileData={countyData}
@@ -47,7 +42,15 @@ export default async function County(props: Params) {
               key={c.category}
               category={c.category}
               content={c.content}
-              visualizations={undefined}
+              visualizations={[
+                <VizMap buffer_box={countyData.buffer_bbox} geoLevel='county' geoid={countyData.geoid} features={[
+                  {
+                    sourceUrl: "https://tiles.dvrpc.org/data/transportation/circuittrails/",
+                    sourceLayer: "circuittrails",
+                    geometry: "Line",
+                  }
+                ]} />
+              ]}
             />
           );
         })}

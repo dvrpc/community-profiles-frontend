@@ -22,13 +22,7 @@ type Params = {
 
 export default async function Municipality(props: Params) {
   const params = await props.params;
-  // const municipality = getLocality(params.county, params.municipality);
 
-  // if (!municipality) {
-  //   return notFound();
-  // }
-
-  // const content = await markdownToHtml(municipality.content || "");
   const munName = municipalityInfoMap[params.county][params.municipality].label;
   const geoid = municipalityInfoMap[params.county][params.municipality].geoid;
   const profileResponse = await fetch(

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
-import React, { JSX, ReactNode } from "react";
+import React, { JSX } from "react";
 
 interface Props {
   name: string;
@@ -15,9 +15,8 @@ export default function CategoryButton(props: Props) {
   return (
     <a
       href={href}
-      className={`text-white flex justify-start ${
-        isPinned ? "flex-row" : "flex-col"
-      }`}
+      className={`text-white flex justify-start ${isPinned ? "flex-row" : "flex-col"
+        }`}
     >
       {icon}
       <span className="text-center text-lg text-li">{name}</span>
