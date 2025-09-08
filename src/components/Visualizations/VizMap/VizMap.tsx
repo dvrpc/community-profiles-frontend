@@ -1,20 +1,16 @@
 "use client"
 
 import { parseBounds } from "@/lib/utils";
-import mapboxgl, { Map, ColorSpecification, DataDrivenPropertyValueSpecification, FilterSpecification } from "mapbox-gl";
+import mapboxgl, { Map, NavigationControl } from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 import getSources from "./mapSources";
 import getLayers from "./mapLayers";
-import { GeoLevel } from "@/types";
+import { GeoLevel, Feature } from "@/types";
+import { ACCESS_TOKEN } from "@/consts";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 
-export interface Feature {
-    sourceUrl: string;
-    sourceLayer: string;
-    geometry: 'Point' | 'Line' | 'Polygon';
-    baseColor?: string;
-    filter?: FilterSpecification;
-    colorExpression?: DataDrivenPropertyValueSpecification<ColorSpecification>
-}
+
 
 interface Props {
     features: Feature[];
@@ -23,6 +19,14 @@ interface Props {
     geoid: string;
 }
 
+mapboxgl.accessToken = ACCESS_TOKEN;
+
+const geocoder = new MapboxGeocoder({
+    accessToken: ACCESS_TOKEN,
+    placeholder: 'Search to location',
+    bbox: [-76.09405517578125, 39.49211914385648, -74.32525634765625, 40.614734298694216],
+    marker: false,
+});
 
 export default function VizMap(props: Props) {
     const [hoverId, _setHoverId] = useState<string>("");
@@ -54,7 +58,6 @@ export default function VizMap(props: Props) {
     };
 
     useEffect(() => {
-        mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
         if (mapContainer.current) {
             mapRef.current = new mapboxgl.Map({
@@ -68,6 +71,10 @@ export default function VizMap(props: Props) {
             const map = mapRef.current;
 
             map.on("load", () => {
+                map.addControl(geocoder, 'top-right');
+                map.addControl(new NavigationControl());
+
+                debugger
                 const sources = getSources(features)
                 const sourceLayers = features.map(f => f.sourceLayer)
                 for (const source in sources) map.addSource(source, sources[source]);

@@ -1,5 +1,4 @@
-import { GeoLevel, LayerMap } from "@/types"
-import { Feature } from "./VizMap"
+import { Feature, GeoLevel, LayerMap } from "@/types"
 import { DataDrivenPropertyValueSpecification, LayerSpecification } from "mapbox-gl"
 import { getCountyFromGeoid } from "@/lib/utils"
 
@@ -85,6 +84,7 @@ function getPointLayer(feature: Feature) {
         },
     }
 
+    return layer
 }
 
 function getLineLayer(feature: Feature) {

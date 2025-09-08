@@ -1,5 +1,4 @@
-import { SourceMap } from "@/types";
-import { Feature } from "./VizMap";
+import { Feature, SourceMap } from "@/types";
 
 export default function getSources(features: Feature[]) {
     const sources: SourceMap = {

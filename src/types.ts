@@ -1,4 +1,4 @@
-import { SourceSpecification, LayerSpecification } from "mapbox-gl";
+import { SourceSpecification, LayerSpecification, FilterSpecification, DataDrivenPropertyValueSpecification, ColorSpecification } from "mapbox-gl";
 import { MapMouseEvent, GeoJSONFeature } from "mapbox-gl";
 
 type ObjectType = Record<PropertyKey, unknown>;
@@ -49,7 +49,25 @@ export type ProfileData = CountyData | MunicipalityData;
 export interface Content {
   category: CategoryKeys;
   content: string;
+  visualizations: Visualization[]
 }
+
+export type Visualization = MapVisualization
+
+export interface MapVisualization {
+  type: 'map',
+  data: Feature[]
+}
+
+export interface Feature {
+  sourceUrl: string;
+  sourceLayer: string;
+  geometry: 'Point' | 'Line' | 'Polygon';
+  baseColor?: string;
+  filter?: FilterSpecification;
+  colorExpression?: DataDrivenPropertyValueSpecification<ColorSpecification>
+}
+
 export interface CountyData {
   geoid: string;
   state: string;

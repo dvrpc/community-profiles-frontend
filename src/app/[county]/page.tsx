@@ -5,7 +5,7 @@ import Hero from "@/components/Hero/Hero";
 import { Content, CountyData, CountySlug } from "@/types";
 import CategoryNav from "@/components/CategoryNav/CategoryNav";
 import CategorySection from "@/components/CategorySection/CategorySection";
-import VizMap from "@/components/Visualizations/VizMap";
+import VizMap from "@/components/Visualizations/VizMap/VizMap";
 
 interface Params {
   params: Promise<{
@@ -27,6 +27,21 @@ export default async function County(props: Params) {
   );
   const content = (await contentResponse.json()) as Content[];
 
+  const getMapViz = (i: number) => {
+
+    if (i > 0) return []
+    const map = <VizMap key={i} buffer_box={countyData.buffer_bbox} geoLevel='county' geoid={countyData.geoid} features={[
+      {
+        sourceUrl: "https://tiles.dvrpc.org/data/transportation/circuittrails/",
+        sourceLayer: "circuittrails",
+        geometry: "Line",
+      }
+    ]} />
+
+    return [map]
+  }
+
+
   return (
     <div>
       <Hero
@@ -36,21 +51,15 @@ export default async function County(props: Params) {
       />
       <CategoryNav />
       <div>
-        {content.map((c) => {
+        {content.map((c, i) => {
           return (
             <CategorySection
               key={c.category}
               category={c.category}
               content={c.content}
-              visualizations={[
-                <VizMap buffer_box={countyData.buffer_bbox} geoLevel='county' geoid={countyData.geoid} features={[
-                  {
-                    sourceUrl: "https://tiles.dvrpc.org/data/transportation/circuittrails/",
-                    sourceLayer: "circuittrails",
-                    geometry: "Line",
-                  }
-                ]} />
-              ]}
+              visualizations={c.visualizations}
+              profileData={countyData}
+              geoLevel={'county'}
             />
           );
         })}

@@ -3,12 +3,11 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useRef, useEffect, useState } from "react";
 import mapboxgl, { LngLatBounds, Map } from "mapbox-gl";
-import { REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
+import { ACCESS_TOKEN, REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 import sources from "./mapSources";
 import getLayers from "./mapLayers";
 import { GeoLevel, MouseEvent } from "@/types";
 import { useRouter } from "next/navigation";
-import { count } from "console";
 import { getMunicipalitySlugFromGeoid, parseBounds } from "@/lib/utils";
 
 interface Props {
@@ -16,8 +15,6 @@ interface Props {
   geoid?: string;
   geoLevel?: GeoLevel;
 }
-
-
 
 const defaultBounds = new LngLatBounds(
   { lng: -76.09405517578125, lat: 39.49211914385648 },
@@ -28,6 +25,8 @@ const popup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false
 });
+
+mapboxgl.accessToken = ACCESS_TOKEN;
 
 export default function HeroMap(props: Props) {
   const [hoverId, _setHoverId] = useState<string>("");
@@ -138,7 +137,6 @@ export default function HeroMap(props: Props) {
   };
 
   useEffect(() => {
-    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
     if (mapContainer.current) {
       mapRef.current = new mapboxgl.Map({
