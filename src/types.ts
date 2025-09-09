@@ -1,5 +1,6 @@
 import { SourceSpecification, LayerSpecification, FilterSpecification, DataDrivenPropertyValueSpecification, ColorSpecification } from "mapbox-gl";
 import { MapMouseEvent, GeoJSONFeature } from "mapbox-gl";
+import { TopLevelSpec } from "vega-lite";
 
 type ObjectType = Record<PropertyKey, unknown>;
 type PickByValue<OBJ_T, VALUE_T> = // From https://stackoverflow.com/a/55153000
@@ -52,11 +53,16 @@ export interface Content {
   visualizations: Visualization[]
 }
 
-export type Visualization = MapVisualization
+export type Visualization = MapVisualization | ChartVisualization
 
 export interface MapVisualization {
   type: 'map',
-  data: Feature[]
+  schema: Feature[]
+}
+
+export interface ChartVisualization {
+  type: 'chart',
+  schema: TopLevelSpec
 }
 
 export interface Feature {

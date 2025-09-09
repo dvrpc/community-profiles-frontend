@@ -74,7 +74,6 @@ export default function VizMap(props: Props) {
                 map.addControl(geocoder, 'top-right');
                 map.addControl(new NavigationControl());
 
-                debugger
                 const sources = getSources(features)
                 const sourceLayers = features.map(f => f.sourceLayer)
                 for (const source in sources) map.addSource(source, sources[source]);
