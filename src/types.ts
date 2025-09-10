@@ -1,4 +1,10 @@
-import { SourceSpecification, LayerSpecification, FilterSpecification, DataDrivenPropertyValueSpecification, ColorSpecification } from "mapbox-gl";
+import {
+  SourceSpecification,
+  LayerSpecification,
+  FilterSpecification,
+  DataDrivenPropertyValueSpecification,
+  ColorSpecification,
+} from "mapbox-gl";
 import { MapMouseEvent, GeoJSONFeature } from "mapbox-gl";
 import { TopLevelSpec } from "vega-lite";
 
@@ -36,6 +42,7 @@ export type CategoryKeys =
 export type MouseEvent = MapMouseEvent & {
   features?: GeoJSONFeature[];
 };
+export type GeoJSONProperties = Record<string, string | number | boolean>;
 
 export interface LayerMap {
   [key: string]: LayerSpecification;
@@ -50,28 +57,28 @@ export type ProfileData = CountyData | MunicipalityData;
 export interface Content {
   category: CategoryKeys;
   content: string;
-  visualizations: Visualization[]
+  visualizations: Visualization[];
 }
 
-export type Visualization = MapVisualization | ChartVisualization
+export type Visualization = MapVisualization | ChartVisualization;
 
 export interface MapVisualization {
-  type: 'map',
-  schema: Feature[]
+  type: "map";
+  schema: Feature[];
 }
 
 export interface ChartVisualization {
-  type: 'chart',
-  schema: TopLevelSpec
+  type: "chart";
+  schema: TopLevelSpec;
 }
 
 export interface Feature {
   sourceUrl: string;
   sourceLayer: string;
-  geometry: 'Point' | 'Line' | 'Polygon';
+  geometry: "Point" | "Line" | "Polygon";
   baseColor?: string;
   filter?: FilterSpecification;
-  colorExpression?: DataDrivenPropertyValueSpecification<ColorSpecification>
+  colorExpression?: DataDrivenPropertyValueSpecification<ColorSpecification>;
 }
 
 export interface CountyData {

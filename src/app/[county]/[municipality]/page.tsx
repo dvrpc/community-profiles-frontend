@@ -49,7 +49,9 @@ export default async function Municipality(props: Params) {
               key={c.category}
               category={c.category}
               content={c.content}
-              visualizations={undefined}
+              visualizations={c.visualizations}
+              profileData={municipalityData}
+              geoLevel="municipality"
             />
           );
         })}

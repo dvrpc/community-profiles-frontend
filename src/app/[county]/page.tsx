@@ -27,21 +27,6 @@ export default async function County(props: Params) {
   );
   const content = (await contentResponse.json()) as Content[];
 
-  const getMapViz = (i: number) => {
-
-    if (i > 0) return []
-    const map = <VizMap key={i} buffer_box={countyData.buffer_bbox} geoLevel='county' geoid={countyData.geoid} features={[
-      {
-        sourceUrl: "https://tiles.dvrpc.org/data/transportation/circuittrails/",
-        sourceLayer: "circuittrails",
-        geometry: "Line",
-      }
-    ]} />
-
-    return [map]
-  }
-
-
   return (
     <div>
       <Hero
@@ -59,7 +44,7 @@ export default async function County(props: Params) {
               content={c.content}
               visualizations={c.visualizations}
               profileData={countyData}
-              geoLevel={'county'}
+              geoLevel={"county"}
             />
           );
         })}

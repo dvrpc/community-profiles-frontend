@@ -23,13 +23,13 @@ const defaultBounds = new LngLatBounds(
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
-  closeOnClick: false
+  closeOnClick: false,
 });
 
 mapboxgl.accessToken = ACCESS_TOKEN;
 
 export default function HeroMap(props: Props) {
-  const [hoverId, _setHoverId] = useState<string>("");
+  const [hoverId, setHoverId] = useState<string>("");
   const router = useRouter();
   const { buffer_box, geoid, geoLevel } = props;
 
@@ -41,10 +41,6 @@ export default function HeroMap(props: Props) {
   const hoverSource =
     geoLevel == "county" ? "municipalboundaries" : "countyboundaries";
   // ref required for hoverId as mounting/unmounting hover events is too slow for fast mouse movement
-  const setHoverId = (id: string) => {
-    hoverIdRef.current = id;
-    _setHoverId(id);
-  };
 
   const hoverGeoFill = (e: MouseEvent) => {
     if (!e.features) return;
@@ -55,7 +51,6 @@ export default function HeroMap(props: Props) {
 
     const topSource = e.features[0].source;
 
-    console.log(topSource);
     if (hoverSource == topSource) {
       map.getCanvas().style.cursor = "pointer";
     } else {
@@ -86,9 +81,11 @@ export default function HeroMap(props: Props) {
         { hover: true }
       );
       // Populate the popup and set its coordinates based on the feature found.
-      const properties = e.features[0].properties
-      if (!properties) return
-      const tooltipHTML = geoLevel ? properties.mun_name : properties.co_name + ' County'
+      const properties = e.features[0].properties;
+      if (!properties) return;
+      const tooltipHTML = geoLevel
+        ? properties.mun_name
+        : properties.co_name + " County";
       popup.setLngLat(e.lngLat.wrap()).setHTML(tooltipHTML).addTo(map);
     }
   };
@@ -113,7 +110,7 @@ export default function HeroMap(props: Props) {
       );
     }
     setHoverId("");
-    popup.remove()
+    popup.remove();
   };
 
   const handleClick = (e: MouseEvent) => {
@@ -137,7 +134,6 @@ export default function HeroMap(props: Props) {
   };
 
   useEffect(() => {
-
     if (mapContainer.current) {
       mapRef.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -178,9 +174,15 @@ export default function HeroMap(props: Props) {
         }
       });
 
-      return () => map.remove();
+      return () => {
+        map.remove();
+      };
     }
   }, []);
+
+  useEffect(() => {
+    hoverIdRef.current = hoverId;
+  }, [hoverId]);
 
   return (
     <div

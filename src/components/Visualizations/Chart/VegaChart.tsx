@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useRef } from "react";
 import { useVegaEmbed, VegaEmbed } from "react-vega";
@@ -6,8 +6,8 @@ import { EmbedOptions } from "vega-embed";
 import { TopLevelSpec } from "vega-lite";
 
 interface Props {
-    spec: TopLevelSpec
-    options?: EmbedOptions
+  spec: TopLevelSpec;
+  options?: EmbedOptions;
 }
 
 // export default function VegaChart(props: Props) {
@@ -18,46 +18,42 @@ interface Props {
 // }
 
 export default function VegaChart(props: Props) {
-    const { spec, options } = props
+  const { spec, options } = props;
 
-    const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
-    const embed = useVegaEmbed({
-        ref,
-        spec: {
-            ...spec,
-            width: "container",
-            autosize: {
-                contains: "padding",
-            },
-        },
-        options: {
-            mode: "vega-lite",
-        },
+  const embed = useVegaEmbed({
+    ref,
+    spec: {
+      ...spec,
+      width: "container",
+      autosize: {
+        contains: "padding",
+      },
+    },
+    options: {
+      mode: "vega-lite",
+    },
+  });
+
+  useEffect(() => {
+    if (!ref.current || !embed) return;
+
+    const observer = new ResizeObserver(() => {
+      window.dispatchEvent(new Event("resize"));
+      embed?.view.runAsync();
     });
 
-    useEffect(() => {
-        if (!ref.current || !embed) return;
+    observer.observe(ref.current);
 
-        const observer = new ResizeObserver(() => {
-            window.dispatchEvent(new Event("resize"));
-            embed?.view.runAsync();
-        });
+    return () => {
+      observer.disconnect();
+    };
+  }, [embed]);
 
-        observer.observe(ref.current);
-
-        return () => {
-            observer.disconnect();
-        };
-    }, [embed]);
-
-    return (
-        <div className="w-full flex">
-            <div
-                ref={ref}
-                className="flex-1 max-w-full"
-
-            />
-        </div>
-    );
-};
+  return (
+    <div className="w-full flex">
+      <div ref={ref} className="flex-1 max-w-full" />
+    </div>
+  );
+}

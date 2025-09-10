@@ -1,5 +1,3 @@
-"use client";
-
 import { CategoryKeys, getTypedObjectEntries } from "@/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
@@ -10,14 +8,11 @@ import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import CategoryButton from "./CategoryButton";
-import { JSX, useEffect, useRef, useState } from "react";
+import { JSX } from "react";
 import { categoryTitleMap } from "@/consts";
 
 export default function CategoryNav() {
-  const [isPinned, setIsPinned] = useState(false);
-  const stickyRef = useRef(null);
-
-  const iconHeight = isPinned ? "h-18" : "h-18";
+  const iconHeight = "h-18";
   const iconMap: Record<CategoryKeys, JSX.Element> = {
     "demographics-housing": (
       <DemographicHousingIcon fill="white" className={iconHeight} />
@@ -37,7 +32,7 @@ export default function CategoryNav() {
 
   //TODO: get sticky collapse to work properly
   return (
-    <div ref={stickyRef} className="bg-dvrpc-blue-3 flex justify-center p-4">
+    <div className="bg-dvrpc-blue-3 flex justify-center p-4">
       <div className="grid grid-cols-8">
         {entries.map(([key, value]) => {
           return (
