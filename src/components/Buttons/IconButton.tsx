@@ -11,7 +11,7 @@ export default function IconButton(props: Props) {
   return (
     <button
       type="button"
-      className="text-blue-700 border border-blue-700 hover:bg-blue-700 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center me-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800 dark:hover:bg-blue-500"
+      className="text-dvrpc-gray-1 hover:cursor-pointer hover:bg-dvrpc-gray-5 hover:text-white font-medium rounded-md p-2 text-center inline-flex items-center dark:hover:text-white"
       onClick={handleClick}
     >
       {icon}

@@ -5,7 +5,7 @@ import {
 } from "mapbox-gl";
 import { getCountyFromGeoid } from "@/lib/utils";
 
-const defaultColor = "#0078AE";
+export const defaultColor = "#0078AE";
 const defaultFillAccent = "#87B5D6";
 
 export default function getLayers(
@@ -13,12 +13,14 @@ export default function getLayers(
   geoLevel: GeoLevel,
   geoid: string
 ) {
-  const layers: LayerMap = {};
+  let layers: LayerMap = {};
 
   features.forEach((f) => {
-    if (f.geometry == "Point") layers[f.sourceLayer] = getPointLayer(f);
-    if (f.geometry == "Line") layers[f.sourceLayer] = getLineLayer(f);
-    if (f.geometry == "Polygon") layers[f.sourceLayer] = getFillLayer(f);
+    if (f.geometry == "Point")
+      layers[f.sourceLayer + "-point"] = { ...layers, ...getPointLayer(f) };
+    if (f.geometry == "Line")
+      layers[f.sourceLayer + "-line"] = { ...layers, ...getLineLayer(f) };
+    if (f.geometry == "Polygon") layers = { ...layers, ...getFillLayers(f) };
   });
 
   let boundaryLayers: LayerMap =
@@ -26,12 +28,14 @@ export default function getLayers(
       ? getCountyLayers(geoid)
       : getMunicipalityLayers(geoid);
 
+  console.log(layers);
+
   return { ...layers, ...boundaryLayers };
 }
 
 function getPointLayer(feature: Feature) {
   let color: string | DataDrivenPropertyValueSpecification<string> =
-    feature.baseColor ? feature.baseColor : defaultColor;
+    feature.color ? feature.color : defaultColor;
   if (feature.colorExpression) color = feature.colorExpression;
 
   const layer: LayerSpecification = {
@@ -95,7 +99,7 @@ function getPointLayer(feature: Feature) {
 
 function getLineLayer(feature: Feature) {
   let color: string | DataDrivenPropertyValueSpecification<string> =
-    feature.baseColor ? feature.baseColor : defaultColor;
+    feature.color ? feature.color : defaultColor;
   if (feature.colorExpression) color = feature.colorExpression;
 
   const layer: LayerSpecification = {
@@ -115,34 +119,55 @@ function getLineLayer(feature: Feature) {
       ],
     },
   };
+
+  console.log(layer);
   return layer;
 }
 
-function getFillLayer(feature: Feature) {
+function getFillLayers(feature: Feature) {
   let color: string | DataDrivenPropertyValueSpecification<string> =
-    feature.baseColor ? feature.baseColor : defaultColor;
+    feature.color ? feature.color : defaultColor;
   if (feature.colorExpression) color = feature.colorExpression;
 
   //TODO: fill accent color
-  const layer: LayerSpecification = {
-    id: feature.sourceLayer,
-    source: feature.sourceLayer,
-    "source-layer": feature.sourceLayer,
-    type: "fill",
-    paint: {
-      "fill-color": [
-        "case",
-        ["boolean", ["feature-state", "hover"], false],
-        defaultFillAccent,
-        ["boolean", ["feature-state", "selected"], false],
-        defaultFillAccent,
-        color,
-      ],
-      "fill-opacity": 0.8,
-      // 'fill-outline': 'transparent'
+  const layers: LayerMap = {
+    fillLayer: {
+      id: feature.sourceLayer,
+      source: feature.sourceLayer,
+      "source-layer": feature.sourceLayer,
+      type: "fill",
+      paint: {
+        "fill-color": [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          defaultFillAccent,
+          ["boolean", ["feature-state", "selected"], false],
+          defaultFillAccent,
+          color,
+        ],
+        "fill-opacity": 0.8,
+        // 'fill-outline': 'transparent'
+      },
+    },
+    outlineLayer: {
+      id: `${feature.sourceLayer}-outline`,
+      type: "line",
+      source: feature.sourceLayer,
+      "source-layer": feature.sourceLayer,
+      paint: {
+        "line-color": "#fff",
+        "line-width": [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          3,
+          ["boolean", ["feature-state", "selected"], false],
+          3,
+          0, //else
+        ],
+      },
     },
   };
-  return layer;
+  return layers;
 }
 
 function getCountyLayers(fips: string): LayerMap {

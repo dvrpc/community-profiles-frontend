@@ -93,7 +93,7 @@ export default function HeroLeftContent(props: Props) {
           <div className="flex">
             <EnvironmnentIcon fill="fill-dvrpc-gray-1" className="h-12 mr-2" />
             <div>
-              <span className="font-bold">GHG Emissions</span>
+              <span className="font-bold">Preserved Open Space</span>
               <br />
               <span>000</span>
             </div>

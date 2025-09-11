@@ -62,9 +62,12 @@ export interface Content {
 
 export type Visualization = MapVisualization | ChartVisualization;
 
+export type Geometry = "Point" | "Line" | "Polygon";
+
 export interface MapVisualization {
   type: "map";
-  schema: Feature[];
+  features: Feature[];
+  legendOverride?: LegendOverrideItem[];
 }
 
 export interface ChartVisualization {
@@ -75,10 +78,17 @@ export interface ChartVisualization {
 export interface Feature {
   sourceUrl: string;
   sourceLayer: string;
-  geometry: "Point" | "Line" | "Polygon";
-  baseColor?: string;
+  geometry: Geometry;
+  label: string;
+  color?: string;
   filter?: FilterSpecification;
   colorExpression?: DataDrivenPropertyValueSpecification<ColorSpecification>;
+}
+
+export interface LegendOverrideItem {
+  label: string;
+  geometry: Geometry;
+  color: string;
 }
 
 export interface CountyData {

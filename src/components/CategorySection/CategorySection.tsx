@@ -19,7 +19,8 @@ export default function CategorySection(props: Props) {
       return (
         <VizMap
           key={i}
-          features={viz.schema}
+          features={viz.features}
+          legendOverride={viz.legendOverride}
           buffer_box={profileData.buffer_bbox}
           geoLevel={geoLevel}
           geoid={profileData.geoid}
