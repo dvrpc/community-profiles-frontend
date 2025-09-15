@@ -64,12 +64,12 @@ function getCountyLayers(fips?: string): LayerMap {
 }
 
 function getMunicipalityLayers(geoid: string): LayerMap {
-  let type = geoid.length == 5 ? "county" : "municipality";
+  const type = geoid.length == 5 ? "county" : "municipality";
   const co_name = getCountyFromGeoid(geoid);
-  let municipalityFilter =
+  const municipalityFilter =
     type == "county" ? ["==", "co_name", co_name] : ["==", "dvrpc_reg", "Yes"];
 
-  let municipalityLayers: LayerMap = {
+  const municipalityLayers: LayerMap = {
     municipalityOutline: {
       id: " municipality-outline",
       type: "line",

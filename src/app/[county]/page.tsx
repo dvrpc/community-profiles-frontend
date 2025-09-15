@@ -5,7 +5,6 @@ import Hero from "@/components/Hero/Hero";
 import { Content, CountyData, CountySlug } from "@/types";
 import CategoryNav from "@/components/CategoryNav/CategoryNav";
 import CategorySection from "@/components/CategorySection/CategorySection";
-import VizMap from "@/components/Visualizations/VizMap/VizMap";
 
 interface Params {
   params: Promise<{
@@ -36,7 +35,7 @@ export default async function County(props: Params) {
       />
       <CategoryNav />
       <div>
-        {content.map((c, i) => {
+        {content.map(c => {
           return (
             <CategorySection
               key={c.category}
@@ -55,7 +54,6 @@ export default async function County(props: Params) {
 
 export async function generateMetadata(props: Params): Promise<Metadata> {
   const params = await props.params;
-  // const county = getCounty(params.county);
 
   const title = `${titleCase(params.county)} County`;
 

@@ -1,5 +1,3 @@
-import Image from "next/image";
-import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import React, { JSX } from "react";
 
 interface Props {

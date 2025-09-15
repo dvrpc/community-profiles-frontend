@@ -1,5 +1,5 @@
 "use client";
-import Select from "react-select";
+import Select, { OnChangeValue } from "react-select";
 
 import { CSSProperties } from "react";
 import { countyInfoMap, municipalityInfoMap } from "@/consts";
@@ -77,7 +77,9 @@ const formatGroupLabel = (data: GroupedOption) => (
 export default function SearchInput() {
   const router = useRouter();
 
-  function handleSelect(e: any) {
+  function handleSelect(e: OnChangeValue<SelectOption, false>) {
+    if (!e) return;
+
     if (!e.county) {
       router.push("/" + e.value);
     } else {

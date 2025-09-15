@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { titleCase } from "@/lib/utils";
 import Hero from "@/components/Hero/Hero";
 import CategoryNav from "@/components/CategoryNav/CategoryNav";

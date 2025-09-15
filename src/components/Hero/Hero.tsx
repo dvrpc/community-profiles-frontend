@@ -1,7 +1,7 @@
 import FadeMask from "./FadeMask";
 import HeroMap from "./HeroMap";
 import HeroLeftContent from "./HeroLeftContent";
-import { AllOrNothing, CountyData, GeoLevel, ProfileData } from "@/types";
+import { AllOrNothing, GeoLevel, ProfileData } from "@/types";
 
 interface HeroProps {
   geographyName: string;

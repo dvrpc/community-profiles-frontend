@@ -48,7 +48,7 @@ export default function Legend(props: Props) {
     }
   }
 
-  let legendFeatures = legendOverride ? legendOverride : features;
+  const legendFeatures = legendOverride ? legendOverride : features;
 
   return (
     <div className="mt-2 absolute right-2 bottom-6 p-2 z-10 bg-white shadow rounded-md text-sm">

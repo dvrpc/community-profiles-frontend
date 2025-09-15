@@ -2,7 +2,7 @@
 
 import { parseBounds } from "@/lib/utils";
 import mapboxgl, { Map, NavigationControl } from "mapbox-gl";
-import { JSX, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import getSources from "./mapSources";
 import getLayers from "./mapLayers";
 import {
@@ -39,11 +39,11 @@ const geocoder = new MapboxGeocoder({
   marker: false,
 });
 
-const tooltip = new mapboxgl.Popup({
-  anchor: "left",
-  offset: 15,
-  closeButton: false,
-});
+// const tooltip = new mapboxgl.Popup({
+//   anchor: "left",
+//   offset: 15,
+//   closeButton: false,
+// });
 
 interface HoverObject {
   id: string;
@@ -61,7 +61,6 @@ export default function VizMap(props: Props) {
 
   const { features, buffer_box, geoLevel, geoid, legendOverride } = props;
 
-  console.log(features);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>(null);
   const hoverRef = useRef<HoverObject | null>(null);
@@ -93,15 +92,53 @@ export default function VizMap(props: Props) {
     });
   }
 
-  const hoverGeoFill = (e: MouseEvent) => {
-    if (!e.features) return;
-    if (!mapRef.current) return;
-    mapRef.current.getCanvas().style.cursor = "pointer";
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
 
-    const topSource = e.features[0].source;
+    const hoverGeoFill = (e: MouseEvent) => {
+      if (!e.features) return;
+      if (!mapRef.current) return;
+      mapRef.current.getCanvas().style.cursor = "pointer";
 
-    if (topSource) {
-      if (hoverRef.current?.source) {
+      const topSource = e.features[0].source;
+
+      if (topSource) {
+        if (hoverRef.current?.source) {
+          mapRef.current.setFeatureState(
+            {
+              source: hoverRef.current.source,
+              sourceLayer: hoverRef.current.source,
+              id: hoverRef.current.id,
+            },
+            { hover: false }
+          );
+        }
+
+        const foundHoverId = e.features[0].id + "";
+        const foundHoverSource = e.features[0].source + "";
+
+        setHover({
+          id: foundHoverId,
+          source: foundHoverSource,
+        });
+
+        mapRef.current.setFeatureState(
+          {
+            source: foundHoverSource,
+            sourceLayer: foundHoverSource,
+            id: foundHoverId,
+          },
+          { hover: true }
+        );
+      }
+    };
+
+    const leaveGeoFill = () => {
+      if (!mapRef.current) return;
+
+      mapRef.current.getCanvas().style.cursor = "";
+
+      if (hoverRef.current) {
         mapRef.current.setFeatureState(
           {
             source: hoverRef.current.source,
@@ -111,76 +148,35 @@ export default function VizMap(props: Props) {
           { hover: false }
         );
       }
+      setHover(null);
+    };
 
-      const foundHoverId = e.features[0].id + "";
-      const foundHoverSource = e.features[0].source + "";
+    const handleClick = (e: MouseEvent) => {
+      if (!mapRef.current || !e.features) return;
 
-      setHover({
-        id: foundHoverId,
-        source: foundHoverSource,
+      if (selectRef.current) {
+        removeSelection();
+      }
+      const foundSelectId = e.features[0].id + "";
+      const foundSelectSource = e.features[0].source + "";
+      const foundProperties = e.features[0].properties;
+
+      setSelect({
+        id: foundSelectId,
+        source: foundSelectSource,
+        properties: foundProperties,
+        coordinates: e.lngLat,
       });
 
       mapRef.current.setFeatureState(
         {
-          source: foundHoverSource,
-          sourceLayer: foundHoverSource,
-          id: foundHoverId,
+          source: foundSelectSource,
+          sourceLayer: foundSelectSource,
+          id: foundSelectId,
         },
-        { hover: true }
+        { selected: true }
       );
-    }
-  };
-
-  const leaveGeoFill = () => {
-    if (!mapRef.current) return;
-
-    mapRef.current.getCanvas().style.cursor = "";
-
-    if (hoverRef.current) {
-      mapRef.current.setFeatureState(
-        {
-          source: hoverRef.current.source,
-          sourceLayer: hoverRef.current.source,
-          id: hoverRef.current.id,
-        },
-        { hover: false }
-      );
-    }
-    setHover(null);
-  };
-
-  const handleClick = (e: MouseEvent) => {
-    if (!mapRef.current || !e.features) return;
-
-    if (selectRef.current) {
-      removeSelection();
-    }
-    const foundSelectId = e.features[0].id + "";
-    const foundSelectSource = e.features[0].source + "";
-    const foundProperties = e.features[0].properties;
-
-    setSelect({
-      id: foundSelectId,
-      source: foundSelectSource,
-      properties: foundProperties,
-      coordinates: e.lngLat,
-    });
-
-    mapRef.current.setFeatureState(
-      {
-        source: foundSelectSource,
-        sourceLayer: foundSelectSource,
-        id: foundSelectId,
-      },
-      { selected: true }
-    );
-
-    e.features[0].properties;
-    // setAttributeTable(e);
-  };
-
-  useEffect(() => {
-    if (!mapContainerRef.current) return;
+    };
 
     mapRef.current = new mapboxgl.Map({
       container: mapContainerRef.current,
@@ -198,10 +194,9 @@ export default function VizMap(props: Props) {
       map.addControl(new NavigationControl());
 
       const sources = getSources(features);
-      console.log(features);
       for (const source in sources) map.addSource(source, sources[source]);
 
-      let layers = getLayers(features, geoLevel, geoid);
+      const layers = getLayers(features, geoLevel, geoid);
 
       for (const layer in layers) {
         const beforeId =
@@ -217,9 +212,10 @@ export default function VizMap(props: Props) {
     return () => {
       if (mapRef.current && mapContainerRef.current) {
         mapRef.current.remove();
+        mapContainerRef.current.remove()
       }
     };
-  }, []);
+  }, [bounds, features, geoLevel, geoid]);
 
   useEffect(() => {
     hoverRef.current = hover;

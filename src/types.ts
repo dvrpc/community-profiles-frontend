@@ -25,6 +25,7 @@ export function getTypedObjectEntries<OBJ_T extends ObjectType>(
   return Object.entries(obj) as ObjectEntries<OBJ_T>;
 }
 
+// eslint-disable-next-line
 export type AllOrNothing<T extends Record<string, any>> =
   | T
   | Partial<Record<keyof T, never>>;

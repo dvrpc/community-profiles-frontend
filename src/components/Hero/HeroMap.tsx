@@ -30,37 +30,80 @@ mapboxgl.accessToken = ACCESS_TOKEN;
 
 export default function HeroMap(props: Props) {
   const [hoverId, setHoverId] = useState<string>("");
-  const router = useRouter();
-  const { buffer_box, geoid, geoLevel } = props;
 
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>(null);
   const hoverIdRef = useRef(hoverId);
+  const router = useRouter();
 
-  const bounds = buffer_box ? parseBounds(buffer_box) : defaultBounds;
-  const hoverSource =
-    geoLevel == "county" ? "municipalboundaries" : "countyboundaries";
+
   // ref required for hoverId as mounting/unmounting hover events is too slow for fast mouse movement
 
-  const hoverGeoFill = (e: MouseEvent) => {
-    if (!e.features) return;
-    const map = mapRef.current;
-    if (!map) return;
 
-    const hoverId = hoverIdRef.current;
+  useEffect(() => {
+    const { buffer_box, geoid, geoLevel } = props;
+    const bounds = buffer_box ? parseBounds(buffer_box) : defaultBounds;
+    const hoverSource =
+      geoLevel == "county" ? "municipalboundaries" : "countyboundaries";
 
-    const topSource = e.features[0].source;
+    const hoverGeoFill = (e: MouseEvent) => {
+      if (!e.features) return;
+      const map = mapRef.current;
+      if (!map) return;
 
-    if (hoverSource == topSource) {
-      map.getCanvas().style.cursor = "pointer";
-    } else {
+      const hoverId = hoverIdRef.current;
+
+      const topSource = e.features[0].source;
+
+      if (hoverSource == topSource) {
+        map.getCanvas().style.cursor = "pointer";
+      } else {
+        map.getCanvas().style.cursor = "";
+      }
+
+      const foundHoverId = e.features[0].id + "";
+
+      if (e.features.length > 0) {
+        if (hoverId && foundHoverId !== hoverId) {
+          map.setFeatureState(
+            {
+              source: hoverSource,
+              sourceLayer: hoverSource,
+              id: hoverId,
+            },
+            { hover: false }
+          );
+        }
+
+        setHoverId(foundHoverId);
+        map.setFeatureState(
+          {
+            source: hoverSource,
+            sourceLayer: hoverSource,
+            id: foundHoverId,
+          },
+          { hover: true }
+        );
+        // Populate the popup and set its coordinates based on the feature found.
+        const properties = e.features[0].properties;
+        if (!properties) return;
+        const tooltipHTML = geoLevel
+          ? properties.mun_name
+          : properties.co_name + " County";
+        popup.setLngLat(e.lngLat.wrap()).setHTML(tooltipHTML).addTo(map);
+      }
+    };
+
+    // When the mouse leaves the state-fill layer, update the feature state of the
+    // previously hovered feature.
+    const leaveGeoFill = () => {
+      const map = mapRef.current;
+      if (!map) return;
+
+      const hoverId = hoverIdRef.current;
       map.getCanvas().style.cursor = "";
-    }
 
-    const foundHoverId = e.features[0].id + "";
-
-    if (e.features.length > 0) {
-      if (hoverId && foundHoverId !== hoverId) {
+      if (hoverId) {
         map.setFeatureState(
           {
             source: hoverSource,
@@ -70,70 +113,30 @@ export default function HeroMap(props: Props) {
           { hover: false }
         );
       }
+      setHoverId("");
+      popup.remove();
+    };
 
-      setHoverId(foundHoverId);
-      map.setFeatureState(
-        {
-          source: hoverSource,
-          sourceLayer: hoverSource,
-          id: foundHoverId,
-        },
-        { hover: true }
-      );
-      // Populate the popup and set its coordinates based on the feature found.
-      const properties = e.features[0].properties;
-      if (!properties) return;
-      const tooltipHTML = geoLevel
-        ? properties.mun_name
-        : properties.co_name + " County";
-      popup.setLngLat(e.lngLat.wrap()).setHTML(tooltipHTML).addTo(map);
-    }
-  };
+    const handleClick = (e: MouseEvent) => {
+      if (!e.features) return;
+      const selectedFeature = e.features[0];
+      const source = selectedFeature.source;
 
-  // When the mouse leaves the state-fill layer, update the feature state of the
-  // previously hovered feature.
-  const leaveGeoFill = () => {
-    const map = mapRef.current;
-    if (!map) return;
+      if (!selectedFeature.properties) return;
 
-    const hoverId = hoverIdRef.current;
-    map.getCanvas().style.cursor = "";
+      const county: string = selectedFeature.properties["co_name"].toLowerCase();
 
-    if (hoverId) {
-      map.setFeatureState(
-        {
-          source: hoverSource,
-          sourceLayer: hoverSource,
-          id: hoverId,
-        },
-        { hover: false }
-      );
-    }
-    setHoverId("");
-    popup.remove();
-  };
+      if (source == "countyboundaries") {
+        router.push("/" + county);
+      } else {
+        const municipality = getMunicipalitySlugFromGeoid(
+          county,
+          selectedFeature.properties["geoid"]
+        );
+        router.push(`/${county}/${municipality}`);
+      }
+    };
 
-  const handleClick = (e: MouseEvent) => {
-    if (!e.features) return;
-    const selectedFeature = e.features[0];
-    const source = selectedFeature.source;
-
-    if (!selectedFeature.properties) return;
-
-    const county: string = selectedFeature.properties["co_name"].toLowerCase();
-
-    if (source == "countyboundaries") {
-      router.push("/" + county);
-    } else {
-      const municipality = getMunicipalitySlugFromGeoid(
-        county,
-        selectedFeature.properties["geoid"]
-      );
-      router.push(`/${county}/${municipality}`);
-    }
-  };
-
-  useEffect(() => {
     if (mapContainer.current) {
       mapRef.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -151,7 +154,7 @@ export default function HeroMap(props: Props) {
       map.on("load", () => {
         for (const source in sources) map.addSource(source, sources[source]);
 
-        let layers = getLayers(geoid, geoLevel);
+        const layers = getLayers(geoid, geoLevel);
 
         for (const layer in layers) {
           const beforeId =
@@ -178,7 +181,7 @@ export default function HeroMap(props: Props) {
         map.remove();
       };
     }
-  }, []);
+  }, [props, router]);
 
   useEffect(() => {
     hoverIdRef.current = hoverId;

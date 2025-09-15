@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useVegaEmbed, VegaEmbed } from "react-vega";
+import { useVegaEmbed } from "react-vega";
 import { EmbedOptions } from "vega-embed";
 import { TopLevelSpec } from "vega-lite";
 
@@ -18,7 +18,7 @@ interface Props {
 // }
 
 export default function VegaChart(props: Props) {
-  const { spec, options } = props;
+  const { spec } = props;
 
   const ref = useRef<HTMLDivElement>(null);
 

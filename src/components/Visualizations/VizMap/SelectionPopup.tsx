@@ -1,6 +1,6 @@
 import IconButton from "@/components/Buttons/IconButton";
 import { GeoJSONProperties } from "@/types";
-import { MapPin, Minus, PinOff, TableIcon, X } from "lucide-react";
+import { MapPin, Minus, TableIcon, X } from "lucide-react";
 import { useState } from "react";
 
 interface Props {
