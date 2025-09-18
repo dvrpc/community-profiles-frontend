@@ -36,9 +36,7 @@ export default function HeroMap(props: Props) {
   const hoverIdRef = useRef(hoverId);
   const router = useRouter();
 
-
   // ref required for hoverId as mounting/unmounting hover events is too slow for fast mouse movement
-
 
   useEffect(() => {
     const { buffer_box, geoid, geoLevel } = props;
@@ -124,7 +122,8 @@ export default function HeroMap(props: Props) {
 
       if (!selectedFeature.properties) return;
 
-      const county: string = selectedFeature.properties["co_name"].toLowerCase();
+      const county: string =
+        selectedFeature.properties["co_name"].toLowerCase();
 
       if (source == "countyboundaries") {
         router.push("/" + county);
@@ -181,7 +180,7 @@ export default function HeroMap(props: Props) {
         map.remove();
       };
     }
-  }, [props, router]);
+  }, []);
 
   useEffect(() => {
     hoverIdRef.current = hoverId;

@@ -58,7 +58,6 @@ export type ProfileData = CountyData | MunicipalityData;
 export interface ProfileContent {
   category: CategoryKeys;
   content: string;
-  visualizations: Visualization[];
 }
 
 export type Visualization = MapVisualization | ChartVisualization;

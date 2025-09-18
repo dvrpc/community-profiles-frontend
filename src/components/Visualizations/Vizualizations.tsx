@@ -1,47 +1,67 @@
-"use client"
+"use client";
 
-import { GeoLevel, Visualization } from "@/types";
+import { CategoryKeys, GeoLevel, Visualization } from "@/types";
 import VizMap from "./VizMap/VizMap";
 import VegaChart from "./Chart/VegaChart";
 import { useInView } from "react-intersection-observer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
-    visualizations: Visualization[];
-    geoLevel: GeoLevel;
-    geoid: string;
-    buffer_bbox: string
+  category: CategoryKeys;
+  geoLevel: GeoLevel;
+  geoid: string;
+  buffer_bbox: string;
 }
 
 export default function Visualizations(props: Props) {
-    const { visualizations, geoLevel, geoid, buffer_bbox } = props
-    const { ref, inView, entry } = useInView({
-        /* Optional options */
-        threshold: 0,
+  const [visualizations, setVisualizations] = useState<Visualization[]>([]);
+  const { category, geoLevel, geoid, buffer_bbox } = props;
+  const { ref, inView } = useInView({
+    /* Optional options */
+    threshold: 0,
+  });
+
+  useEffect(() => {
+    if (visualizations.length > 0 || !inView) return;
+
+    const searchParams = new URLSearchParams({
+      geoid: geoid,
+      category: category,
     });
 
-    useEffect(() => {
-        console.log('in view')
-    }, [inView])
+    const fetchVisualizations = async () => {
+      const vizResponse = await fetch(
+        `http://127.0.0.1:8000/viz/${geoLevel}?` + searchParams
+      );
+      const data = (await vizResponse.json()) as Visualization[];
+      setVisualizations(data);
+    };
 
-    function getViz(viz: Visualization, i: number) {
-        if (viz.type == "map") {
-            return (
-                <VizMap
-                    key={i}
-                    features={viz.features}
-                    legendOverride={viz.legendOverride}
-                    buffer_box={buffer_bbox}
-                    geoLevel={geoLevel}
-                    geoid={geoid}
-                />
-            );
-        }
-        if (viz.type == "chart") {
-            return <VegaChart key={i} spec={viz.schema} />;
-        }
+    fetchVisualizations();
+  }, [inView]);
+
+  function getViz(viz: Visualization, i: number) {
+    if (viz.type == "map") {
+      return (
+        <VizMap
+          key={i}
+          features={viz.features}
+          legendOverride={viz.legendOverride}
+          buffer_box={buffer_bbox}
+          geoLevel={geoLevel}
+          geoid={geoid}
+        />
+      );
     }
-    return (<div ref={ref}>
-        {visualizations && visualizations.map((viz, i) => getViz(viz, i))}
-    </div>)
+    if (viz.type == "chart") {
+      return <VegaChart key={i} spec={viz.schema} />;
+    }
+  }
+
+  //
+  return (
+    <div ref={ref}>
+      {visualizations && visualizations.map((viz, i) => getViz(viz, i))}
+    </div>
+  );
 }

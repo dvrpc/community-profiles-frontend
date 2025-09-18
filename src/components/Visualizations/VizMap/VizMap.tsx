@@ -212,10 +212,10 @@ export default function VizMap(props: Props) {
     return () => {
       if (mapRef.current && mapContainerRef.current) {
         mapRef.current.remove();
-        mapContainerRef.current.remove()
+        mapContainerRef.current.remove();
       }
     };
-  }, [bounds, features, geoLevel, geoid]);
+  }, []);
 
   useEffect(() => {
     hoverRef.current = hover;

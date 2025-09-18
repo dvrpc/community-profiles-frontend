@@ -1,3 +1,4 @@
+"use client";
 import { CategoryKeys, getTypedObjectEntries } from "@/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
@@ -8,11 +9,40 @@ import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import CategoryButton from "./CategoryButton";
-import { JSX } from "react";
+import { JSX, useEffect, useRef, useState } from "react";
 import { categoryTitleMap } from "@/consts";
 
 export default function CategoryNav() {
-  const iconHeight = "h-18";
+  const [isPinned, setIsPinned] = useState(false);
+
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+
+        if (rect.bottom < 0 && !isPinned) {
+          setIsPinned(true);
+        }
+        if (window.scrollY < window.innerHeight) {
+          setIsPinned(false);
+        }
+
+        console.log(rect.bottom);
+        console.log(window.scrollY);
+        console.log(window.scrollY < window.innerHeight);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    // Initial check when component mounts
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const iconHeight = isPinned ? "h-8" : "h-18";
   const iconMap: Record<CategoryKeys, JSX.Element> = {
     "demographics-housing": (
       <DemographicHousingIcon fill="white" className={iconHeight} />
@@ -32,7 +62,12 @@ export default function CategoryNav() {
 
   //TODO: get sticky collapse to work properly
   return (
-    <div className="bg-dvrpc-blue-3 flex justify-center p-4">
+    <div
+      ref={ref}
+      className={`bg-dvrpc-blue-3 flex justify-center p-4 z-100000 ${
+        isPinned ? "fixed top-0" : ""
+      }`}
+    >
       <div className="grid grid-cols-8">
         {entries.map(([key, value]) => {
           return (
@@ -41,7 +76,7 @@ export default function CategoryNav() {
               name={categoryTitleMap[key]}
               icon={value}
               href={`#${key}`}
-              isPinned={false}
+              isPinned={isPinned}
             />
           );
         })}

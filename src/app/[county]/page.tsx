@@ -4,7 +4,6 @@ import { countyInfoMap } from "@/consts";
 import Hero from "@/components/Hero/Hero";
 import { ProfileContent, CountyData, CountySlug } from "@/types";
 import CategoryNav from "@/components/CategoryNav/CategoryNav";
-import CategorySection from "@/components/CategorySection/CategorySection";
 import Content from "@/components/Content/Content";
 
 interface Params {

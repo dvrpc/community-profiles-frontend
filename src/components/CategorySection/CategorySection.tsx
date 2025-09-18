@@ -9,13 +9,10 @@ interface Props {
   content: string;
   profileData: ProfileData;
   geoLevel: GeoLevel;
-  visualizations?: Visualization[];
 }
 
 export default function CategorySection(props: Props) {
-  const { category, content, profileData, geoLevel, visualizations } = props;
-
-
+  const { category, content, profileData, geoLevel } = props;
 
   return (
     <div className="p-16">
@@ -30,7 +27,12 @@ export default function CategorySection(props: Props) {
           />
         </div>
         <div className="w-2/3 ml-16">
-          {visualizations && <Visualizations visualizations={visualizations} geoLevel={geoLevel} geoid={profileData.geoid} buffer_bbox={profileData.buffer_bbox} />}
+          <Visualizations
+            category={category}
+            geoLevel={geoLevel}
+            geoid={profileData.geoid}
+            buffer_bbox={profileData.buffer_bbox}
+          />
         </div>
       </div>
     </div>
