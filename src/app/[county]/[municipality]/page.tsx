@@ -4,13 +4,14 @@ import Hero from "@/components/Hero/Hero";
 import CategoryNav from "@/components/CategoryNav/CategoryNav";
 import { municipalityInfoMap } from "@/consts";
 import {
-  Content,
+  ProfileContent,
   CountySlug,
   MunicipalityData,
   MunicipalitySlug,
 } from "@/types";
 import CategorySection from "@/components/CategorySection/CategorySection";
 import { getAllCountyMunicipalityPairs } from "@/lib/api";
+import Content from "@/components/Content/Content";
 
 type Params = {
   params: Promise<{
@@ -31,7 +32,7 @@ export default async function Municipality(props: Params) {
   const contentResponse = await fetch(
     "http://127.0.0.1:8000/content/municipality/" + geoid
   );
-  const content = (await contentResponse.json()) as Content[];
+  const content = (await contentResponse.json()) as ProfileContent[];
 
   return (
     <div>
@@ -41,20 +42,7 @@ export default async function Municipality(props: Params) {
         geoLevel="municipality"
       />
       <CategoryNav />
-      <div>
-        {content.map((c) => {
-          return (
-            <CategorySection
-              key={c.category}
-              category={c.category}
-              content={c.content}
-              visualizations={c.visualizations}
-              profileData={municipalityData}
-              geoLevel="municipality"
-            />
-          );
-        })}
-      </div>
+      <Content content={content} data={municipalityData} geoLevel='municipality' />
     </div>
   );
 }

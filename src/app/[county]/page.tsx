@@ -2,9 +2,10 @@ import { Metadata } from "next";
 import { titleCase } from "@/lib/utils";
 import { countyInfoMap } from "@/consts";
 import Hero from "@/components/Hero/Hero";
-import { Content, CountyData, CountySlug } from "@/types";
+import { ProfileContent, CountyData, CountySlug } from "@/types";
 import CategoryNav from "@/components/CategoryNav/CategoryNav";
 import CategorySection from "@/components/CategorySection/CategorySection";
+import Content from "@/components/Content/Content";
 
 interface Params {
   params: Promise<{
@@ -24,7 +25,7 @@ export default async function County(props: Params) {
   const contentResponse = await fetch(
     "http://127.0.0.1:8000/content/county/" + geoid
   );
-  const content = (await contentResponse.json()) as Content[];
+  const content = (await contentResponse.json()) as ProfileContent[];
 
   return (
     <div>
@@ -34,20 +35,7 @@ export default async function County(props: Params) {
         geoLevel="county"
       />
       <CategoryNav />
-      <div>
-        {content.map(c => {
-          return (
-            <CategorySection
-              key={c.category}
-              category={c.category}
-              content={c.content}
-              visualizations={c.visualizations}
-              profileData={countyData}
-              geoLevel={"county"}
-            />
-          );
-        })}
-      </div>
+      <Content content={content} data={countyData} geoLevel="county" />
     </div>
   );
 }

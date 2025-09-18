@@ -55,7 +55,7 @@ export interface SourceMap {
 
 export type ProfileData = CountyData | MunicipalityData;
 
-export interface Content {
+export interface ProfileContent {
   category: CategoryKeys;
   content: string;
   visualizations: Visualization[];
