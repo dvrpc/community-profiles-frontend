@@ -13,36 +13,36 @@ import { JSX, useEffect, useRef, useState } from "react";
 import { categoryTitleMap } from "@/consts";
 
 export default function CategoryNav() {
-  const [isPinned, setIsPinned] = useState(false);
+  // const [isPinned, setIsPinned] = useState(false);
 
-  const ref = useRef<HTMLDivElement>(null);
+  // const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (ref.current) {
-        const rect = ref.current.getBoundingClientRect();
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     if (ref.current) {
+  //       const rect = ref.current.getBoundingClientRect();
 
-        if (rect.bottom < 0 && !isPinned) {
-          setIsPinned(true);
-        }
-        if (window.scrollY < window.innerHeight) {
-          setIsPinned(false);
-        }
+  //       if (rect.top < 0 && !isPinned) {
+  //         setIsPinned(true);
+  //       }
+  //       if (window.scrollY < window.innerHeight) {
+  //         setIsPinned(false);
+  //       }
 
-        console.log(rect.bottom);
-        console.log(window.scrollY);
-        console.log(window.scrollY < window.innerHeight);
-      }
-    };
+  //       console.log(rect.bottom);
+  //       console.log(window.scrollY);
+  //       console.log(window.scrollY < window.innerHeight);
+  //     }
+  //   };
 
-    window.addEventListener("scroll", handleScroll);
-    // Initial check when component mounts
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  //   window.addEventListener("scroll", handleScroll);
+  //   // Initial check when component mounts
+  //   return () => {
+  //     window.removeEventListener("scroll", handleScroll);
+  //   };
+  // }, []);
 
-  const iconHeight = isPinned ? "h-8" : "h-18";
+  const iconHeight = "h-10";
   const iconMap: Record<CategoryKeys, JSX.Element> = {
     "demographics-housing": (
       <DemographicHousingIcon fill="white" className={iconHeight} />
@@ -63,10 +63,8 @@ export default function CategoryNav() {
   //TODO: get sticky collapse to work properly
   return (
     <div
-      ref={ref}
-      className={`bg-dvrpc-blue-3 flex justify-center p-4 z-100000 ${
-        isPinned ? "fixed top-0" : ""
-      }`}
+      // ref={ref}
+      className="bg-dvrpc-blue-3 flex justify-center p-4 z-100000 sticky top-0"
     >
       <div className="grid grid-cols-8">
         {entries.map(([key, value]) => {
@@ -76,7 +74,7 @@ export default function CategoryNav() {
               name={categoryTitleMap[key]}
               icon={value}
               href={`#${key}`}
-              isPinned={isPinned}
+              isPinned={false}
             />
           );
         })}

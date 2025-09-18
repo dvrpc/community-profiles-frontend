@@ -13,11 +13,10 @@ export default function CategoryButton(props: Props) {
   return (
     <a
       href={href}
-      className={`text-white flex justify-start ${isPinned ? "flex-row" : "flex-col"
-        }`}
+      className={`text-white flex justify-center items-center flex-column gap-2`}
     >
       {icon}
-      <span className="text-center text-lg text-li">{name}</span>
+      <span className={`text-center font-bold`}>{name}</span>
     </a>
   );
 }
