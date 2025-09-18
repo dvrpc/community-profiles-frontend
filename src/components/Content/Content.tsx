@@ -1,6 +1,5 @@
 import { CountyData, GeoLevel, MunicipalityData, ProfileContent, ProfileData } from "@/types";
 import CategorySection from "../CategorySection/CategorySection";
-import { useEffect } from "react";
 
 interface Props {
     content: ProfileContent[];

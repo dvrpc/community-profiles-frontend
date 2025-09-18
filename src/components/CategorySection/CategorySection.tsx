@@ -2,6 +2,7 @@ import { categoryTitleMap } from "@/consts";
 import { CategoryKeys, GeoLevel, ProfileData, Visualization } from "@/types";
 import VizMap from "../Visualizations/VizMap/VizMap";
 import VegaChart from "../Visualizations/Chart/VegaChart";
+import Visualizations from "../Visualizations/Vizualizations";
 
 interface Props {
   category: CategoryKeys;
@@ -14,23 +15,7 @@ interface Props {
 export default function CategorySection(props: Props) {
   const { category, content, profileData, geoLevel, visualizations } = props;
 
-  function getViz(viz: Visualization, i: number) {
-    if (viz.type == "map") {
-      return (
-        <VizMap
-          key={i}
-          features={viz.features}
-          legendOverride={viz.legendOverride}
-          buffer_box={profileData.buffer_bbox}
-          geoLevel={geoLevel}
-          geoid={profileData.geoid}
-        />
-      );
-    }
-    if (viz.type == "chart") {
-      return <VegaChart key={i} spec={viz.schema} />;
-    }
-  }
+
 
   return (
     <div className="p-16">
@@ -45,7 +30,7 @@ export default function CategorySection(props: Props) {
           />
         </div>
         <div className="w-2/3 ml-16">
-          {visualizations && visualizations.map((viz, i) => getViz(viz, i))}
+          {visualizations && <Visualizations visualizations={visualizations} geoLevel={geoLevel} geoid={profileData.geoid} buffer_bbox={profileData.buffer_bbox} />}
         </div>
       </div>
     </div>
