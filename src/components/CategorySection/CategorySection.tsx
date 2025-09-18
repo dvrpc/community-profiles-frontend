@@ -39,7 +39,10 @@ export default function CategorySection(props: Props) {
       </h2>
       <div className="flex">
         <div className="w-1/3">
-          <div dangerouslySetInnerHTML={{ __html: content }} />
+          <div
+            className="flex flex-col gap-4"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
         </div>
         <div className="w-2/3 ml-16">
           {visualizations && visualizations.map((viz, i) => getViz(viz, i))}
