@@ -40,6 +40,7 @@ export type CategoryKeys =
   | "roadways"
   | "safety-health"
   | "transit";
+
 export type MouseEvent = MapMouseEvent & {
   features?: GeoJSONFeature[];
 };
@@ -55,12 +56,19 @@ export interface SourceMap {
 
 export type ProfileData = CountyData | MunicipalityData;
 
-export interface ProfileContent {
-  category: CategoryKeys;
+export type ProfileContent = Record<CategoryKeys, SubcategoryContent>
+
+export type SubcategoryContent = Record<string, TopicContent[]>
+
+export interface TopicContent {
+  name: string;
   content: string;
 }
 
-export type Visualization = MapVisualization | ChartVisualization;
+export type Visualization = (MapVisualization | ChartVisualization) & {
+  subcategory: string;
+  topic?: string;
+};
 
 export type Geometry = "Point" | "Line" | "Polygon";
 

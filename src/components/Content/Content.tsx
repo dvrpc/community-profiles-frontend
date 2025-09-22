@@ -1,14 +1,15 @@
 import {
+  CategoryKeys,
   CountyData,
   GeoLevel,
   MunicipalityData,
   ProfileContent,
   ProfileData,
 } from "@/types";
-import CategorySection from "../CategorySection/CategorySection";
+import CategorySection from "./Category";
 
 interface Props {
-  content: ProfileContent[];
+  content: ProfileContent;
   data: ProfileData;
   geoLevel: GeoLevel;
 }
@@ -17,12 +18,13 @@ export default function Content(props: Props) {
 
   return (
     <div>
-      {content.map((c) => {
+      {Object.entries(content).map(([key, value]) => {
+        const category = key as CategoryKeys
         return (
           <CategorySection
-            key={c.category}
-            category={c.category}
-            content={c.content}
+            key={category}
+            category={category}
+            subcategories={value}
             profileData={data}
             geoLevel={geoLevel}
           />

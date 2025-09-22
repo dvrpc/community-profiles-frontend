@@ -24,7 +24,7 @@ export default async function County(props: Params) {
   const contentResponse = await fetch(
     "http://127.0.0.1:8000/content/county/" + geoid
   );
-  const content = (await contentResponse.json()) as ProfileContent[];
+  const content = (await contentResponse.json()) as ProfileContent;
 
   return (
     <div>

@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 
 interface Props {
   category: CategoryKeys;
+  subcategory: string;
+  topic: string;
   geoLevel: GeoLevel;
   geoid: string;
   buffer_bbox: string;
@@ -15,7 +17,7 @@ interface Props {
 
 export default function Visualizations(props: Props) {
   const [visualizations, setVisualizations] = useState<Visualization[]>([]);
-  const { category, geoLevel, geoid, buffer_bbox } = props;
+  const { category, subcategory, topic, geoLevel, geoid, buffer_bbox } = props;
   const { ref, inView } = useInView({
     /* Optional options */
     threshold: 0,
@@ -27,6 +29,8 @@ export default function Visualizations(props: Props) {
     const searchParams = new URLSearchParams({
       geoid: geoid,
       category: category,
+      subcategory: subcategory,
+      topic: topic
     });
 
     const fetchVisualizations = async () => {

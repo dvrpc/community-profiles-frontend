@@ -9,7 +9,7 @@ import {
   MunicipalityData,
   MunicipalitySlug,
 } from "@/types";
-import CategorySection from "@/components/CategorySection/CategorySection";
+import CategorySection from "@/components/Content/Category";
 import { getAllCountyMunicipalityPairs } from "@/lib/api";
 import Content from "@/components/Content/Content";
 
@@ -32,7 +32,7 @@ export default async function Municipality(props: Params) {
   const contentResponse = await fetch(
     "http://127.0.0.1:8000/content/municipality/" + geoid
   );
-  const content = (await contentResponse.json()) as ProfileContent[];
+  const content = (await contentResponse.json()) as ProfileContent;
 
   return (
     <div>

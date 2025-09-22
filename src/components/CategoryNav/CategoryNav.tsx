@@ -17,30 +17,17 @@ export default function CategoryNav() {
 
   // const ref = useRef<HTMLDivElement>(null);
 
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     if (ref.current) {
-  //       const rect = ref.current.getBoundingClientRect();
+  useEffect(() => {
+    const handleScroll = () => {
+      console.log(scrollY)
+    };
 
-  //       if (rect.top < 0 && !isPinned) {
-  //         setIsPinned(true);
-  //       }
-  //       if (window.scrollY < window.innerHeight) {
-  //         setIsPinned(false);
-  //       }
-
-  //       console.log(rect.bottom);
-  //       console.log(window.scrollY);
-  //       console.log(window.scrollY < window.innerHeight);
-  //     }
-  //   };
-
-  //   window.addEventListener("scroll", handleScroll);
-  //   // Initial check when component mounts
-  //   return () => {
-  //     window.removeEventListener("scroll", handleScroll);
-  //   };
-  // }, []);
+    window.addEventListener("scroll", handleScroll);
+    // Initial check when component mounts
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const iconHeight = "h-10";
   const iconMap: Record<CategoryKeys, JSX.Element> = {
