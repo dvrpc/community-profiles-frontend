@@ -4,11 +4,11 @@ interface Props {
   name: string;
   icon: JSX.Element;
   href: string;
-  isPinned: boolean;
+  isActive: boolean;
 }
 
 export default function CategoryButton(props: Props) {
-  const { name, icon, href, isPinned } = props;
+  const { name, icon, href, isActive } = props;
 
   return (
     <a
@@ -17,6 +17,7 @@ export default function CategoryButton(props: Props) {
     >
       {icon}
       <span className={`text-center font-bold`}>{name}</span>
+      {isActive && <span>active</span>}
     </a>
   );
 }

@@ -46,3 +46,10 @@ export function parseBounds(buffer_box: string) {
   };
   return new LngLatBounds(swLngLat, neLngLat);
 }
+
+export function displaySubcategoryTopicTitle(title: string) {
+  return title
+    .replace(/-/g, ' ')
+    .replace(/\band\b/gi, '&')
+    .replace(/\b\w/g, char => char.toUpperCase());
+}

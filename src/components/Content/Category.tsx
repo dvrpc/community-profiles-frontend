@@ -4,6 +4,7 @@ import VizMap from "../Visualizations/VizMap/VizMap";
 import VegaChart from "../Visualizations/Chart/VegaChart";
 import Visualizations from "../Visualizations/Vizualizations";
 import Subcategory from "./Subcategory";
+import ScrollNode from "./ScrollNode";
 
 interface Props {
   category: CategoryKeys
@@ -18,6 +19,7 @@ export default function CategorySection(props: Props) {
 
   return (
     <div className="p-16">
+      <ScrollNode key={category} level='category' />
       <h2 id={category} className="text-4xl text-dvrpc-blue-1 font-bold mb-8 text-center">
         {categoryTitleMap[category]}
       </h2>

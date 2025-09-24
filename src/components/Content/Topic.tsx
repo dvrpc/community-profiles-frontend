@@ -1,5 +1,6 @@
 import { CategoryKeys, GeoLevel } from "@/types";
 import Visualizations from "../Visualizations/Vizualizations";
+import { displaySubcategoryTopicTitle } from "@/lib/utils";
 
 interface Props {
     name: string;
@@ -17,7 +18,7 @@ export default function Topic(props: Props) {
     const { name, content, category, subcategory, geoid, buffer_bbox, geoLevel } = props
     return (
         <div className="py-6">
-            <h4 className="text-2xl">{name}</h4>
+            <h4 className="text-2xl">{displaySubcategoryTopicTitle(name)}</h4>
             <div className="flex flex-row ">
                 <div
                     className="w-1/3 flex flex-col gap-4"

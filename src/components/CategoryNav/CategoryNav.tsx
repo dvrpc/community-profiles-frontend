@@ -1,4 +1,3 @@
-"use client";
 import { CategoryKeys, getTypedObjectEntries } from "@/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
@@ -9,25 +8,11 @@ import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import CategoryButton from "./CategoryButton";
-import { JSX, useEffect, useRef, useState } from "react";
+import { JSX } from "react";
 import { categoryTitleMap } from "@/consts";
 
 export default function CategoryNav() {
-  // const [isPinned, setIsPinned] = useState(false);
 
-  // const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      console.log(scrollY)
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    // Initial check when component mounts
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   const iconHeight = "h-10";
   const iconMap: Record<CategoryKeys, JSX.Element> = {
@@ -61,7 +46,7 @@ export default function CategoryNav() {
               name={categoryTitleMap[key]}
               icon={value}
               href={`#${key}`}
-              isPinned={false}
+              isActive={false}
             />
           );
         })}

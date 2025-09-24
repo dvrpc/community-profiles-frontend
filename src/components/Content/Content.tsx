@@ -1,8 +1,6 @@
 import {
   CategoryKeys,
-  CountyData,
   GeoLevel,
-  MunicipalityData,
   ProfileContent,
   ProfileData,
 } from "@/types";
