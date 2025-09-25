@@ -1,2 +1,6 @@
-export const titleCase = (str: string) =>
-  str.replace(/-/g, " ").replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}

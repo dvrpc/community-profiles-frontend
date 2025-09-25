@@ -1,22 +1,42 @@
 import FadeMask from "./FadeMask";
 import HeroMap from "./HeroMap";
 import HeroLeftContent from "./HeroLeftContent";
-import { CountyData, ProfileData } from "@/types";
+import { AllOrNothing, GeoLevel, ProfileData } from "@/types";
 
-interface Props {
-  geographyName?: string;
-  profileData?: ProfileData;
+interface HeroProps {
+  geographyName: string;
+  profileData: ProfileData;
+  geoLevel: GeoLevel;
 }
 
-export default function Hero(props: Props) {
-  const { geographyName, profileData } = props;
-  const title = geographyName ? geographyName : "Community Profiles";
+type Props = AllOrNothing<HeroProps>;
 
-  return (
-    <div className="flex">
-      <HeroLeftContent title={title} profileData={profileData} />
-      <FadeMask />
-      <HeroMap buffer_box={profileData?.buffer_bbox} fips={profileData?.fips} />
-    </div>
-  );
+export default function Hero(props: Props) {
+  const { geographyName, profileData, geoLevel } = props;
+
+  if (geoLevel) {
+    return (
+      <div className="flex">
+        <HeroLeftContent
+          title={geographyName}
+          profileData={profileData}
+          geoLevel={geoLevel}
+        />
+        <FadeMask />
+        <HeroMap
+          buffer_box={profileData.buffer_bbox}
+          geoid={profileData.geoid}
+          geoLevel={geoLevel}
+        />
+      </div>
+    );
+  } else {
+    return (
+      <div className="flex">
+        <HeroLeftContent title={"Community Profiles"} />
+        <FadeMask />
+        <HeroMap />
+      </div>
+    );
+  }
 }

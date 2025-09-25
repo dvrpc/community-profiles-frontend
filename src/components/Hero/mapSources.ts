@@ -1,9 +1,13 @@
 import { SourceMap } from "@/types";
 
 const sources: SourceMap = {
-  countyBoundaries: {
+  countyboundaries: {
     type: "vector",
     url: "https://tiles.dvrpc.org/data/boundaries/countyboundaries",
+  },
+  municipalboundaries: {
+    type: "vector",
+    url: "https://tiles.dvrpc.org/data/boundaries/municipalboundaries",
   },
 };
 

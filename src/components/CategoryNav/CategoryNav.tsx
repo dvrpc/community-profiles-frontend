@@ -1,3 +1,5 @@
+"use client";
+import { CategoryKeyMap, CategoryKeys, getTypedObjectEntries } from "@/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import EconomyIcon from "../Icons/EconomyIcon";
@@ -7,53 +9,82 @@ import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import CategoryButton from "./CategoryButton";
+import { JSX, useEffect, useRef, useState } from "react";
+import { categoryTitleMap } from "@/consts";
+import { useScrollContext } from "@/context/ScrollProvider";
+import SubcategoryNav from "./SubcategoryNav";
 
-export default function CategoryNav() {
+interface Props {
+  categoryKeyMap: CategoryKeyMap;
+}
+export default function CategoryNav(props: Props) {
+  const { activeCategory, activeSubcategory } = useScrollContext();
+  const stickyRef = useRef(null);
+  const [isPinned, setIsPinned] = useState(false);
+  const { categoryKeyMap } = props;
+
+  const iconHeight = "h-10";
+  const iconMap: Record<CategoryKeys, JSX.Element> = {
+    "demographics-housing": (
+      <DemographicHousingIcon fill="white" className={iconHeight} />
+    ),
+    economy: <EconomyIcon fill="white" className={iconHeight} />,
+    "active-transportation": (
+      <ActiveTransportationIcon fill="white" className={iconHeight} />
+    ),
+    "safety-health": <SafetyHealthIcon fill="white" className={iconHeight} />,
+    freight: <FreightIcon fill="white" className={iconHeight} />,
+    environment: <EnvironmnentIcon fill="white" className={iconHeight} />,
+    transit: <TransitIcon fill="white" className={iconHeight} />,
+    roadways: <RoadwaysIcon fill="white" className={iconHeight} />,
+  };
+
+  const entries = getTypedObjectEntries(iconMap);
+
+  useEffect(() => {
+    if (!stickyRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsPinned(entry.intersectionRatio < 1);
+      },
+      {
+        threshold: [1],
+      }
+    );
+
+    observer.observe(stickyRef.current);
+
+    return () => {
+      if (stickyRef.current) {
+        observer.unobserve(stickyRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="bg-dvrpc-blue-3 flex justify-center p-4">
-      <div className="grid grid-cols-8">
-        <CategoryButton
-          name="Demographics & Housing"
-          icon={<DemographicHousingIcon fill="white" className='h-18' />}
-          href="#demographics-housing"
-        />
-        <CategoryButton
-          name="Economy"
-          icon={<EconomyIcon fill="white" className='h-18' />}
-          href="#economy"
-        />
-
-        <CategoryButton
-          name="Active Transportation"
-          icon={<ActiveTransportationIcon fill="white" className='h-18' />}
-          href="#active-transportation"
-        />
-        <CategoryButton
-          name="Safety & Health"
-          icon={<SafetyHealthIcon fill="white" className='h-18' />}
-          href="#safety-health"
-        />
-        <CategoryButton
-          name="Freight"
-          icon={<FreightIcon fill="white" className='h-18' />}
-          href="#freight"
-        />
-        <CategoryButton
-          name="Environment"
-          icon={<EnvironmnentIcon fill="white" className='h-18' />}
-          href="#environment"
-        />
-        <CategoryButton
-          name="Transit"
-          icon={<TransitIcon fill="white" className='h-18' />}
-          href="#transit"
-        />
-        <CategoryButton
-          name="Roadways"
-          icon={<RoadwaysIcon fill="white" className='h-18' />}
-          href="#roadways"
-        />
+    <div
+      ref={stickyRef}
+      className="bg-dvrpc-blue-3 flex flex-col z-100000 sticky top-[-1px]"
+    >
+      <div className={`justify-center px-4 pt-4 grid grid-cols-8`}>
+        {entries.map(([key, value]) => {
+          return (
+            <CategoryButton
+              key={key}
+              name={categoryTitleMap[key]}
+              icon={value}
+              href={`#${key}`}
+              isActive={isPinned && activeCategory == key}
+            />
+          );
+        })}
       </div>
+      <SubcategoryNav
+        isVisible={isPinned}
+        subcategoryKeyMap={categoryKeyMap[activeCategory]}
+        activeSubcategory={activeSubcategory}
+      />
     </div>
   );
 }
