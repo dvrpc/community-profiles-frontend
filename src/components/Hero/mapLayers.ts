@@ -1,5 +1,5 @@
 import { GeoLevel, LayerMap } from "@/types";
-import { getCountyFromGeoid } from "@/lib/utils";
+import { getCountyFromGeoid } from "@/utils";
 
 const defaultMaskFilter = ["==", "dvrpc_reg", "Yes"];
 

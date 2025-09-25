@@ -1,10 +1,11 @@
-import { CategoryKeys } from "./types";
+import { CategoryKeys, CategoryKeyMap } from "./types";
 
 export const HEADER_HEIGHT = 172;
 export const NAV_HEIGHT = 64;
 export const REMAINING_VIEWPORT_HEIGHT_PROPERTY = `h-[calc(100vh-236px)]`;
 
-export const ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
+export const ACCESS_TOKEN = process.env
+  .NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 export const categoryTitleMap: Record<CategoryKeys, string> = {
   "active-transportation": "Active Transportation",
@@ -15,6 +16,17 @@ export const categoryTitleMap: Record<CategoryKeys, string> = {
   roadways: "Roadways",
   "safety-health": "Safety & Health",
   transit: "Transit",
+};
+
+export const emptyCategoryMap: CategoryKeyMap = {
+  "active-transportation": {},
+  "demographics-housing": {},
+  economy: {},
+  environment: {},
+  freight: {},
+  roadways: {},
+  "safety-health": {},
+  transit: {},
 };
 
 export const CATEGORIES: CategoryKeys[] = [

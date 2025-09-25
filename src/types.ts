@@ -56,9 +56,12 @@ export interface SourceMap {
 
 export type ProfileData = CountyData | MunicipalityData;
 
-export type ProfileContent = Record<CategoryKeys, SubcategoryContent>
+export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
 
-export type SubcategoryContent = Record<string, TopicContent[]>
+export type SubcategoryContent = Record<string, TopicContent[]>;
+
+export type CategoryKeyMap = Record<CategoryKeys, SubcategoryKeyMap>;
+export type SubcategoryKeyMap = Record<string, string[]>;
 
 export interface TopicContent {
   name: string;

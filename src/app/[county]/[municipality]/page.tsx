@@ -1,7 +1,6 @@
 import { Metadata } from "next";
-import { titleCase } from "@/lib/utils";
+import { titleCase } from "@/utils";
 import Hero from "@/components/Hero/Hero";
-import CategoryNav from "@/components/CategoryNav/CategoryNav";
 import { municipalityInfoMap } from "@/consts";
 import {
   ProfileContent,
@@ -9,8 +8,8 @@ import {
   MunicipalityData,
   MunicipalitySlug,
 } from "@/types";
-import CategorySection from "@/components/Content/Category";
-import { getAllCountyMunicipalityPairs } from "@/lib/api";
+import Category from "@/components/Content/Category";
+import { getAllCountyMunicipalityPairs } from "@/utils";
 import Content from "@/components/Content/Content";
 
 type Params = {
@@ -41,8 +40,11 @@ export default async function Municipality(props: Params) {
         profileData={municipalityData}
         geoLevel="municipality"
       />
-      <CategoryNav />
-      <Content content={content} data={municipalityData} geoLevel='municipality' />
+      <Content
+        content={content}
+        data={municipalityData}
+        geoLevel="municipality"
+      />
     </div>
   );
 }

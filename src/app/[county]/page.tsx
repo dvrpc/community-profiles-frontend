@@ -1,9 +1,8 @@
 import { Metadata } from "next";
-import { titleCase } from "@/lib/utils";
+import { titleCase } from "@/utils";
 import { countyInfoMap } from "@/consts";
 import Hero from "@/components/Hero/Hero";
 import { ProfileContent, CountyData, CountySlug } from "@/types";
-import CategoryNav from "@/components/CategoryNav/CategoryNav";
 import Content from "@/components/Content/Content";
 
 interface Params {
@@ -33,7 +32,6 @@ export default async function County(props: Params) {
         profileData={countyData}
         geoLevel="county"
       />
-      <CategoryNav />
       <Content content={content} data={countyData} geoLevel="county" />
     </div>
   );

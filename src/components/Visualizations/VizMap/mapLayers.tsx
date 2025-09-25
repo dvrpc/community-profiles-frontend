@@ -3,7 +3,7 @@ import {
   DataDrivenPropertyValueSpecification,
   LayerSpecification,
 } from "mapbox-gl";
-import { getCountyFromGeoid } from "@/lib/utils";
+import { getCountyFromGeoid } from "@/utils";
 
 export const defaultColor = "#0078AE";
 const defaultFillAccent = "#87B5D6";
@@ -27,7 +27,6 @@ export default function getLayers(
     geoLevel == "county"
       ? getCountyLayers(geoid)
       : getMunicipalityLayers(geoid);
-
 
   return { ...layers, ...boundaryLayers };
 }

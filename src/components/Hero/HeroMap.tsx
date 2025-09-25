@@ -8,7 +8,7 @@ import sources from "./mapSources";
 import getLayers from "./mapLayers";
 import { GeoLevel, MouseEvent } from "@/types";
 import { useRouter } from "next/navigation";
-import { getMunicipalitySlugFromGeoid, parseBounds } from "@/lib/utils";
+import { getMunicipalitySlugFromGeoid, parseBounds } from "@/utils";
 
 interface Props {
   buffer_box?: string;

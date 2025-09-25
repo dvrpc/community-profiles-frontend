@@ -7,7 +7,7 @@ import FreightIcon from "../Icons/FreightIcon";
 import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
-import { displayNumber } from "@/lib/utils";
+import { displayNumber } from "@/utils";
 import Link from "next/link";
 import SearchInput from "./SearchInput";
 

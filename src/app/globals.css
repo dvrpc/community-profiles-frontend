@@ -45,7 +45,3 @@ body {
 .mapboxgl-map {
   color: var(--color-dvrpc-gray-1) !important;
 }
-
-.h3 {
-  font-size: 36px;
-}

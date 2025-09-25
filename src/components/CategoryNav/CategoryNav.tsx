@@ -1,4 +1,5 @@
-import { CategoryKeys, getTypedObjectEntries } from "@/types";
+"use client";
+import { CategoryKeyMap, CategoryKeys, getTypedObjectEntries } from "@/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import EconomyIcon from "../Icons/EconomyIcon";
@@ -8,11 +9,19 @@ import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import CategoryButton from "./CategoryButton";
-import { JSX } from "react";
+import { JSX, useEffect, useRef, useState } from "react";
 import { categoryTitleMap } from "@/consts";
+import { useScrollContext } from "@/context/ScrollProvider";
+import SubcategoryNav from "./SubcategoryNav";
 
-export default function CategoryNav() {
-
+interface Props {
+  categoryKeyMap: CategoryKeyMap;
+}
+export default function CategoryNav(props: Props) {
+  const { activeCategory, activeSubcategory } = useScrollContext();
+  const stickyRef = useRef(null);
+  const [isPinned, setIsPinned] = useState(false);
+  const { categoryKeyMap } = props;
 
   const iconHeight = "h-10";
   const iconMap: Record<CategoryKeys, JSX.Element> = {
@@ -32,13 +41,33 @@ export default function CategoryNav() {
 
   const entries = getTypedObjectEntries(iconMap);
 
-  //TODO: get sticky collapse to work properly
+  useEffect(() => {
+    if (!stickyRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsPinned(entry.intersectionRatio < 1);
+      },
+      {
+        threshold: [1],
+      }
+    );
+
+    observer.observe(stickyRef.current);
+
+    return () => {
+      if (stickyRef.current) {
+        observer.unobserve(stickyRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div
-      // ref={ref}
-      className="bg-dvrpc-blue-3 flex justify-center p-4 z-100000 sticky top-0"
+      ref={stickyRef}
+      className="bg-dvrpc-blue-3 flex flex-col z-100000 sticky top-[-1px]"
     >
-      <div className="grid grid-cols-8">
+      <div className={`justify-center px-4 pt-4 grid grid-cols-8`}>
         {entries.map(([key, value]) => {
           return (
             <CategoryButton
@@ -46,11 +75,16 @@ export default function CategoryNav() {
               name={categoryTitleMap[key]}
               icon={value}
               href={`#${key}`}
-              isActive={false}
+              isActive={isPinned && activeCategory == key}
             />
           );
         })}
       </div>
+      <SubcategoryNav
+        isVisible={isPinned}
+        subcategoryKeyMap={categoryKeyMap[activeCategory]}
+        activeSubcategory={activeSubcategory}
+      />
     </div>
   );
 }

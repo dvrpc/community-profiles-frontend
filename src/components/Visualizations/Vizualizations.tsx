@@ -30,7 +30,7 @@ export default function Visualizations(props: Props) {
       geoid: geoid,
       category: category,
       subcategory: subcategory,
-      topic: topic
+      topic: topic,
     });
 
     const fetchVisualizations = async () => {

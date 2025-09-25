@@ -1,6 +1,6 @@
 "use client";
 
-import { parseBounds } from "@/lib/utils";
+import { parseBounds } from "@/utils";
 import mapboxgl, { Map, NavigationControl } from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 import getSources from "./mapSources";
