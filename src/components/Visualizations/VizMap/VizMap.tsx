@@ -39,12 +39,6 @@ const geocoder = new MapboxGeocoder({
   marker: false,
 });
 
-// const tooltip = new mapboxgl.Popup({
-//   anchor: "left",
-//   offset: 15,
-//   closeButton: false,
-// });
-
 interface HoverObject {
   id: string;
   source: string;

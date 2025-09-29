@@ -5,6 +5,7 @@ import VizMap from "./VizMap/VizMap";
 import VegaChart from "./Chart/VegaChart";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "@/consts";
 
 interface Props {
   category: CategoryKeys;
@@ -35,7 +36,7 @@ export default function Visualizations(props: Props) {
 
     const fetchVisualizations = async () => {
       const vizResponse = await fetch(
-        `http://127.0.0.1:8000/viz/${geoLevel}?` + searchParams
+        `${API_BASE_URL}/viz/${geoLevel}?${searchParams}`
       );
       const data = (await vizResponse.json()) as Visualization[];
       setVisualizations(data);

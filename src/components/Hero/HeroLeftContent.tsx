@@ -40,7 +40,7 @@ export default function HeroLeftContent(props: Props) {
       </h1>
       {!profileData && <SearchInput />}
       {profileData && (
-        <div className="grid grid-cols-2 flex-1">
+        <div className="grid grid-cols-2 auto-rows-fr flex-1">
           <div className="flex">
             <DemographicHousingIcon
               fill="fill-dvrpc-gray-1"
@@ -107,7 +107,7 @@ export default function HeroLeftContent(props: Props) {
             </div>
           </div>
           <div className="flex">
-            <RoadwaysIcon fill="fill-dvrpc-gray-1" className="h-12 mr-2" />
+            <RoadwaysIcon fill="fill-dvrpc-gray-1" className="h-12 w-12 mr-2" />
             <div>
               <span className="font-bold">
                 Miles of Poor Condition Roadways
