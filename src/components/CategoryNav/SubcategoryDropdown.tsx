@@ -1,10 +1,6 @@
+"use client"
 import { displaySubcategoryTopicTitle } from "@/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface Props {
   isActive: boolean;
@@ -33,9 +29,9 @@ export default function SubcategoryDropdown(props: Props) {
       </a>
       <ul className={`absolute flex flex-col bg-dvrpc-blue-1 p-4 min-w-full rounded-b-sm transition-opacity duration-200 ease-in ${!isOpen ? "opacity-0 invisible" : "opacity-100"}`}>
         {topics.map((topic) => (
-          <li>
+          <li key={`${subcategory}-${topic}`}
+          >
             <a
-              key={`${subcategory}-${topic}`}
               href={`#${subcategory}-${topic}`}
             >
               {displaySubcategoryTopicTitle(topic)}

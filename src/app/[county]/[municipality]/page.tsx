@@ -1,14 +1,13 @@
 import { Metadata } from "next";
 import { titleCase } from "@/utils";
 import Hero from "@/components/Hero/Hero";
-import { municipalityInfoMap } from "@/consts";
+import { API_BASE_URL, municipalityInfoMap } from "@/consts";
 import {
   ProfileContent,
   CountySlug,
   MunicipalityData,
   MunicipalitySlug,
 } from "@/types";
-import Category from "@/components/Content/Category";
 import { getAllCountyMunicipalityPairs } from "@/utils";
 import Content from "@/components/Content/Content";
 
@@ -25,11 +24,11 @@ export default async function Municipality(props: Params) {
   const munName = municipalityInfoMap[params.county][params.municipality].label;
   const geoid = municipalityInfoMap[params.county][params.municipality].geoid;
   const profileResponse = await fetch(
-    "http://127.0.0.1:8000/profile/municipality/" + geoid
+    `${API_BASE_URL}/profile/municipality/${geoid}`
   );
   const municipalityData = (await profileResponse.json()) as MunicipalityData;
   const contentResponse = await fetch(
-    "http://127.0.0.1:8000/content/municipality/" + geoid
+    `${API_BASE_URL}/content/municipality/${geoid}`
   );
   const content = (await contentResponse.json()) as ProfileContent;
 

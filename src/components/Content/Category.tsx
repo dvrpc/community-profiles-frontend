@@ -4,13 +4,8 @@ import {
   GeoLevel,
   ProfileData,
   SubcategoryContent,
-  Visualization,
 } from "@/types";
-import VizMap from "../Visualizations/VizMap/VizMap";
-import VegaChart from "../Visualizations/Chart/VegaChart";
-import Visualizations from "../Visualizations/Vizualizations";
 import Subcategory from "./Subcategory";
-import ScrollNode from "./ScrollNode";
 import Title from "./Title";
 
 interface Props {
@@ -26,7 +21,6 @@ export default function Category(props: Props) {
 
   return (
     <div className="p-16">
-      <ScrollNode key={category} level="category" />
       <Title
         title={categoryTitleMap[category]}
         type="h2"

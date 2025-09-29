@@ -12,7 +12,7 @@ export default function SubcategoryNav(props: Props) {
 
   return (
     <div
-      className={`flex bg-dvrpc-blue-1 text-white justify-center gap-4 transition-all duration-300 ease-in-out ${!isVisible ? "max-h-0" : "max-h-8"
+      className={`flex bg-dvrpc-blue-1 text-white justify-center gap-4 transition-all duration-300 ease-out ${!isVisible ? "max-h-0" : "max-h-8"
         }`}
     >
       {isVisible && Object.entries(subcategoryKeyMap).map(([key, topics], index) => (

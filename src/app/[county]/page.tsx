@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { titleCase } from "@/utils";
-import { countyInfoMap } from "@/consts";
+import { API_BASE_URL, countyInfoMap } from "@/consts";
 import Hero from "@/components/Hero/Hero";
 import { ProfileContent, CountyData, CountySlug } from "@/types";
 import Content from "@/components/Content/Content";
@@ -17,11 +17,11 @@ export default async function County(props: Params) {
   const countyName = countyInfoMap[params.county].label;
   const geoid = countyInfoMap[params.county].geoid;
   const profileResponse = await fetch(
-    "http://127.0.0.1:8000/profile/county/" + geoid
+    `${API_BASE_URL}/profile/county/${geoid}`
   );
   const countyData = (await profileResponse.json()) as CountyData;
   const contentResponse = await fetch(
-    "http://127.0.0.1:8000/content/county/" + geoid
+    `${API_BASE_URL}/content/county/${geoid}`
   );
   const content = (await contentResponse.json()) as ProfileContent;
 

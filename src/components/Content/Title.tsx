@@ -2,7 +2,6 @@
 
 import { useScrollContext } from "@/context/ScrollProvider";
 import { CategoryKeys } from "@/types";
-import { displaySubcategoryTopicTitle } from "@/utils";
 import { useEffect, useRef } from "react";
 
 interface Props {
