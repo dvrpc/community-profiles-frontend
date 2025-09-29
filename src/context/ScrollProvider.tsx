@@ -20,7 +20,6 @@ export default function ScrollProvider({
   const [activeSubcategory, setActiveSubcategory] = useState<string>("");
 
   function setActiveCategories(cat: CategoryKeys, subcat: string) {
-    console.log(cat + " - " + subcat);
     setActiveCategory(cat);
     setActiveSubcategory(subcat);
   }
