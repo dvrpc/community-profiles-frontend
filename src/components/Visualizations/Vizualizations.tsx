@@ -18,6 +18,7 @@ interface Props {
 
 export default function Visualizations(props: Props) {
   const [visualizations, setVisualizations] = useState<Visualization[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const { category, subcategory, topic, geoLevel, geoid, buffer_bbox } = props;
   const { ref, inView } = useInView({
     /* Optional options */
@@ -25,7 +26,7 @@ export default function Visualizations(props: Props) {
   });
 
   useEffect(() => {
-    if (visualizations.length > 0 || !inView) return;
+    if (isLoaded || !inView) return;
 
     const searchParams = new URLSearchParams({
       geoid: geoid,
@@ -40,6 +41,7 @@ export default function Visualizations(props: Props) {
       );
       const data = (await vizResponse.json()) as Visualization[];
       setVisualizations(data);
+      setIsLoaded(true);
     };
 
     fetchVisualizations();
