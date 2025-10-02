@@ -1,4 +1,4 @@
-import { GeoLevel, ProfileData } from "@/types";
+import { CountyData, GeoLevel, MunicipalityData, ProfileData, RegionData } from "@/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import EconomyIcon from "../Icons/EconomyIcon";
@@ -10,31 +10,25 @@ import TransitIcon from "../Icons/TransitIcon";
 import { displayNumber } from "@/utils";
 import Link from "next/link";
 import SearchInput from "./SearchInput";
+import { JSX, ReactNode } from "react";
 
-interface Props {
+
+
+type Props = {
   title: string;
-  profileData?: ProfileData;
-  geoLevel?: GeoLevel;
+  profileData: ProfileData;
+  backLink?: JSX.Element;
 }
 
-export default function HeroLeftContent(props: Props) {
-  const { title, profileData, geoLevel } = props;
 
-  const backLink = () => {
-    if (!profileData) return <></>;
-    if (geoLevel == "county")
-      return <Link href="/">&larr; Return to Home</Link>;
-    if (geoLevel == "municipality")
-      return (
-        <Link href={`/${profileData.county.toLowerCase()}`}>
-          &larr; Return to {profileData.county} County
-        </Link>
-      );
-  };
+export default function HeroLeftContent(props: Props) {
+  const { title, profileData, backLink } = props;
+
+
 
   return (
     <div className="w-1/3 z-10 pl-16 pt-8 flex flex-col">
-      {backLink()}
+      {backLink}
       <h1 className="text-5xl text-dvrpc-blue-1 font-bold mb-16 mt-4">
         {title}
       </h1>

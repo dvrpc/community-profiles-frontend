@@ -3,12 +3,13 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useRef, useEffect, useState } from "react";
 import mapboxgl, { LngLatBounds, Map } from "mapbox-gl";
-import { ACCESS_TOKEN, REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
+import { ACCESS_TOKEN, regionBounds, REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 import sources from "./mapSources";
 import getLayers from "./mapLayers";
 import { GeoLevel, MouseEvent } from "@/types";
 import { useRouter } from "next/navigation";
 import { getMunicipalitySlugFromGeoid, parseBounds } from "@/utils";
+
 
 interface Props {
   buffer_box?: string;
@@ -16,10 +17,7 @@ interface Props {
   geoLevel?: GeoLevel;
 }
 
-const defaultBounds = new LngLatBounds(
-  { lng: -76.09405517578125, lat: 39.49211914385648 },
-  { lng: -74.32525634765625, lat: 40.614734298694216 }
-);
+
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -40,7 +38,7 @@ export default function HeroMap(props: Props) {
 
   useEffect(() => {
     const { buffer_box, geoid, geoLevel } = props;
-    const bounds = buffer_box ? parseBounds(buffer_box) : defaultBounds;
+    const bounds = buffer_box ? parseBounds(buffer_box) : regionBounds;
     const hoverSource =
       geoLevel == "county" ? "municipalboundaries" : "countyboundaries";
 

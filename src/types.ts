@@ -54,7 +54,7 @@ export interface SourceMap {
   [key: string]: SourceSpecification;
 }
 
-export type ProfileData = CountyData | MunicipalityData | RegionData;
+export type ProfileData = CountyData & MunicipalityData & RegionData;
 
 export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
 
@@ -1169,12 +1169,17 @@ export interface MunicipalityData {
 
 export interface RegionData {
   total_pop: number
+  total_pop_moe: any
   male_pop: number
   male_pop_moe: number
   female_pop: number
   female_pop_moe: number
+  median_age: any
+  median_age_moe: any
   under_18_pop: number
+  under_18_pop_moe: any
   not_hispanic_or_latino_pop: number
+  not_hispanic_or_latino_pop_moe: any
   white_alone_pop: number
   white_alone_pop_moe: number
   black_alone_pop: number
@@ -1188,12 +1193,19 @@ export interface RegionData {
   other_alone_pop: number
   other_alone_pop_moe: number
   hispanic_or_latino_pop: number
+  hispanic_or_latino_pop_moe: any
   total_hh: number
   total_hh_moe: number
   owner_hh: number
   owner_hh_moe: number
   rent_hh: number
   rent_hh_moe: number
+  median_hh_inc: any
+  median_hh_inc_moe: any
+  median_family_inc: any
+  median_family_inc_moe: any
+  median_inc: any
+  median_inc_moe: any
   pov_level: number
   pov_level_moe: number
   labor_force: number
@@ -1480,6 +1492,8 @@ export interface RegionData {
   family_hh_moe: number
   nonfamily_hh: number
   nonfamily_hh_moe: number
+  avg_hh_size: any
+  avg_hh_size_moe: any
   less_hs: number
   less_hs_moe: number
   hs_no_college: number
@@ -1565,7 +1579,9 @@ export interface RegionData {
   other_and_unspecified_languages_lim: number
   other_and_unspecified_languages_lim_moe: number
   over_65_pop: number
+  over_65_pop_moe: any
   under_5_pop: number
+  under_5_pop_moe: any
   age_5_to_9_pop: number
   age_5_to_9_pop_moe: number
   age_10_to_14_pop: number
@@ -1606,7 +1622,90 @@ export interface RegionData {
   over_65_pov_level_moe: number
   mean_hh_inc: number
   mean_hh_inc_moe: number
+  mean_family_inc: any
+  mean_family_inc_moe: any
+  avg_family_size: any
+  avg_family_size_moe: any
+  existing_trail_mi: number
+  planned_trail_mi: number
+  freight_rail_mi: number
+  highway_mi: number
+  unique_freight_centers: number
+  fy25_pa_lines: number
+  fy26_nj_lines: number
+  fy25_pa_points: number
+  fy26_nj_points: number
+  septa_bus_stops: number
+  septa_bus_routes_mi: number
+  njt_bus_stops: number
+  njt_bus_routes_mi: number
+  passenger_rail_stations: number
+  passenger_rail_mi: number
+  pop15: number
+  pop20: number
+  pop25: number
+  pop30: number
+  pop35: number
+  pop40: number
+  pop45: number
+  pop50: number
+  emp15: number
+  emp20: number
+  emp25: number
+  emp30: number
+  emp35: number
+  emp40: number
+  emp45: number
+  emp50: number
+  popabs50: number
+  poppct50: any
+  empabs50: number
+  emppct50: number
+  total_acres: number
+  agriculture_acres: number
+  commercial_acres: number
+  industrial_acres: number
+  institutional_acres: number
+  military_acres: number
+  mining_acres: number
+  recreation_acres: number
+  residential_acres: number
+  transportation_acres: number
+  undeveloped_acres: number
+  utility_acres: number
+  water_acres: number
+  wooded_acres: number
+  road_pm2_good: number
+  road_pm2_fair: number
+  road_pm2_poor: number
+  road_iri_good: number
+  road_iri_fair: number
+  road_iri_poor: number
+  road_dot_index_good: number
+  road_dot_index_fair: number
+  road_dot_index_poor: number
+  bridge_all_good: number
+  bridge_all_fair: number
+  bridge_all_poor: number
+  bridge_nhs_good: number
+  bridge_nhs_fair: number
+  bridge_nhs_poor: number
+  bridge_nonnhs_good: number
+  bridge_nonnhs_fair: number
+  bridge_nonnhs_poor: number
+  bev: number
+  phev: number
+  total_ev: number
+  other_fuel: number
+  total_ldv: number
+  pct_ev_ldv: any
+  change_ev: number
+  pct_change_ev: any
+  change_ldv: number
+  pct_change_ldv: number
+  percent_cost_burdened: number
 }
+
 
 export interface MunicipalityInfo {
   geoid: string;

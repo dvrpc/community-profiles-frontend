@@ -1,3 +1,4 @@
+import { LngLatBounds } from "mapbox-gl";
 import { CategoryKeys, CategoryKeyMap } from "./types";
 
 export const HEADER_HEIGHT = 172;
@@ -8,6 +9,11 @@ export const ACCESS_TOKEN = process.env
   .NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
+
+export const regionBounds = new LngLatBounds(
+  { lng: -76.09405517578125, lat: 39.49211914385648 },
+  { lng: -74.32525634765625, lat: 40.614734298694216 }
+);
 
 export const categoryTitleMap: Record<CategoryKeys, string> = {
   "active-transportation": "Active Transportation",

@@ -19,7 +19,7 @@ export default async function County(props: Params) {
   const profileResponse = await fetch(
     `${API_BASE_URL}/profile/county/${geoid}`
   );
-  const countyData = (await profileResponse.json()) as CountyData;
+  const countyData = (await profileResponse.json()) as ProfileData;
   const contentResponse = await fetch(
     `${API_BASE_URL}/content/county/${geoid}`
   );
@@ -28,7 +28,7 @@ export default async function County(props: Params) {
   return (
     <div>
       <Hero
-        geographyName={countyName}
+        title={countyName}
         profileData={countyData}
         geoLevel="county"
       />

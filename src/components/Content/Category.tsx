@@ -1,4 +1,4 @@
-import { categoryTitleMap } from "@/consts";
+import { categoryTitleMap, regionBounds } from "@/consts";
 import {
   CategoryKeys,
   GeoLevel,
@@ -11,13 +11,14 @@ import Title from "./Title";
 interface Props {
   category: CategoryKeys;
   subcategories: SubcategoryContent;
-  // content: string;
   profileData: ProfileData;
   geoLevel: GeoLevel;
 }
 
+
 export default function Category(props: Props) {
   const { category, subcategories, profileData, geoLevel } = props;
+
 
   return (
     <div className="p-16">

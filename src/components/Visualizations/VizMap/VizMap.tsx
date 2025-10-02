@@ -12,7 +12,7 @@ import {
   GeoJSONProperties,
   LegendOverrideItem,
 } from "@/types";
-import { ACCESS_TOKEN } from "@/consts";
+import { ACCESS_TOKEN, regionBounds } from "@/consts";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import SelectionPopup from "./SelectionPopup";
@@ -60,7 +60,7 @@ export default function VizMap(props: Props) {
   const hoverRef = useRef<HoverObject | null>(null);
   const selectRef = useRef<SelectObject | null>(null);
 
-  const bounds = parseBounds(buffer_box);
+  const bounds = geoLevel == 'region' ? regionBounds : parseBounds(buffer_box);
 
   function removeSelection() {
     if (!mapRef.current || !selectRef.current) return;

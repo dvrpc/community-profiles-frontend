@@ -7,6 +7,7 @@ import {
   CountySlug,
   MunicipalityData,
   MunicipalitySlug,
+  ProfileData,
 } from "@/types";
 import { getAllCountyMunicipalityPairs } from "@/utils";
 import Content from "@/components/Content/Content";
@@ -26,7 +27,7 @@ export default async function Municipality(props: Params) {
   const profileResponse = await fetch(
     `${API_BASE_URL}/profile/municipality/${geoid}`
   );
-  const municipalityData = (await profileResponse.json()) as MunicipalityData;
+  const municipalityData = (await profileResponse.json()) as ProfileData;
   const contentResponse = await fetch(
     `${API_BASE_URL}/content/municipality/${geoid}`
   );
@@ -35,7 +36,7 @@ export default async function Municipality(props: Params) {
   return (
     <div>
       <Hero
-        geographyName={munName}
+        title={munName}
         profileData={municipalityData}
         geoLevel="municipality"
       />

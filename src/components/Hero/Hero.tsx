@@ -1,42 +1,49 @@
 import FadeMask from "./FadeMask";
 import HeroMap from "./HeroMap";
 import HeroLeftContent from "./HeroLeftContent";
-import { AllOrNothing, GeoLevel, ProfileData } from "@/types";
+import { CountyData, GeoLevel, MunicipalityData, ProfileData, RegionData } from "@/types";
+import Link from "next/link";
 
-interface HeroProps {
-  geographyName: string;
+interface Props {
+  title: string;
   profileData: ProfileData;
   geoLevel: GeoLevel;
 }
 
-type Props = AllOrNothing<HeroProps>;
 
-export default function Hero(props: Props) {
-  const { geographyName, profileData, geoLevel } = props;
-
-  if (geoLevel) {
+const getBackLink = (parentCounty?: string) => {
+  if (parentCounty) {
     return (
-      <div className="flex">
-        <HeroLeftContent
-          title={geographyName}
-          profileData={profileData}
-          geoLevel={geoLevel}
-        />
-        <FadeMask />
-        <HeroMap
-          buffer_box={profileData.buffer_bbox}
-          geoid={profileData.geoid}
-          geoLevel={geoLevel}
-        />
-      </div>
+      <Link href={`/${parentCounty.toLowerCase()}`}>
+        &larr; Return to {parentCounty} County
+      </Link>
     );
   } else {
-    return (
-      <div className="flex">
-        <HeroLeftContent title={"Community Profiles"} />
-        <FadeMask />
-        <HeroMap />
-      </div>
-    );
+    return <Link href="/">&larr; Return to Home</Link>;
   }
+};
+
+export default function Hero(props: Props) {
+  const { title, profileData, geoLevel } = props;
+
+  let backLink;
+  if (geoLevel == 'county') backLink == getBackLink()
+  if (geoLevel == 'municipality') backLink = getBackLink(profileData.county)
+
+  return (
+    <div className="flex">
+      <HeroLeftContent
+        title={title}
+        profileData={profileData}
+        backLink={backLink}
+      />
+      <FadeMask />
+      {geoLevel == 'region' ? <HeroMap /> : <HeroMap
+        buffer_box={profileData.buffer_bbox}
+        geoid={profileData.geoid}
+        geoLevel={geoLevel}
+      />}
+    </div>
+  );
+
 }
