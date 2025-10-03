@@ -2,6 +2,9 @@ import Content from "@/components/Content/Content";
 import Hero from "@/components/Hero/Hero";
 import { API_BASE_URL } from "@/consts";
 import { ProfileContent, ProfileData } from "@/types";
+import Header from "./Header";
+import Nav from "./Nav";
+import Footer from "./Footer";
 
 export default async function Home() {
 
@@ -15,13 +18,16 @@ export default async function Home() {
   const content = (await contentResponse.json()) as ProfileContent;
 
   return (
-    <div>
-      <Hero
-        title={'DVRPC Region'}
-        profileData={regionData}
-        geoLevel="region"
-      />
-      <Content content={content} data={regionData} geoLevel="region" />
-    </div>
+    <>
+      <Header />
+      <Nav />
+      <main>
+        <Hero
+          title={'Greater Philadelphia'}
+          profileData={regionData}
+          geoLevel="region" />
+        <Content content={content} data={regionData} geoLevel="region" /></main>
+      <Footer />
+    </>
   );
 }

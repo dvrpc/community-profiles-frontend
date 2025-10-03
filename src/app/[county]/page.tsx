@@ -2,8 +2,10 @@ import { Metadata } from "next";
 import { titleCase } from "@/utils";
 import { API_BASE_URL, countyInfoMap } from "@/consts";
 import Hero from "@/components/Hero/Hero";
-import { ProfileContent, CountyData, CountySlug } from "@/types";
+import { ProfileContent, CountySlug, ProfileData } from "@/types";
 import Content from "@/components/Content/Content";
+import Footer from "../Footer";
+import SmallHeader from "../SmallHeader";
 
 interface Params {
   params: Promise<{
@@ -26,14 +28,19 @@ export default async function County(props: Params) {
   const content = (await contentResponse.json()) as ProfileContent;
 
   return (
-    <div>
-      <Hero
-        title={countyName}
-        profileData={countyData}
-        geoLevel="county"
-      />
-      <Content content={content} data={countyData} geoLevel="county" />
-    </div>
+    <>
+      <SmallHeader />
+      <main>
+        <Hero
+          title={countyName}
+          profileData={countyData}
+          geoLevel="county"
+        />
+        <Content content={content} data={countyData} geoLevel="county" />
+      </main>
+      <Footer />
+
+    </>
   );
 }
 

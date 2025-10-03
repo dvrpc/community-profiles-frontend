@@ -3,7 +3,7 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useRef, useEffect, useState } from "react";
 import mapboxgl, { LngLatBounds, Map } from "mapbox-gl";
-import { ACCESS_TOKEN, regionBounds, REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
+import { ACCESS_TOKEN, regionBounds, HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY, PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 import sources from "./mapSources";
 import getLayers from "./mapLayers";
 import { GeoLevel, MouseEvent } from "@/types";
@@ -15,6 +15,7 @@ interface Props {
   buffer_box?: string;
   geoid?: string;
   geoLevel?: GeoLevel;
+  viewPort: string;
 }
 
 
@@ -28,6 +29,7 @@ mapboxgl.accessToken = ACCESS_TOKEN;
 
 export default function HeroMap(props: Props) {
   const [hoverId, setHoverId] = useState<string>("");
+  const { buffer_box, geoid, geoLevel, viewPort } = props;
 
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>(null);
@@ -37,7 +39,6 @@ export default function HeroMap(props: Props) {
   // ref required for hoverId as mounting/unmounting hover events is too slow for fast mouse movement
 
   useEffect(() => {
-    const { buffer_box, geoid, geoLevel } = props;
     const bounds = buffer_box ? parseBounds(buffer_box) : regionBounds;
     const hoverSource =
       geoLevel == "county" ? "municipalboundaries" : "countyboundaries";
@@ -186,7 +187,7 @@ export default function HeroMap(props: Props) {
 
   return (
     <div
-      className={`absolute ${REMAINING_VIEWPORT_HEIGHT_PROPERTY} w-2/3`}
+      className={`absolute ${viewPort} w-2/3`}
       id="map-container"
       ref={mapContainer}
     />

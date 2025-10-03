@@ -1,8 +1,9 @@
 import FadeMask from "./FadeMask";
 import HeroMap from "./HeroMap";
 import HeroLeftContent from "./HeroLeftContent";
-import { CountyData, GeoLevel, MunicipalityData, ProfileData, RegionData } from "@/types";
+import { GeoLevel, ProfileData } from "@/types";
 import Link from "next/link";
+import { HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY, PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 
 interface Props {
   title: string;
@@ -11,34 +12,23 @@ interface Props {
 }
 
 
-const getBackLink = (parentCounty?: string) => {
-  if (parentCounty) {
-    return (
-      <Link href={`/${parentCounty.toLowerCase()}`}>
-        &larr; Return to {parentCounty} County
-      </Link>
-    );
-  } else {
-    return <Link href="/">&larr; Return to Home</Link>;
-  }
-};
+
 
 export default function Hero(props: Props) {
   const { title, profileData, geoLevel } = props;
 
-  let backLink;
-  if (geoLevel == 'county') backLink == getBackLink()
-  if (geoLevel == 'municipality') backLink = getBackLink(profileData.county)
+  const viewPort = geoLevel == 'region' ? HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY : PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY
 
   return (
     <div className="flex">
       <HeroLeftContent
         title={title}
         profileData={profileData}
-        backLink={backLink}
+        geoLevel={geoLevel}
       />
-      <FadeMask />
-      {geoLevel == 'region' ? <HeroMap /> : <HeroMap
+      <FadeMask viewPort={viewPort} />
+      {geoLevel == 'region' ? <HeroMap viewPort={viewPort} /> : <HeroMap
+        viewPort={viewPort}
         buffer_box={profileData.buffer_bbox}
         geoid={profileData.geoid}
         geoLevel={geoLevel}

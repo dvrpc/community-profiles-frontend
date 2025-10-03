@@ -1,4 +1,4 @@
-import { CountyData, GeoLevel, MunicipalityData, ProfileData, RegionData } from "@/types";
+import { GeoLevel, ProfileData } from "@/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import EconomyIcon from "../Icons/EconomyIcon";
@@ -8,27 +8,28 @@ import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import { displayNumber } from "@/utils";
-import Link from "next/link";
 import SearchInput from "./SearchInput";
-import { JSX, ReactNode } from "react";
+import BackLink from "./BackLink";
 
 
 
 type Props = {
   title: string;
   profileData: ProfileData;
-  backLink?: JSX.Element;
+  geoLevel: GeoLevel;
 }
 
 
 export default function HeroLeftContent(props: Props) {
-  const { title, profileData, backLink } = props;
+  const { title, profileData, geoLevel } = props;
 
+
+  // if (geoLevel == 'municipality') backLink = getBackLink(profileData.county)
 
 
   return (
     <div className="w-1/3 z-10 pl-16 pt-8 flex flex-col">
-      {backLink}
+      {geoLevel != 'region' && <BackLink parentCounty={geoLevel == 'municipality' ? profileData.county : ''} />}
       <h1 className="text-5xl text-dvrpc-blue-1 font-bold mb-16 mt-4">
         {title}
       </h1>

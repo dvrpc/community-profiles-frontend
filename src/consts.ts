@@ -3,7 +3,9 @@ import { CategoryKeys, CategoryKeyMap } from "./types";
 
 export const HEADER_HEIGHT = 172;
 export const NAV_HEIGHT = 64;
-export const REMAINING_VIEWPORT_HEIGHT_PROPERTY = `h-[calc(100vh-236px)]`;
+
+export const HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY = `h-[calc(100vh-236px)]`;
+export const PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY = `h-[calc(100vh-64px)]`;
 
 export const ACCESS_TOKEN = process.env
   .NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
