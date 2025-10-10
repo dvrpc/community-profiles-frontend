@@ -24,9 +24,8 @@ export default function getLayers(
   });
 
   const boundaryLayers: LayerMap =
-    geoLevel == "county"
-      ? getCountyLayers(geoid)
-      : getMunicipalityLayers(geoid);
+    geoLevel == "municipality"
+      ? getMunicipalityLayers(geoid) : getCountyLayers(geoid);
 
   return { ...layers, ...boundaryLayers };
 }
@@ -167,7 +166,7 @@ function getFillLayers(feature: Feature) {
   return layers;
 }
 
-function getCountyLayers(fips: string): LayerMap {
+function getCountyLayers(fips?: string): LayerMap {
   return {
     countyOutline: {
       id: "county-outline",
@@ -180,17 +179,19 @@ function getCountyLayers(fips: string): LayerMap {
       },
       filter: ["==", "dvrpc_reg", "Yes"],
     },
-    countyMask: {
-      id: "county-mask",
-      type: "fill",
-      source: "countyboundaries",
-      "source-layer": "countyboundaries",
-      paint: {
-        "fill-color": "white",
-        "fill-opacity": 0.8,
-      },
-      filter: ["!=", "fips", fips],
-    },
+    ...(fips && {
+      countyMask: {
+        id: "county-mask",
+        type: "fill",
+        source: "countyboundaries",
+        "source-layer": "countyboundaries",
+        paint: {
+          "fill-color": "white",
+          "fill-opacity": 0.8,
+        },
+        filter: ["!=", "fips", fips],
+      }
+    }),
   };
 }
 

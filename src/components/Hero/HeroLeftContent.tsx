@@ -8,33 +8,28 @@ import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import { displayNumber } from "@/utils";
-import Link from "next/link";
 import SearchInput from "./SearchInput";
+import BackLink from "./BackLink";
 
-interface Props {
+
+
+type Props = {
   title: string;
-  profileData?: ProfileData;
-  geoLevel?: GeoLevel;
+  profileData: ProfileData;
+  geoLevel: GeoLevel;
 }
+
 
 export default function HeroLeftContent(props: Props) {
   const { title, profileData, geoLevel } = props;
 
-  const backLink = () => {
-    if (!profileData) return <></>;
-    if (geoLevel == "county")
-      return <Link href="/">&larr; Return to Home</Link>;
-    if (geoLevel == "municipality")
-      return (
-        <Link href={`/${profileData.county.toLowerCase()}`}>
-          &larr; Return to {profileData.county} County
-        </Link>
-      );
-  };
+
+  // if (geoLevel == 'municipality') backLink = getBackLink(profileData.county)
+
 
   return (
     <div className="w-1/3 z-10 pl-16 pt-8 flex flex-col">
-      {backLink()}
+      {geoLevel != 'region' && <BackLink parentCounty={geoLevel == 'municipality' ? profileData.county : ''} />}
       <h1 className="text-5xl text-dvrpc-blue-1 font-bold mb-16 mt-4">
         {title}
       </h1>

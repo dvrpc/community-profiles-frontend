@@ -5,11 +5,13 @@ import { API_BASE_URL, municipalityInfoMap } from "@/consts";
 import {
   ProfileContent,
   CountySlug,
-  MunicipalityData,
   MunicipalitySlug,
+  ProfileData,
 } from "@/types";
 import { getAllCountyMunicipalityPairs } from "@/utils";
 import Content from "@/components/Content/Content";
+import Footer from "@/app/Footer";
+import SmallHeader from "@/app/SmallHeader";
 
 type Params = {
   params: Promise<{
@@ -26,25 +28,30 @@ export default async function Municipality(props: Params) {
   const profileResponse = await fetch(
     `${API_BASE_URL}/profile/municipality/${geoid}`
   );
-  const municipalityData = (await profileResponse.json()) as MunicipalityData;
+  const municipalityData = (await profileResponse.json()) as ProfileData;
   const contentResponse = await fetch(
     `${API_BASE_URL}/content/municipality/${geoid}`
   );
   const content = (await contentResponse.json()) as ProfileContent;
 
   return (
-    <div>
-      <Hero
-        geographyName={munName}
-        profileData={municipalityData}
-        geoLevel="municipality"
-      />
-      <Content
-        content={content}
-        data={municipalityData}
-        geoLevel="municipality"
-      />
-    </div>
+    <>
+      <SmallHeader />
+      <main>
+        <Hero
+          title={munName}
+          profileData={municipalityData}
+          geoLevel="municipality"
+        />
+        <Content
+          content={content}
+          data={municipalityData}
+          geoLevel="municipality"
+        />
+      </main>
+      <Footer />
+
+    </>
   );
 }
 

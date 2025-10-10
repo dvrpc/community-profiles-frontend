@@ -1,42 +1,39 @@
 import FadeMask from "./FadeMask";
 import HeroMap from "./HeroMap";
 import HeroLeftContent from "./HeroLeftContent";
-import { AllOrNothing, GeoLevel, ProfileData } from "@/types";
+import { GeoLevel, ProfileData } from "@/types";
+import Link from "next/link";
+import { HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY, PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 
-interface HeroProps {
-  geographyName: string;
+interface Props {
+  title: string;
   profileData: ProfileData;
   geoLevel: GeoLevel;
 }
 
-type Props = AllOrNothing<HeroProps>;
+
+
 
 export default function Hero(props: Props) {
-  const { geographyName, profileData, geoLevel } = props;
+  const { title, profileData, geoLevel } = props;
 
-  if (geoLevel) {
-    return (
-      <div className="flex">
-        <HeroLeftContent
-          title={geographyName}
-          profileData={profileData}
-          geoLevel={geoLevel}
-        />
-        <FadeMask />
-        <HeroMap
-          buffer_box={profileData.buffer_bbox}
-          geoid={profileData.geoid}
-          geoLevel={geoLevel}
-        />
-      </div>
-    );
-  } else {
-    return (
-      <div className="flex">
-        <HeroLeftContent title={"Community Profiles"} />
-        <FadeMask />
-        <HeroMap />
-      </div>
-    );
-  }
+  const viewPort = geoLevel == 'region' ? HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY : PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY
+
+  return (
+    <div className="flex">
+      <HeroLeftContent
+        title={title}
+        profileData={profileData}
+        geoLevel={geoLevel}
+      />
+      <FadeMask viewPort={viewPort} />
+      {geoLevel == 'region' ? <HeroMap viewPort={viewPort} /> : <HeroMap
+        viewPort={viewPort}
+        buffer_box={profileData.buffer_bbox}
+        geoid={profileData.geoid}
+        geoLevel={geoLevel}
+      />}
+    </div>
+  );
+
 }

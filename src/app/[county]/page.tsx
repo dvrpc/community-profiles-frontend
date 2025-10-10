@@ -2,8 +2,10 @@ import { Metadata } from "next";
 import { titleCase } from "@/utils";
 import { API_BASE_URL, countyInfoMap } from "@/consts";
 import Hero from "@/components/Hero/Hero";
-import { ProfileContent, CountyData, CountySlug } from "@/types";
+import { ProfileContent, CountySlug, ProfileData } from "@/types";
 import Content from "@/components/Content/Content";
+import Footer from "../Footer";
+import SmallHeader from "../SmallHeader";
 
 interface Params {
   params: Promise<{
@@ -19,21 +21,26 @@ export default async function County(props: Params) {
   const profileResponse = await fetch(
     `${API_BASE_URL}/profile/county/${geoid}`
   );
-  const countyData = (await profileResponse.json()) as CountyData;
+  const countyData = (await profileResponse.json()) as ProfileData;
   const contentResponse = await fetch(
     `${API_BASE_URL}/content/county/${geoid}`
   );
   const content = (await contentResponse.json()) as ProfileContent;
 
   return (
-    <div>
-      <Hero
-        geographyName={countyName}
-        profileData={countyData}
-        geoLevel="county"
-      />
-      <Content content={content} data={countyData} geoLevel="county" />
-    </div>
+    <>
+      <SmallHeader />
+      <main>
+        <Hero
+          title={countyName}
+          profileData={countyData}
+          geoLevel="county"
+        />
+        <Content content={content} data={countyData} geoLevel="county" />
+      </main>
+      <Footer />
+
+    </>
   );
 }
 
