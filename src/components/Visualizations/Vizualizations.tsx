@@ -4,8 +4,9 @@ import { CategoryKeys, GeoLevel, Visualization } from "@/types";
 import VizMap from "./VizMap/VizMap";
 import VegaChart from "./Chart/VegaChart";
 import { useInView } from "react-intersection-observer";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { API_BASE_URL } from "@/consts";
+import VizLoading from "./VizLoading";
 
 interface Props {
   category: CategoryKeys;
@@ -65,7 +66,7 @@ export default function Visualizations(props: Props) {
     }
   }
 
-  //
+
   return (
     <div ref={ref}>
       {visualizations && visualizations.map((viz, i) => getViz(viz, i))}
