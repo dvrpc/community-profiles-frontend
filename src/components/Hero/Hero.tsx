@@ -2,8 +2,7 @@ import FadeMask from "./FadeMask";
 import HeroMap from "./HeroMap";
 import HeroLeftContent from "./HeroLeftContent";
 import { GeoLevel, ProfileData } from "@/types";
-import Link from "next/link";
-import { HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY, PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
+import { LARGE_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY, SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 
 interface Props {
   title: string;
@@ -17,7 +16,7 @@ interface Props {
 export default function Hero(props: Props) {
   const { title, profileData, geoLevel } = props;
 
-  const viewPort = geoLevel == 'region' ? HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY : PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY
+  const viewPort = geoLevel == 'region' ? LARGE_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY : SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY
 
   return (
     <div className="flex">

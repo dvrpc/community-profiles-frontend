@@ -3,7 +3,7 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useRef, useEffect, useState } from "react";
 import mapboxgl, { LngLatBounds, Map } from "mapbox-gl";
-import { ACCESS_TOKEN, regionBounds, HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY, PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
+import { ACCESS_TOKEN, regionBounds } from "@/consts";
 import sources from "./mapSources";
 import getLayers from "./mapLayers";
 import { GeoLevel, MouseEvent } from "@/types";

@@ -1,4 +1,3 @@
-import { HOME_REMAINING_VIEWPORT_HEIGHT_PROPERTY, PROFILE_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 
 interface Props {
   viewPort: string;

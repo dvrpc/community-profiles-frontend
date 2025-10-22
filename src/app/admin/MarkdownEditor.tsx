@@ -1,24 +1,39 @@
 "use client"
-import MDEditor, { selectWord } from "@uiw/react-md-editor";
-import { ChangeEvent, useState } from "react";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+import { ContextStore } from "@uiw/react-md-editor";
+
 
 interface Props {
-    template: string;
+    value: string;
+    setValue: (value: string) => void;
 }
 
-export default function MarkdownEditor(props: Props) {
-    const { template } = props
-    const [value, setValue] = useState(template);
+const MDEditor = dynamic(
+    () => import("@uiw/react-md-editor"),
+    { ssr: false }
+);
 
-    const handleChange = (event: ChangeEvent<HTMLTextAreaElement> | undefined) => {
+
+export default function MarkdownEditor(props: Props) {
+    const { value, setValue } = props
+
+
+
+    const handleChange = (value?: string, event?: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (!event?.currentTarget) return;
         setValue(event.currentTarget.value)
     }
 
-    console.log(value)
     return (
-        <div className="w-200">
-            <MDEditor height={400} value={template} onChange={() => { }} />
+        <div className="w-1/2">
+            <div className="p-4 border-b-2 border-dvrpc-gray-7 h-20">
+                <h3 className="text-dvrpc-blue-1 text-3xl">Editor</h3>
+
+            </div>
+            <MDEditor height="100%" value={value} onChange={handleChange} />
 
         </div>
     )
