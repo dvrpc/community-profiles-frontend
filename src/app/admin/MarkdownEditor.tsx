@@ -9,6 +9,8 @@ import { ContextStore } from "@uiw/react-md-editor";
 interface Props {
     value: string;
     setValue: (value: string) => void;
+    hasEdits: boolean;
+    setHasEdits: (value: boolean) => void;
 }
 
 const MDEditor = dynamic(
@@ -18,13 +20,17 @@ const MDEditor = dynamic(
 
 
 export default function MarkdownEditor(props: Props) {
-    const { value, setValue } = props
+    const { value, setValue, hasEdits, setHasEdits } = props
 
 
 
     const handleChange = (value?: string, event?: React.ChangeEvent<HTMLTextAreaElement>) => {
         if (!event?.currentTarget) return;
         setValue(event.currentTarget.value)
+
+        if (!hasEdits) {
+            setHasEdits(true)
+        }
     }
 
     return (

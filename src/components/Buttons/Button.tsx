@@ -3,7 +3,7 @@ import React from "react";
 interface Props {
     children: React.ReactNode;
     type: 'primary' | 'secondary';
-    disabled: boolean;
+    disabled?: boolean;
     handleClick: () => void;
 }
 
@@ -14,7 +14,7 @@ export default function Button(props: Props) {
             type="button"
             onClick={handleClick}
             disabled={disabled}
-            className="text-white bg-dvrpc-blue-1 hover:bg-dvrpc-blue-3 focus:ring-4 focus:ring-dvrpc-blue-5 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 ">
+            className={`text-white ${disabled ? 'bg-dvrpc-gray-5' : 'bg-dvrpc-blue-1 hover:bg-dvrpc-blue-3'} focus:ring-4 focus:ring-dvrpc-blue-5 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 `}>
             {children}
         </button>
     )
