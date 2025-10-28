@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { API_BASE_URL, SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
-import { CategoryKeyMap, GeoLevel } from "@/types";
+import { CategoryKeyMap, Content, GeoLevel } from "@/types";
 
 import CategorySidebar from "./CategorySidebar";
 import MarkdownEditor from "./MarkdownEditor";
@@ -16,7 +16,7 @@ export default function Dashboard() {
 
     const [editContent, setEditContent] = useState("");
     const [previewContent, setPreviewContent] = useState("");
-
+    const [contentHistory, setContentHistory] = useState<Content[]>([])
     const [activeCategory, setActiveCategory] = useState("");
     const [activeSubcategory, setActiveSubcategory] = useState("");
     const [activeTopic, setActiveTopic] = useState("");
@@ -30,6 +30,12 @@ export default function Dashboard() {
         subcategory: string;
         topic: string;
     } | null>(null);
+
+
+    async function fetchContent(category: string, subcategory: string, topic: string) {
+        fetchContentTemplate(category, subcategory, topic)
+        fetchContentHistory(category, subcategory, topic)
+    }
 
     async function fetchContentTemplate(category: string, subcategory: string, topic: string) {
         try {
@@ -48,6 +54,20 @@ export default function Dashboard() {
         }
     }
 
+    async function fetchContentHistory(category: string, subcategory: string, topic: string) {
+        try {
+            const params = new URLSearchParams({ category, subcategory, topic });
+            const res = await fetch(`${API_BASE_URL}/content/history/${geoLevel}?${params}`);
+            if (!res.ok) throw new Error("Content history fetch failed");
+
+            const content = await res.json()
+            console.log(content)
+            setContentHistory(content);
+        } catch (err) {
+            console.error("Error fetching content history:", err);
+        }
+    }
+
     async function fetchPreviewContent(
         template: string,
         category: string,
@@ -57,8 +77,7 @@ export default function Dashboard() {
         if (!category || !subcategory || !topic) return;
 
         try {
-            const params = new URLSearchParams({ category, subcategory, topic });
-            const res = await fetch(`${API_BASE_URL}/content/preview?${params}`, {
+            const res = await fetch(`${API_BASE_URL}/content/preview/${geoLevel}`, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain" },
                 body: template,
@@ -79,7 +98,7 @@ export default function Dashboard() {
             return;
         }
 
-        await fetchContentTemplate(category, subcategory, topic);
+        await fetchContent(category, subcategory, topic);
     }
 
     function handleModalClose() {
@@ -89,14 +108,13 @@ export default function Dashboard() {
 
     async function handleContinue(save: boolean) {
         if (save) {
-            // TODO: persist changes if needed
-            console.log("Saving changes before navigation...");
+            saveChanges()
         }
 
         if (pendingTopic) {
             setModalOpen(false);
             setHasEdits(false);
-            await fetchContentTemplate(
+            await fetchContent(
                 pendingTopic.category,
                 pendingTopic.subcategory,
                 pendingTopic.topic
@@ -104,6 +122,24 @@ export default function Dashboard() {
             setPendingTopic(null);
         }
     }
+
+    async function saveChanges() {
+        const params = new URLSearchParams({ category: activeCategory, subcategory: activeSubcategory, topic: activeTopic });
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/content/${geoLevel}?${params}`, {
+                method: "PUT",
+                headers: { "Content-Type": "text/plain" },
+                body: editContent,
+            });
+            if (!res.ok) throw new Error("Failed to updated content");
+            fetchContentHistory(activeCategory, activeSubcategory, activeTopic)
+            setHasEdits(false)
+        } catch (err) {
+            console.error("Error updating content:", err);
+        }
+    }
+
 
     useEffect(() => {
         fetchPreviewContent(editContent, activeCategory, activeSubcategory, activeTopic);
@@ -135,8 +171,8 @@ export default function Dashboard() {
                 setHasEdits={setHasEdits}
             />
 
-            <MarkdownPreview content={previewContent} hasEdits={hasEdits} />
-            <VersionControl />
+            <MarkdownPreview content={previewContent} hasEdits={hasEdits} saveChanges={saveChanges} />
+            <VersionControl contentHistory={contentHistory} setEditContent={setEditContent} setHasEdits={setHasEdits} />
 
             <UnsavedChangesModal
                 isOpen={modalOpen}

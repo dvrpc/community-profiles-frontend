@@ -37,9 +37,8 @@ export default function MarkdownEditor(props: Props) {
         <div className="w-1/2">
             <div className="p-4 border-b-2 border-dvrpc-gray-7 h-20">
                 <h3 className="text-dvrpc-blue-1 text-3xl">Editor</h3>
-
             </div>
-            <MDEditor height="100%" value={value} onChange={handleChange} />
+            <MDEditor height="100%" value={value} onChange={handleChange} preview="edit" />
 
         </div>
     )

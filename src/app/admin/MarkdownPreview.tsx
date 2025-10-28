@@ -3,13 +3,16 @@ import Button from "@/components/Buttons/Button";
 interface Props {
     content: string;
     hasEdits: boolean;
+    saveChanges: () => void;
 }
 export default function MarkdownPreview(props: Props) {
-    const { content, hasEdits } = props
+    const { content, hasEdits, saveChanges } = props
     console.log(hasEdits)
 
     const handleClick = () => {
-
+        if (hasEdits) {
+            saveChanges()
+        }
     }
 
     return (

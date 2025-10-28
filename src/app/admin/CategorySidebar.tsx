@@ -1,17 +1,20 @@
-import { CategoryKeyMap, CategoryKeys, SubcategoryKeyMap } from "@/types"
+import { CategoryKeyMap } from "@/types";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
-import { keys } from "vega-lite"
 
 interface Props {
-    tree?: CategoryKeyMap
-    handleClick: (category: string, subcategory: string, topic: string) => void
+    tree?: CategoryKeyMap;
+    handleClick: (category: string, subcategory: string, topic: string) => void;
 }
 
-
 export default function CategorySidebar(props: Props) {
-    const { tree, handleClick } = props
+    const { tree, handleClick } = props;
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+    const [selected, setSelected] = useState<{
+        category: string;
+        subcategory: string;
+        topic: string;
+    } | null>(null);
 
     const toggleSection = (sectionKey: string) => {
         setOpenSections((prev) => ({
@@ -20,8 +23,12 @@ export default function CategorySidebar(props: Props) {
         }));
     };
 
+    const handleItemClick = (category: string, subcategory: string, topic: string) => {
+        setSelected({ category, subcategory, topic });
+        handleClick(category, subcategory, topic);
+    };
 
-    if (!tree) return <></>
+    if (!tree) return <></>;
 
     return (
         <div className="w-64 h-full bg-dvrpc-gray-7 overflow-y-auto p-4">
@@ -67,15 +74,25 @@ export default function CategorySidebar(props: Props) {
 
                                             {isSubcatOpen && (
                                                 <ul className="ml-4 mt-1">
-                                                    {items.map((item) => (
-                                                        <li
-                                                            onClick={() => handleClick(category, subcat, item)}
-                                                            key={item}
-                                                            className="px-2 py-1 rounded hover:bg-gray-300 cursor-pointer"
-                                                        >
-                                                            {item}
-                                                        </li>
-                                                    ))}
+                                                    {items.map((item) => {
+                                                        const isSelected =
+                                                            selected?.category === category &&
+                                                            selected?.subcategory === subcat &&
+                                                            selected?.topic === item;
+
+                                                        return (
+                                                            <li
+                                                                key={item}
+                                                                onClick={() => handleItemClick(category, subcat, item)}
+                                                                className={`px-2 py-1 rounded cursor-pointer transition ${isSelected
+                                                                        ? "bg-dvrpc-blue-1 text-white"
+                                                                        : "hover:bg-gray-300"
+                                                                    }`}
+                                                            >
+                                                                {item}
+                                                            </li>
+                                                        );
+                                                    })}
                                                 </ul>
                                             )}
                                         </div>
