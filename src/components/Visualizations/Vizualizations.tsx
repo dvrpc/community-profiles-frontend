@@ -4,9 +4,8 @@ import { CategoryKeys, GeoLevel, Visualization } from "@/types";
 import VizMap from "./VizMap/VizMap";
 import VegaChart from "./Chart/VegaChart";
 import { useInView } from "react-intersection-observer";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/consts";
-import VizLoading from "./VizLoading";
 
 interface Props {
   category: CategoryKeys;
@@ -30,7 +29,7 @@ export default function Visualizations(props: Props) {
     if (isLoaded || !inView) return;
 
     const searchParams = new URLSearchParams({
-      ...(geoLevel != 'region' && { geoid: geoid }),
+      ...(geoLevel != "region" && { geoid: geoid }),
       category: category,
       subcategory: subcategory,
       topic: topic,
@@ -65,7 +64,6 @@ export default function Visualizations(props: Props) {
       return <VegaChart key={i} spec={viz.schema} />;
     }
   }
-
 
   return (
     <div ref={ref}>
