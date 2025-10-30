@@ -2,19 +2,13 @@ import { JsonData, JsonEditor } from "json-edit-react";
 
 interface Props {
   visualizations: string;
-  setVisualizations: (visualizations: string) => void;
-  hasEdits: boolean;
-  setHasEdits: (value: boolean) => void;
+  handleChange: (value: string) => void;
 }
 export default function VizEditor(props: Props) {
-  const { visualizations, setVisualizations, hasEdits, setHasEdits } = props;
+  const { visualizations, handleChange } = props;
 
-  const handleChange = (data: unknown) => {
-    setVisualizations(data as string);
-
-    if (!hasEdits) {
-      setHasEdits(true);
-    }
+  const onChange = (data: unknown) => {
+    handleChange(data as string);
   };
 
   return (
@@ -23,7 +17,7 @@ export default function VizEditor(props: Props) {
         rootFontSize={12}
         maxWidth={"100%"}
         data={visualizations}
-        setData={handleChange} // optional
+        setData={onChange} // optional
       />
     </div>
   );

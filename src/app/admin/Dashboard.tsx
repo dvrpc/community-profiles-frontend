@@ -2,242 +2,126 @@
 
 import { useEffect, useState } from "react";
 import {
-  API_BASE_URL,
-  SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY,
-} from "@/consts";
-import { CategoryKeyMap, Content, GeoLevel, Visualization } from "@/types";
-
+  useTree,
+  useProfile,
+  useTemplate,
+  useHistory,
+  usePreview,
+  useSave,
+} from "./hooks";
+import { SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 import CategorySidebar from "./CategorySidebar";
 import MarkdownEditor from "./MarkdownEditor";
 import MarkdownPreview from "./MarkdownPreview";
+import VizEditor from "./VizEditor";
+import VizPreview from "./VizPreview";
 import VersionControl from "./VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
-import VizEditor from "./VizEditor";
-import VizPreview from "./VizPreview";
+import { GeoLevel, Visualization } from "@/types";
+
+const defaultGeoid = {
+  region: "",
+  county: "42101",
+  municipality: "4201704976",
+};
 
 export type Mode = "content" | "viz";
 
 export default function Dashboard() {
-  const [geoLevel, setGeoLevel] = useState<GeoLevel>("county");
+  const [selectedGeoLevel, setSelectedGeoLevel] = useState<GeoLevel>("county");
   const [selectedMode, setSelectedMode] = useState<Mode>("content");
 
-  const [editText, setEditText] = useState("");
-  const [contentPreview, setContentPreview] = useState<string>("");
-  const [visualizationsPreview, setVisualizationsPreview] = useState<
-    Visualization[]
-  >([]);
-  const [history, setHistory] = useState<Content[]>([]);
-  const [activeCategory, setActiveCategory] = useState("");
-  const [activeSubcategory, setActiveSubcategory] = useState("");
-  const [activeTopic, setActiveTopic] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedTopic, setSelectedTopic] = useState("");
 
+  const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
+
+  const [pendingTopic, setPendingTopic] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const [tree, setTree] = useState<CategoryKeyMap>();
-  const [pendingTopic, setPendingTopic] = useState<{
-    category: string;
-    subcategory: string;
-    topic: string;
-  } | null>(null);
+  const geoid = defaultGeoid[selectedGeoLevel];
 
-  async function loadData(
-    category: string,
-    subcategory: string,
-    topic: string,
-    mode: Mode
-  ) {
-    fetchTemplate(category, subcategory, topic, mode);
-    fetchHistory(category, subcategory, topic, mode);
-  }
+  const { data: tree } = useTree(selectedGeoLevel);
+  const { data: profile } = useProfile(selectedGeoLevel, geoid);
+  const { data: template } = useTemplate(
+    selectedCategory,
+    selectedSubcategory,
+    selectedTopic,
+    selectedMode,
+    selectedGeoLevel
+  );
+  const { data: history } = useHistory(
+    selectedCategory,
+    selectedSubcategory,
+    selectedTopic,
+    selectedMode,
+    selectedGeoLevel
+  );
 
-  async function fetchTemplate(
-    category: string,
-    subcategory: string,
-    topic: string,
-    mode: Mode
-  ) {
-    try {
-      const params = new URLSearchParams({ category, subcategory, topic });
-      const res = await fetch(
-        `${API_BASE_URL}/${mode}/template/${geoLevel}?${params}`
-      );
-      if (!res.ok) throw new Error(`Failed to fetch ${mode} template`);
+  const preview = usePreview(editText, selectedMode, selectedGeoLevel, geoid);
 
-      const text = await res.json();
-      setActiveCategory(category);
-      setActiveSubcategory(subcategory);
-      setActiveTopic(topic);
-      setEditText(text);
-      setHasEdits(false);
-    } catch (err) {
-      console.error(`Error fetching ${mode} template:`, err);
-    }
-  }
+  const saveMutation = useSave();
 
-  async function fetchHistory(
-    category: string,
-    subcategory: string,
-    topic: string,
-    mode: Mode
-  ) {
-    try {
-      const params = new URLSearchParams({ category, subcategory, topic });
-      const res = await fetch(
-        `${API_BASE_URL}/${mode}/history/${geoLevel}?${params}`
-      );
-      if (!res.ok) throw new Error(`${mode} history fetch failed`);
+  useEffect(() => {
+    if (template) setEditText(template);
+  }, [template]);
 
-      const history = await res.json();
-      setHistory(history);
-    } catch (err) {
-      console.error(`Error fetching ${mode} history:`, err);
-    }
-  }
-
-  async function fetchPreview(
-    template: string,
-    category: string,
-    subcategory: string,
-    topic: string,
-    mode: Mode
-  ) {
-    if (!category || !subcategory || !topic) return;
-
-    if (mode == "viz") {
-      template = JSON.stringify(template);
-    }
-    try {
-      const res = await fetch(`${API_BASE_URL}/${mode}/preview/${geoLevel}`, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain" },
-        body: template,
-      });
-      if (!res.ok) throw new Error(`${mode} Preview fetch failed`);
-
-      const data = await res.json();
-
-      if (mode == "content") {
-        setContentPreview(data);
-      } else {
-        setVisualizationsPreview(data);
-      }
-    } catch (err) {
-      console.error(`Error fetching ${mode} preview:`, err);
-    }
-  }
-
-  async function saveChanges() {
-    const params = new URLSearchParams({
-      category: activeCategory,
-      subcategory: activeSubcategory,
-      topic: activeTopic,
-    });
-
-    const body =
-      selectedMode == "content" ? editText : JSON.stringify(editText);
-
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/${selectedMode}/${geoLevel}?${params}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "text/plain" },
-          body: body,
-        }
-      );
-      if (!res.ok) throw new Error(`Failed to updated ${selectedMode}`);
-      fetchHistory(
-        activeCategory,
-        activeSubcategory,
-        activeTopic,
-        selectedMode
-      );
-      setHasEdits(false);
-    } catch (err) {
-      console.error(`Error updating ${selectedMode}:`, err);
-    }
-  }
-
-  async function handleModeChange(mode: Mode) {
-    setSelectedMode(mode);
-    if (activeTopic) {
-      loadData(activeCategory, activeSubcategory, activeTopic, mode);
-    }
-  }
-
-  async function handleTopicSelect(
-    category: string,
-    subcategory: string,
-    topic: string
-  ) {
+  function handleTopicSelect(category: string, sub: string, topic: string) {
     if (hasEdits) {
-      setPendingTopic({ category, subcategory, topic });
+      setPendingTopic({ category, subcategory: sub, topic });
       setModalOpen(true);
       return;
     }
 
-    await loadData(category, subcategory, topic, selectedMode);
+    setSelectedCategory(category);
+    setSelectedSubcategory(sub);
+    setSelectedTopic(topic);
   }
 
-  function handleModalClose() {
-    setPendingTopic(null);
-    setModalOpen(false);
-  }
-
-  async function handleContinue(save: boolean) {
+  function handleContinue(save: boolean) {
     if (save) {
-      saveChanges();
+      handleSaveClick();
     }
+    const { category, subcategory, topic } = pendingTopic!;
+    setSelectedCategory(category);
+    setSelectedSubcategory(subcategory);
+    setSelectedTopic(topic);
+    setModalOpen(false);
+    setHasEdits(false);
+    setPendingTopic(null);
+  }
 
-    if (pendingTopic) {
-      setModalOpen(false);
-      setHasEdits(false);
-      await loadData(
-        pendingTopic.category,
-        pendingTopic.subcategory,
-        pendingTopic.topic,
-        selectedMode
-      );
-      setPendingTopic(null);
+  function handleSaveClick() {
+    const body =
+      selectedMode === "content" ? editText : JSON.stringify(editText);
+    const url = `/${selectedMode}/${selectedGeoLevel}?category=${selectedCategory}&subcategory=${selectedSubcategory}&topic=${selectedTopic}`;
+    saveMutation.mutate({ url, body });
+    setHasEdits(false);
+  }
+
+  function handleContentEdit(value: string) {
+    setEditText(value);
+
+    if (!hasEdits) {
+      setHasEdits(true);
     }
   }
 
-  const handleSaveClick = () => {
-    if (hasEdits) {
-      saveChanges();
+  function handleVizEdit(value: string) {
+    setEditText(value);
+
+    if (!hasEdits) {
+      setHasEdits(true);
     }
+  }
+
+  const handleVersionChange = (file: string, index: number) => {
+    setEditText(file);
+    setHasEdits(index > 0);
   };
-
-  useEffect(() => {
-    fetchPreview(
-      editText,
-      activeCategory,
-      activeSubcategory,
-      activeTopic,
-      selectedMode
-    );
-  }, [editText, activeCategory, activeSubcategory, activeTopic]);
-
-  useEffect(() => {});
-
-  useEffect(() => {
-    const fetchTree = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/content/template/tree/${geoLevel}`
-        );
-        if (!res.ok) throw new Error("Failed to fetch tree");
-        const data = (await res.json()) as CategoryKeyMap;
-        setTree(data);
-      } catch (err) {
-        console.error("Error loading tree:", err);
-      }
-    };
-
-    fetchTree();
-  }, [geoLevel]);
 
   return (
     <div className={`flex ${SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY}`}>
@@ -245,60 +129,59 @@ export default function Dashboard() {
         tree={tree}
         handleClick={handleTopicSelect}
         mode={selectedMode}
-        handleModeChange={handleModeChange}
-        geoLevel={geoLevel}
-        setGeoLevel={setGeoLevel}
+        handleModeChange={setSelectedMode}
+        geoLevel={selectedGeoLevel}
+        setGeoLevel={setSelectedGeoLevel}
       />
 
       <div className="w-full flex">
         <div className="w-1/2">
-          <div className="p-4 border-b-2 border-dvrpc-gray-7 h-20">
-            <h3 className="text-dvrpc-blue-1 text-3xl">Editor</h3>
+          <div className="p-4 border-b-2 h-20">
+            <h3 className="text-3xl">Editor</h3>
           </div>
-          {selectedMode == "content" ? (
-            <MarkdownEditor
-              value={editText}
-              setValue={setEditText}
-              hasEdits={hasEdits}
-              setHasEdits={setHasEdits}
-            />
+
+          {selectedMode === "content" ? (
+            <MarkdownEditor value={editText} handleChange={handleContentEdit} />
           ) : (
-            <VizEditor
-              visualizations={editText}
-              setVisualizations={setEditText}
-              hasEdits={hasEdits}
-              setHasEdits={setHasEdits}
-            />
+            <VizEditor visualizations={editText} handleChange={handleVizEdit} />
           )}
         </div>
+
         <div className="w-1/2">
-          <div className="border-b-2 border-dvrpc-gray-7 flex justify-between p-4 h-20">
-            <h3 className="text-dvrpc-blue-1 text-3xl">Preview</h3>
+          <div className="border-b-2 flex justify-between p-4 h-20">
+            <h3 className="text-3xl">Preview</h3>
             <Button
-              type="primary"
               disabled={!hasEdits}
               handleClick={handleSaveClick}
+              type={"primary"}
             >
               Save Changes
             </Button>
           </div>
-          {selectedMode == "content" ? (
-            <MarkdownPreview content={contentPreview} />
+
+          {selectedMode === "content" ? (
+            <MarkdownPreview content={preview.data} />
           ) : (
-            <VizPreview visualizations={visualizationsPreview} />
+            profile && (
+              <VizPreview
+                visualizations={preview.data as Visualization[]}
+                buffer_bbox={profile.buffer_bbox}
+                geoLevel={selectedGeoLevel}
+                geoid={profile.geoid}
+              />
+            )
           )}
         </div>
       </div>
 
       <VersionControl
-        contentHistory={history}
-        setEditContent={setEditText}
-        setHasEdits={setHasEdits}
+        contentHistory={history || []}
+        handleClick={handleVersionChange}
       />
 
       <UnsavedChangesModal
         isOpen={modalOpen}
-        onClose={handleModalClose}
+        onClose={() => setModalOpen(false)}
         handleContinue={handleContinue}
       >
         You have unsaved changes.

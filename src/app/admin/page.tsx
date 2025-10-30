@@ -1,15 +1,17 @@
-"use client"
+"use client";
 import SmallHeader from "../SmallHeader";
 import Dashboard from "./Dashboard";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export default function Page() {
-
-    return (
-        <>
-            <SmallHeader />
-            <main>
-                <Dashboard />
-            </main>
-        </>
-    );
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SmallHeader />
+      <main>
+        <Dashboard />
+      </main>
+    </QueryClientProvider>
+  );
 }

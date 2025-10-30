@@ -7,34 +7,23 @@ import { ContextStore } from "@uiw/react-md-editor";
 
 interface Props {
   value: string;
-  setValue: (value: string) => void;
-  hasEdits: boolean;
-  setHasEdits: (value: boolean) => void;
+  handleChange: (value: string) => void;
 }
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
 export default function MarkdownEditor(props: Props) {
-  const { value, setValue, hasEdits, setHasEdits } = props;
+  const { value, handleChange } = props;
 
-  const handleChange = (
+  const onChange = (
     value?: string,
     event?: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
-    if (!event?.currentTarget) return;
-    setValue(event.currentTarget.value);
-
-    if (!hasEdits) {
-      setHasEdits(true);
-    }
+    if (!event?.currentTarget || !value) return;
+    handleChange(value);
   };
 
   return (
-    <MDEditor
-      height="100%"
-      value={value}
-      onChange={handleChange}
-      preview="edit"
-    />
+    <MDEditor height="100%" value={value} onChange={onChange} preview="edit" />
   );
 }

@@ -2,20 +2,10 @@ import { Content } from "@/types";
 
 interface Props {
   contentHistory: Content[];
-  setEditContent: (file: string) => void;
-  setHasEdits: (value: boolean) => void;
+  handleClick: (file: string, index: number) => void;
 }
 
-export default function VersionControl({
-  contentHistory,
-  setEditContent,
-  setHasEdits,
-}: Props) {
-  const handleClick = (file: string, index: number) => {
-    setEditContent(file);
-    setHasEdits(index > 0);
-  };
-
+export default function VersionControl({ contentHistory, handleClick }: Props) {
   return (
     <div className="bg-dvrpc-gray-7 w-64 flex flex-col border-l border-dvrpc-gray-6">
       <h3 className="text-dvrpc-blue-1 text-2xl font-semibold p-4 border-b border-dvrpc-gray-6">
