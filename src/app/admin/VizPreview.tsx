@@ -11,7 +11,6 @@ interface Props {
 export default function VizPreview(props: Props) {
   const { visualizations, buffer_bbox, geoLevel, geoid } = props;
 
-  console.log("rendering viz");
   function getViz(viz: Visualization, i: number) {
     if (viz.type == "map") {
       return (
