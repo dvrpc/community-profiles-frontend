@@ -54,6 +54,14 @@ export interface SourceMap {
   [key: string]: SourceSpecification;
 }
 
+export interface Content {
+  category: string;
+  subcategory: string;
+  topic: string;
+  geo_level: string;
+  file: string;
+  create_date: Date
+}
 
 export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
 

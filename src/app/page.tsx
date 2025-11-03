@@ -7,14 +7,9 @@ import Nav from "./Nav";
 import Footer from "./Footer";
 
 export default async function Home() {
-
-  const regionResponse = await fetch(
-    `${API_BASE_URL}/profile/region`
-  );
+  const regionResponse = await fetch(`${API_BASE_URL}/profile/region`);
   const regionData = (await regionResponse.json()) as ProfileData;
-  const contentResponse = await fetch(
-    `${API_BASE_URL}/content/region`
-  );
+  const contentResponse = await fetch(`${API_BASE_URL}/content/region`);
   const content = (await contentResponse.json()) as ProfileContent;
 
   return (
@@ -23,10 +18,12 @@ export default async function Home() {
       <Nav />
       <main>
         <Hero
-          title={'Greater Philadelphia'}
+          title={"Greater Philadelphia"}
           profileData={regionData}
-          geoLevel="region" />
-        <Content content={content} data={regionData} geoLevel="region" /></main>
+          geoLevel="region"
+        />
+        <Content content={content} data={regionData} geoLevel="region" />
+      </main>
       <Footer />
     </>
   );

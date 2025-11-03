@@ -29,7 +29,7 @@ export default function Visualizations(props: Props) {
     if (isLoaded || !inView) return;
 
     const searchParams = new URLSearchParams({
-      ...(geoLevel != 'region' && { geoid: geoid }),
+      ...(geoLevel != "region" && { geoid: geoid }),
       category: category,
       subcategory: subcategory,
       topic: topic,
@@ -65,7 +65,6 @@ export default function Visualizations(props: Props) {
     }
   }
 
-  //
   return (
     <div ref={ref}>
       {visualizations && visualizations.map((viz, i) => getViz(viz, i))}
