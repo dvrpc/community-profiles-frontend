@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
 
-  const [pendingTopic, setPendingTopic] = useState<any>(null);
+  const [pendingTopic, setPendingTopic] = useState<{ category: string, subcategory: string, topic: string } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   const geoid = defaultGeoid[selectedGeoLevel];
@@ -61,7 +61,7 @@ export default function Dashboard() {
     selectedGeoLevel
   );
 
-  const preview = usePreview(editText, selectedMode, selectedGeoLevel, geoid);
+  const { data: preview } = usePreview(editText, selectedMode, selectedGeoLevel, geoid);
 
   const saveMutation = useSave();
 
@@ -69,15 +69,15 @@ export default function Dashboard() {
     if (template) setEditText(template);
   }, [template]);
 
-  function handleTopicSelect(category: string, sub: string, topic: string) {
+  function handleTopicSelect(category: string, subcategory: string, topic: string) {
     if (hasEdits) {
-      setPendingTopic({ category, subcategory: sub, topic });
+      setPendingTopic({ category, subcategory, topic });
       setModalOpen(true);
       return;
     }
 
     setSelectedCategory(category);
-    setSelectedSubcategory(sub);
+    setSelectedSubcategory(subcategory);
     setSelectedTopic(topic);
   }
 
@@ -123,6 +123,19 @@ export default function Dashboard() {
     setHasEdits(index > 0);
   };
 
+  function getPreview() {
+    // this is not great but needed some type workarounds, preview api call should be split up
+    if (!preview) return <></>
+    if (selectedMode == 'content') return <MarkdownPreview content={preview as string} />
+    if (profile) return <VizPreview
+      visualizations={preview as Visualization[]}
+      buffer_bbox={profile.buffer_bbox}
+      geoLevel={selectedGeoLevel}
+      geoid={profile.geoid}
+    />
+
+  }
+
   return (
     <div className={`flex ${SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY}`}>
       <CategorySidebar
@@ -159,18 +172,7 @@ export default function Dashboard() {
             </Button>
           </div>
 
-          {selectedMode === "content" ? (
-            <MarkdownPreview content={preview.data} />
-          ) : (
-            profile && (
-              <VizPreview
-                visualizations={preview.data as Visualization[]}
-                buffer_bbox={profile.buffer_bbox}
-                geoLevel={selectedGeoLevel}
-                geoid={profile.geoid}
-              />
-            )
-          )}
+          {getPreview()}
         </div>
       </div>
 
