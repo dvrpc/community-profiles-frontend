@@ -1,4 +1,4 @@
-import { CategoryKeys, GeoLevel } from "@/types";
+import { CategoryKeys, GeoLevel } from "@/types/types";
 import Visualizations from "../Visualizations/Vizualizations";
 import { displaySubcategoryTopicTitle } from "@/utils";
 

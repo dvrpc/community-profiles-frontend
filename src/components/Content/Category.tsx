@@ -4,7 +4,7 @@ import {
   GeoLevel,
   ProfileData,
   SubcategoryContent,
-} from "@/types";
+} from "@/types/types";
 import Subcategory from "./Subcategory";
 import Title from "./Title";
 

@@ -1,4 +1,4 @@
-import { Feature, LegendOverrideItem } from "@/types";
+import { Feature, LegendOverrideItem } from "@/types/types";
 import { defaultColor } from "./mapLayers";
 
 interface Props {

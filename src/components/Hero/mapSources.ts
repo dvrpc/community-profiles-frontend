@@ -1,4 +1,4 @@
-import { SourceMap } from "@/types";
+import { SourceMap } from "@/types/types";
 
 const sources: SourceMap = {
   countyboundaries: {

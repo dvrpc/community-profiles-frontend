@@ -1,5 +1,5 @@
 import IconButton from "@/components/Buttons/IconButton";
-import { GeoJSONProperties } from "@/types";
+import { GeoJSONProperties } from "@/types/types";
 import { MapPin, Minus, TableIcon, X } from "lucide-react";
 import { useState } from "react";
 

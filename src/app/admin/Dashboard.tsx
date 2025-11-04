@@ -18,7 +18,8 @@ import VizPreview from "./VizPreview";
 import VersionControl from "./VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
-import { GeoLevel, Visualization } from "@/types";
+import { GeoLevel, Visualization } from "@/types/types";
+import { getSession } from "next-auth/react";
 
 const defaultGeoid = {
   region: "",
@@ -41,6 +42,7 @@ export default function Dashboard() {
 
   const [pendingTopic, setPendingTopic] = useState<{ category: string, subcategory: string, topic: string } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+
 
   const geoid = defaultGeoid[selectedGeoLevel];
 

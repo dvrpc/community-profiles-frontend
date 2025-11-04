@@ -3,7 +3,7 @@ import {
   GeoLevel,
   SubcategoryContent,
   TopicContent,
-} from "@/types";
+} from "@/types/types";
 import Topic from "./Topic";
 import { displaySubcategoryTopicTitle } from "@/utils";
 import Title from "./Title";

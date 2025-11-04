@@ -7,7 +7,7 @@ import {
   CountySlug,
   MunicipalitySlug,
   ProfileData,
-} from "@/types";
+} from "@/types/types";
 import { getAllCountyMunicipalityPairs } from "@/utils";
 import Content from "@/components/Content/Content";
 import Footer from "@/app/Footer";
@@ -30,7 +30,7 @@ export default async function Municipality(props: Params) {
   );
   const municipalityData = (await profileResponse.json()) as ProfileData;
   const contentResponse = await fetch(
-    `${API_BASE_URL}/content/municipality/${geoid}`
+    `${API_BASE_URL}/content/municipality/${geoid}`,
   );
   const content = (await contentResponse.json()) as ProfileContent;
 

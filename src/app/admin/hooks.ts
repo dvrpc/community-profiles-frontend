@@ -6,7 +6,7 @@ import {
   GeoLevel,
   ProfileData,
   Visualization,
-} from "@/types";
+} from "@/types/types";
 
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({

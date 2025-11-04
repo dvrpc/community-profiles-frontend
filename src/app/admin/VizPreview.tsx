@@ -1,6 +1,6 @@
 import VegaChart from "@/components/Visualizations/Chart/VegaChart";
 import VizMap from "@/components/Visualizations/VizMap/VizMap";
-import { GeoLevel, Visualization } from "@/types";
+import { GeoLevel, Visualization } from "@/types/types";
 
 interface Props {
   visualizations: Visualization[];

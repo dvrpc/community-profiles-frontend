@@ -11,7 +11,7 @@ import {
   MouseEvent,
   GeoJSONProperties,
   LegendOverrideItem,
-} from "@/types";
+} from "@/types/types";
 import { ACCESS_TOKEN, regionBounds } from "@/consts";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";

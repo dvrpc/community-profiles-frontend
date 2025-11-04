@@ -1,4 +1,4 @@
-import { GeoLevel, ProfileData } from "@/types";
+import { GeoLevel, ProfileData } from "@/types/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import EconomyIcon from "../Icons/EconomyIcon";

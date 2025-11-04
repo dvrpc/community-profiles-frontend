@@ -1,6 +1,6 @@
 "use client";
 
-import { CategoryKeys, GeoLevel, Visualization } from "@/types";
+import { CategoryKeys, GeoLevel, Visualization } from "@/types/types";
 import VizMap from "./VizMap/VizMap";
 import VegaChart from "./Chart/VegaChart";
 import { useInView } from "react-intersection-observer";
