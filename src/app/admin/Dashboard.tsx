@@ -18,7 +18,8 @@ import VizPreview from "./VizPreview";
 import VersionControl from "./VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
-import { GeoLevel, Visualization } from "@/types";
+import { GeoLevel, Visualization } from "@/types/types";
+import { getSession } from "next-auth/react";
 
 const defaultGeoid = {
   region: "",
@@ -39,7 +40,11 @@ export default function Dashboard() {
   const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
 
-  const [pendingTopic, setPendingTopic] = useState<{ category: string, subcategory: string, topic: string } | null>(null);
+  const [pendingTopic, setPendingTopic] = useState<{
+    category: string;
+    subcategory: string;
+    topic: string;
+  } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   const geoid = defaultGeoid[selectedGeoLevel];
@@ -61,7 +66,12 @@ export default function Dashboard() {
     selectedGeoLevel
   );
 
-  const { data: preview } = usePreview(editText, selectedMode, selectedGeoLevel, geoid);
+  const { data: preview } = usePreview(
+    editText,
+    selectedMode,
+    selectedGeoLevel,
+    geoid
+  );
 
   const saveMutation = useSave();
 
@@ -69,7 +79,11 @@ export default function Dashboard() {
     if (template) setEditText(template);
   }, [template]);
 
-  function handleTopicSelect(category: string, subcategory: string, topic: string) {
+  function handleTopicSelect(
+    category: string,
+    subcategory: string,
+    topic: string
+  ) {
     if (hasEdits) {
       setPendingTopic({ category, subcategory, topic });
       setModalOpen(true);
@@ -118,22 +132,30 @@ export default function Dashboard() {
     }
   }
 
-  const handleVersionChange = (file: string, index: number) => {
+  function handleModeChange(mode: Mode) {
+    setEditText("");
+    setSelectedMode(mode);
+  }
+
+  function handleVersionChange(file: string, index: number) {
     setEditText(file);
     setHasEdits(index > 0);
-  };
+  }
 
   function getPreview() {
     // this is not great but needed some type workarounds, preview api call should be split up
-    if (!preview) return <></>
-    if (selectedMode == 'content') return <MarkdownPreview content={preview as string} />
-    if (profile) return <VizPreview
-      visualizations={preview as Visualization[]}
-      buffer_bbox={profile.buffer_bbox}
-      geoLevel={selectedGeoLevel}
-      geoid={profile.geoid}
-    />
-
+    if (!preview) return <></>;
+    if (selectedMode == "content")
+      return <MarkdownPreview content={preview as string} />;
+    if (profile)
+      return (
+        <VizPreview
+          visualizations={preview as Visualization[]}
+          buffer_bbox={profile.buffer_bbox}
+          geoLevel={selectedGeoLevel}
+          geoid={profile.geoid}
+        />
+      );
   }
 
   return (
@@ -142,7 +164,7 @@ export default function Dashboard() {
         tree={tree}
         handleClick={handleTopicSelect}
         mode={selectedMode}
-        handleModeChange={setSelectedMode}
+        handleModeChange={handleModeChange}
         geoLevel={selectedGeoLevel}
         setGeoLevel={setSelectedGeoLevel}
       />

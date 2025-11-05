@@ -1,4 +1,4 @@
-import { SubcategoryKeyMap } from "@/types";
+import { SubcategoryKeyMap } from "@/types/types";
 import SubcategoryDropdown from "./SubcategoryDropdown";
 
 interface Props {

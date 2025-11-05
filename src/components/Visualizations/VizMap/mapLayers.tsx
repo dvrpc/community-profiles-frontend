@@ -1,4 +1,4 @@
-import { Feature, GeoLevel, LayerMap } from "@/types";
+import { Feature, GeoLevel, LayerMap } from "@/types/types";
 import {
   DataDrivenPropertyValueSpecification,
   LayerSpecification,

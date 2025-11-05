@@ -1,4 +1,4 @@
-import { CategoryKeyMap, GeoLevel } from "@/types";
+import { CategoryKeyMap, GeoLevel } from "@/types/types";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { useState } from "react";
 import { Mode } from "./Dashboard";
@@ -45,22 +45,20 @@ export default function CategorySidebar(props: Props) {
       <div className="flex gap-2">
         <button
           onClick={() => handleModeChange("content")}
-          className={`flex-1 px-3 py-2 rounded font-semibold transition ${
-            mode === "content"
+          className={`flex-1 px-3 py-2 rounded font-semibold transition ${mode === "content"
               ? "bg-dvrpc-blue-1 text-white"
               : "bg-gray-200 hover:bg-gray-300"
-          }`}
+            }`}
         >
           Content
         </button>
 
         <button
           onClick={() => handleModeChange("viz")}
-          className={`flex-1 px-3 py-2 rounded font-semibold transition ${
-            mode === "viz"
+          className={`flex-1 px-3 py-2 rounded font-semibold transition ${mode === "viz"
               ? "bg-dvrpc-blue-1 text-white"
               : "bg-gray-200 hover:bg-gray-300"
-          }`}
+            }`}
         >
           Viz
         </button>
@@ -132,11 +130,10 @@ export default function CategorySidebar(props: Props) {
                                 onClick={() =>
                                   handleItemClick(category, subcat, item)
                                 }
-                                className={`px-2 py-1 rounded cursor-pointer transition ${
-                                  isSelected
+                                className={`px-2 py-1 rounded cursor-pointer transition ${isSelected
                                     ? "bg-dvrpc-blue-1 text-white"
                                     : "hover:bg-gray-300"
-                                }`}
+                                  }`}
                               >
                                 {item}
                               </li>

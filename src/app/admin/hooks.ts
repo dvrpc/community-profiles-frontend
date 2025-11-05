@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiGet, apiPost, apiPut } from "@/lib/api";
+import { apiGet, apiPost, apiPutAuthorized } from "@/lib/api";
 import {
   CategoryKeyMap,
   Content,
   GeoLevel,
   ProfileData,
   Visualization,
-} from "@/types";
+} from "@/types/types";
 
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({
@@ -68,11 +68,12 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${
+          geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),
-    // enabled: !!topic,
+    enabled: template !== "" && template !== "[]",
     staleTime: 0,
   });
 }
@@ -81,7 +82,7 @@ export function useSave() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ url, body }: { url: string; body: string }) =>
-      apiPut(url, body),
+      apiPutAuthorized(url, body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["history"] });
       qc.invalidateQueries({ queryKey: ["preview"] });

@@ -1,4 +1,4 @@
-import { CategoryKeys, GeoLevel, ProfileContent, ProfileData } from "@/types";
+import { CategoryKeys, GeoLevel, ProfileContent, ProfileData } from "@/types/types";
 import Category from "./Category";
 import CategoryNav from "../CategoryNav/CategoryNav";
 import ScrollProvider from "@/context/ScrollProvider";

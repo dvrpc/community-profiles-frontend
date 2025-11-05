@@ -1,5 +1,5 @@
 "use client";
-import { CategoryKeyMap, CategoryKeys, getTypedObjectEntries } from "@/types";
+import { CategoryKeyMap, CategoryKeys, getTypedObjectEntries } from "@/types/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import EconomyIcon from "../Icons/EconomyIcon";

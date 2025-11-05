@@ -1,4 +1,4 @@
-import { Content } from "@/types";
+import { Content } from "@/types/types";
 
 interface Props {
   contentHistory: Content[];
@@ -22,9 +22,8 @@ export default function VersionControl({ contentHistory, handleClick }: Props) {
               onClick={() => handleClick(item.file, i)}
               className="text-left px-4 py-2 text-sm hover:bg-dvrpc-gray-6 focus:bg-dvrpc-gray-6 transition"
             >
-              {`${new Date(item.create_date).toLocaleString()}${
-                i == 0 ? " (Current)" : ""
-              }`}
+              {`${new Date(item.create_date).toLocaleString()}${i == 0 ? " (Current)" : ""
+                }`}
             </button>
           ))
         )}

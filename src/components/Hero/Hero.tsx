@@ -1,7 +1,7 @@
 import FadeMask from "./FadeMask";
 import HeroMap from "./HeroMap";
 import HeroLeftContent from "./HeroLeftContent";
-import { GeoLevel, ProfileData } from "@/types";
+import { GeoLevel, ProfileData } from "@/types/types";
 import { LARGE_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY, SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 
 interface Props {

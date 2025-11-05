@@ -6,7 +6,7 @@ import mapboxgl, { LngLatBounds, Map } from "mapbox-gl";
 import { ACCESS_TOKEN, regionBounds } from "@/consts";
 import sources from "./mapSources";
 import getLayers from "./mapLayers";
-import { GeoLevel, MouseEvent } from "@/types";
+import { GeoLevel, MouseEvent } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { getMunicipalitySlugFromGeoid, parseBounds } from "@/utils";
 
