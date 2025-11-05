@@ -7,7 +7,6 @@ async function authorizedFetch<T>(
 ): Promise<T> {
   const session = await getSession();
 
-
   // Only attach token if it exists (for admin-protected routes)
   const headers = new Headers(options.headers);
   if (session?.id_token) {
@@ -27,14 +26,50 @@ async function authorizedFetch<T>(
   return res.json();
 }
 
-export async function apiGet<T>(path: string) {
+export async function apiGetAuthorized<T>(path: string) {
   return authorizedFetch<T>(path, { method: "GET" });
 }
 
-export async function apiPost<T>(path: string, body: string) {
+export async function apiPostAuthorized<T>(path: string, body: string) {
   return authorizedFetch<T>(path, { method: "POST", body });
 }
 
-export async function apiPut<T>(path: string, body: string) {
+export async function apiPutAuthorized<T>(path: string, body: string) {
   return authorizedFetch<T>(path, { method: "PUT", body });
+}
+
+export async function apiGet<T>(path: string) {
+  const res = await fetch(`${API_BASE_URL}${path}`);
+
+  if (!res.ok) throw new Error(res.statusText);
+
+  return res.json() as Promise<T>;
+}
+
+export async function apiPost<T>(path: string, body: string) {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+
+    headers: { "Content-Type": "text/plain" },
+
+    body,
+  });
+
+  if (!res.ok) throw new Error(res.statusText);
+
+  return res.json() as Promise<T>;
+}
+
+export async function apiPut(path: string, body: string) {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: "PUT",
+
+    headers: { "Content-Type": "text/plain" },
+
+    body,
+  });
+
+  if (!res.ok) throw new Error(res.statusText);
+
+  return res.json();
 }
