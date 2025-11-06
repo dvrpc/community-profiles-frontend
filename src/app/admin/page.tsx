@@ -14,9 +14,8 @@ export default function Page() {
   return (
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
-        <SmallHeader />
 
-        <main>
+        <main className="bg-[#f5f5f5]">
           <LoginWrapper>
             <Dashboard />
           </LoginWrapper>

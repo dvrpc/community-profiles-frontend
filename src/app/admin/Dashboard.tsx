@@ -20,6 +20,7 @@ import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
 import { GeoLevel, Visualization } from "@/types/types";
 import { getSession } from "next-auth/react";
+import Tabs from "./Header";
 
 const defaultGeoid = {
   region: "",
@@ -27,7 +28,7 @@ const defaultGeoid = {
   municipality: "4201704976",
 };
 
-export type Mode = "content" | "viz";
+export type Mode = "content" | "viz" | "sources";
 
 export default function Dashboard() {
   const [selectedGeoLevel, setSelectedGeoLevel] = useState<GeoLevel>("county");
@@ -142,6 +143,7 @@ export default function Dashboard() {
     setHasEdits(index > 0);
   }
 
+
   function getPreview() {
     // this is not great but needed some type workarounds, preview api call should be split up
     if (!preview) return <></>;
@@ -159,7 +161,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className={`flex ${SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY}`}>
+    <div className='h-screen flex'>
       <CategorySidebar
         tree={tree}
         handleClick={handleTopicSelect}
@@ -168,40 +170,48 @@ export default function Dashboard() {
         geoLevel={selectedGeoLevel}
         setGeoLevel={setSelectedGeoLevel}
       />
+      <div className="w-full">
 
-      <div className="w-full flex">
-        <div className="w-1/2">
-          <div className="p-4 border-b-2 h-20">
-            <h3 className="text-3xl">Editor</h3>
+
+        <Tabs currentTab={selectedMode} setCurrentTab={handleModeChange} />
+        {selectedMode != 'sources' ?
+          <div className="h-full flex">
+            <div className="flex w-4/5">
+              <div className="w-1/2 bg-white p-2 ml-0 m-1 rounded-md">
+                <h3 className="text-3xl p-2 mb-2">Editor</h3>
+
+                {selectedMode === "content" ? (
+                  <MarkdownEditor value={editText} handleChange={handleContentEdit} />
+                ) : (
+                  <VizEditor visualizations={editText} handleChange={handleVizEdit} />
+                )}
+              </div>
+
+              <div className="w-1/2 bg-white p-2 m-1 rounded-md">
+                <div className="flex justify-between p-2 mb-2">
+                  <h3 className="text-3xl">Preview</h3>
+                  <Button
+                    disabled={!hasEdits}
+                    handleClick={handleSaveClick}
+                    type={"primary"}
+                  >
+                    Save Changes
+                  </Button>
+                </div>
+
+                {getPreview()}
+              </div>
+            </div>
+            <VersionControl
+              contentHistory={history || []}
+              handleClick={handleVersionChange}
+            />
+          </div> :
+          <div className="w-full p-2 mr-2 mt-1 rounded-md h-full bg-white ">
+
           </div>
-
-          {selectedMode === "content" ? (
-            <MarkdownEditor value={editText} handleChange={handleContentEdit} />
-          ) : (
-            <VizEditor visualizations={editText} handleChange={handleVizEdit} />
-          )}
-        </div>
-
-        <div className="w-1/2">
-          <div className="border-b-2 flex justify-between p-4 h-20">
-            <h3 className="text-3xl">Preview</h3>
-            <Button
-              disabled={!hasEdits}
-              handleClick={handleSaveClick}
-              type={"primary"}
-            >
-              Save Changes
-            </Button>
-          </div>
-
-          {getPreview()}
-        </div>
-      </div>
-
-      <VersionControl
-        contentHistory={history || []}
-        handleClick={handleVersionChange}
-      />
+        }
+      </div> :
 
       <UnsavedChangesModal
         isOpen={modalOpen}
