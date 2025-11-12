@@ -12,7 +12,7 @@ export default function VizEditor(props: Props) {
   };
 
   return (
-    <div className="h-full overflow-auto">
+    <div className="flex-grow overflow-auto">
       <JsonEditor
         rootFontSize={12}
         maxWidth={"100%"}

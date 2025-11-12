@@ -7,7 +7,7 @@ interface Props {
 
 export default function VersionControl({ contentHistory, handleClick }: Props) {
   return (
-    <div className="bg-white m-1 mr-2 rounded-md flex flex-col w-1/5">
+    <>
       <h3 className="text-dvrpc-blue-1 text-2xl font-semibold p-4 border-b border-dvrpc-gray-6">
         History
       </h3>
@@ -28,6 +28,6 @@ export default function VersionControl({ contentHistory, handleClick }: Props) {
           ))
         )}
       </div>
-    </div>
+    </>
   );
 }

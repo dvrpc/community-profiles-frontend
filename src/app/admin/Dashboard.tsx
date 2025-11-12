@@ -8,7 +8,7 @@ import {
   useHistory,
   usePreview,
   useSave,
-} from "./hooks";
+} from "../../lib/hooks";
 import { SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 import CategorySidebar from "./CategorySidebar";
 import MarkdownEditor from "./MarkdownEditor";
@@ -21,6 +21,7 @@ import Button from "@/components/Buttons/Button";
 import { GeoLevel, Visualization } from "@/types/types";
 import { getSession } from "next-auth/react";
 import Tabs from "./Header";
+import SourceEditor from "./SourceEditor";
 
 const defaultGeoid = {
   region: "",
@@ -161,57 +162,57 @@ export default function Dashboard() {
   }
 
   return (
-    <div className='h-screen flex'>
-      <CategorySidebar
-        tree={tree}
-        handleClick={handleTopicSelect}
-        mode={selectedMode}
-        handleModeChange={handleModeChange}
-        geoLevel={selectedGeoLevel}
-        setGeoLevel={setSelectedGeoLevel}
-      />
-      <div className="w-full">
-
-
+    <div className='h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2'>
+      <div className="row-span-3 p-2 overflow-auto">
+        <CategorySidebar
+          tree={tree}
+          handleClick={handleTopicSelect}
+          mode={selectedMode}
+          handleModeChange={handleModeChange}
+          geoLevel={selectedGeoLevel}
+          setGeoLevel={setSelectedGeoLevel}
+        />
+      </div>
+      <div className="col-span-3 p-2 bg-white flex justify-between rounded-md">
         <Tabs currentTab={selectedMode} setCurrentTab={handleModeChange} />
-        {selectedMode != 'sources' ?
-          <div className="h-full flex">
-            <div className="flex w-4/5">
-              <div className="w-1/2 bg-white p-2 ml-0 m-1 rounded-md">
-                <h3 className="text-3xl p-2 mb-2">Editor</h3>
+      </div>
+      {selectedMode != 'sources' ? <>
+        <div className="col-start-2 row-start-2 bg-white p-2 flex flex-col rounded-md overflow-auto">
+          <h3 className="text-xl p-2 mb-2">Editor</h3>
 
-                {selectedMode === "content" ? (
-                  <MarkdownEditor value={editText} handleChange={handleContentEdit} />
-                ) : (
-                  <VizEditor visualizations={editText} handleChange={handleVizEdit} />
-                )}
-              </div>
-
-              <div className="w-1/2 bg-white p-2 m-1 rounded-md">
-                <div className="flex justify-between p-2 mb-2">
-                  <h3 className="text-3xl">Preview</h3>
-                  <Button
-                    disabled={!hasEdits}
-                    handleClick={handleSaveClick}
-                    type={"primary"}
-                  >
-                    Save Changes
-                  </Button>
-                </div>
-
-                {getPreview()}
-              </div>
-            </div>
-            <VersionControl
-              contentHistory={history || []}
-              handleClick={handleVersionChange}
-            />
-          </div> :
-          <div className="w-full p-2 mr-2 mt-1 rounded-md h-full bg-white ">
-
+          {selectedMode === "content" ? (
+            <MarkdownEditor value={editText} handleChange={handleContentEdit} />
+          ) : (
+            <VizEditor visualizations={editText} handleChange={handleVizEdit} />
+          )}
+        </div>
+        <div className="col-start-3 row-start-2 bg-white p-2 rounded-md overflow-auto">
+          <div className="flex justify-between p-2 mb-2">
+            <h3 className="text-xl">Preview</h3>
+            <Button
+              disabled={!hasEdits}
+              handleClick={handleSaveClick}
+              type={"primary"}
+            >
+              Save Changes
+            </Button>
           </div>
-        }
-      </div> :
+
+          {getPreview()}
+        </div>
+        <div className="col-span-2 col-start-2 row-start-3 bg-white p-2 rounded-md">
+        </div>
+        <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
+          <VersionControl
+            contentHistory={history || []}
+            handleClick={handleVersionChange}
+          />
+        </div></> :
+        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+          <SourceEditor />
+        </div>
+      }
+
 
       <UnsavedChangesModal
         isOpen={modalOpen}

@@ -1,5 +1,7 @@
 import { useSession } from "next-auth/react";
 import { Mode } from "./Dashboard";
+import { signOut } from 'next-auth/react';
+import Button from "@/components/Buttons/Button";
 
 interface Props {
     currentTab: Mode;
@@ -13,7 +15,7 @@ export default function Header(props: Props) {
 
     if (!session) return <></>
     return (
-        <div className="px-2 mt-2 mb-1 mr-2 bg-white flex justify-between rounded-md">
+        <>
             <div className="text-sm font-medium text-center text-dvrpc-gray-2 pt-4">
                 <ul className="flex flex-wrap -mb-px">
                     <li className="me-2">
@@ -30,6 +32,7 @@ export default function Header(props: Props) {
 
 
             <div className="flex items-center gap-2 pr-4">
+                {/* <Button handleClick={() => signOut()} type="primary">Refresh Session</Button> */}
 
                 <img
                     src={session.user.image}
@@ -38,6 +41,6 @@ export default function Header(props: Props) {
                 />
                 <h2>{session.user.name}</h2>
             </div>
-        </div >
+        </ >
     )
 }

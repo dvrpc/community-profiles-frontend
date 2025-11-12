@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiGet, apiPost, apiPutAuthorized } from "@/lib/api";
+import { apiDeleteAuthorized, apiGet, apiPost, apiPostAuthorized, apiPutAuthorized } from "@/lib/api";
 import {
   CategoryKeyMap,
   Content,
   GeoLevel,
   ProfileData,
+  Source,
+  SourceBase,
   Visualization,
 } from "@/types/types";
 
@@ -58,6 +60,52 @@ export function useHistory(
   });
 }
 
+export function useSource(
+) {
+  return useQuery({
+    queryKey: ["source"],
+    queryFn: () =>
+      apiGet<Source[]>(
+        `/source`
+      ),
+  });
+}
+
+export function useCreateSource() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (source: SourceRequest) => apiPostAuthorized<Source>("/source", JSON.stringify(source)),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["source"] });
+    },
+  });
+}
+
+export function useUpdateSource() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, source }: { id: number; source: SourceRequest }) =>
+      apiPutAuthorized<Source>(`/source/${id}`, JSON.stringify(source)),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["source"] });
+    },
+  });
+}
+
+export function useDeleteSource() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) =>
+      apiDeleteAuthorized<void>(`/source/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["source"] });
+    },
+  });
+}
+
 export function usePreview(
   template: string,
   mode: string,
@@ -68,8 +116,7 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${
-          geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),

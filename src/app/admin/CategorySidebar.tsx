@@ -39,9 +39,9 @@ export default function CategorySidebar(props: Props) {
   };
 
   if (!tree) return <></>;
-
+  //w-80 h-full text-dvrpc-gray-1  overflow-y-auto p-4 space-y-4
   return (
-    <div className="w-80 h-full text-dvrpc-gray-1  overflow-y-auto p-4 space-y-4">
+    <div className="">
       <div className="">
         <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
         <span className="">Admin Dasbhoard</span>

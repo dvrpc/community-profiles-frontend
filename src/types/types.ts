@@ -93,6 +93,24 @@ export interface ChartVisualization {
   schema: TopLevelSpec;
 }
 
+export interface SourceBase {
+  name: string;
+  year_from?: number;
+  year_to: number;
+  citation: string;
+}
+
+export type Source = SourceBase & {
+  id: number;
+}
+
+export type SourceForm = SourceBase & {
+  id?: number;
+}
+
+
+
+
 export interface Feature {
   sourceUrl: string;
   sourceLayer: string;
