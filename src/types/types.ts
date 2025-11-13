@@ -60,7 +60,7 @@ export interface Content {
   topic: string;
   geo_level: string;
   file: string;
-  create_date: Date
+  create_date: Date;
 }
 
 export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
@@ -68,8 +68,11 @@ export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
 export type SubcategoryContent = Record<string, TopicContent[]>;
 
 export type CategoryKeyMap = Record<CategoryKeys, SubcategoryKeyMap>;
-export type SubcategoryKeyMap = Record<string, string[]>;
-
+export type SubcategoryKeyMap = Record<string, Topic[]>;
+export type Topic = {
+  id: number;
+  topic: string;
+};
 export interface TopicContent {
   name: string;
   content: string;
@@ -102,14 +105,11 @@ export interface SourceBase {
 
 export type Source = SourceBase & {
   id: number;
-}
+};
 
 export type SourceForm = SourceBase & {
   id?: number;
-}
-
-
-
+};
 
 export interface Feature {
   sourceUrl: string;
@@ -668,9 +668,6 @@ export interface ProfileData {
   pct_change_ldv: number;
   percent_cost_burdened: number;
 }
-
-
-
 
 export interface MunicipalityInfo {
   geoid: string;

@@ -9,7 +9,6 @@ import {
   usePreview,
   useSave,
 } from "../../lib/hooks";
-import { SMALL_HEADER_REMAINING_VIEWPORT_HEIGHT_PROPERTY } from "@/consts";
 import CategorySidebar from "./CategorySidebar";
 import MarkdownEditor from "./MarkdownEditor";
 import MarkdownPreview from "./MarkdownPreview";
@@ -34,39 +33,25 @@ export type Mode = "content" | "viz" | "sources";
 export default function Dashboard() {
   const [selectedGeoLevel, setSelectedGeoLevel] = useState<GeoLevel>("county");
   const [selectedMode, setSelectedMode] = useState<Mode>("content");
+  const [selectedId, setSelectedId] = useState<number>(0);
 
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedSubcategory, setSelectedSubcategory] = useState("");
-  const [selectedTopic, setSelectedTopic] = useState("");
+  // const [selectedCategory, setSelectedCategory] = useState("");
+  // const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  // const [selectedTopic, setSelectedTopic] = useState("");
 
   const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
 
-  const [pendingTopic, setPendingTopic] = useState<{
-    category: string;
-    subcategory: string;
-    topic: string;
-  } | null>(null);
+  const [pendingId, setPendingId] = useState<number | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   const geoid = defaultGeoid[selectedGeoLevel];
 
   const { data: tree } = useTree(selectedGeoLevel);
   const { data: profile } = useProfile(selectedGeoLevel, geoid);
-  const { data: template } = useTemplate(
-    selectedCategory,
-    selectedSubcategory,
-    selectedTopic,
-    selectedMode,
-    selectedGeoLevel
-  );
-  const { data: history } = useHistory(
-    selectedCategory,
-    selectedSubcategory,
-    selectedTopic,
-    selectedMode,
-    selectedGeoLevel
-  );
+
+  const { data: template } = useTemplate(selectedMode, selectedId);
+  const { data: history } = useHistory(selectedMode, selectedId);
 
   const { data: preview } = usePreview(
     editText,
@@ -81,39 +66,35 @@ export default function Dashboard() {
     if (template) setEditText(template);
   }, [template]);
 
-  function handleTopicSelect(
-    category: string,
-    subcategory: string,
-    topic: string
-  ) {
+  function handleTopicSelect(id: number) {
     if (hasEdits) {
-      setPendingTopic({ category, subcategory, topic });
+      setPendingId(id);
       setModalOpen(true);
       return;
     }
 
-    setSelectedCategory(category);
-    setSelectedSubcategory(subcategory);
-    setSelectedTopic(topic);
+    setSelectedId(id);
   }
 
   function handleContinue(save: boolean) {
     if (save) {
       handleSaveClick();
     }
-    const { category, subcategory, topic } = pendingTopic!;
-    setSelectedCategory(category);
-    setSelectedSubcategory(subcategory);
-    setSelectedTopic(topic);
+
+    if (!pendingId) {
+      throw new Error("No pending topic id...");
+    }
+
+    setSelectedId(pendingId);
     setModalOpen(false);
     setHasEdits(false);
-    setPendingTopic(null);
+    setPendingId(null);
   }
 
   function handleSaveClick() {
     const body =
       selectedMode === "content" ? editText : JSON.stringify(editText);
-    const url = `/${selectedMode}/${selectedGeoLevel}?category=${selectedCategory}&subcategory=${selectedSubcategory}&topic=${selectedTopic}`;
+    const url = `/${selectedMode}/${selectedId}`;
     saveMutation.mutate({ url, body });
     setHasEdits(false);
   }
@@ -144,7 +125,6 @@ export default function Dashboard() {
     setHasEdits(index > 0);
   }
 
-
   function getPreview() {
     // this is not great but needed some type workarounds, preview api call should be split up
     if (!preview) return <></>;
@@ -162,7 +142,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className='h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2'>
+    <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
       <div className="row-span-3 p-2 overflow-auto">
         <CategorySidebar
           tree={tree}
@@ -176,43 +156,50 @@ export default function Dashboard() {
       <div className="col-span-3 p-2 bg-white flex justify-between rounded-md">
         <Tabs currentTab={selectedMode} setCurrentTab={handleModeChange} />
       </div>
-      {selectedMode != 'sources' ? <>
-        <div className="col-start-2 row-start-2 bg-white p-2 flex flex-col rounded-md overflow-auto">
-          <h3 className="text-xl p-2 mb-2">Editor</h3>
+      {selectedMode != "sources" ? (
+        <>
+          <div className="col-start-2 row-start-2 bg-white p-2 flex flex-col rounded-md overflow-auto">
+            <h3 className="text-xl p-2 mb-2">Editor</h3>
 
-          {selectedMode === "content" ? (
-            <MarkdownEditor value={editText} handleChange={handleContentEdit} />
-          ) : (
-            <VizEditor visualizations={editText} handleChange={handleVizEdit} />
-          )}
-        </div>
-        <div className="col-start-3 row-start-2 bg-white p-2 rounded-md overflow-auto">
-          <div className="flex justify-between p-2 mb-2">
-            <h3 className="text-xl">Preview</h3>
-            <Button
-              disabled={!hasEdits}
-              handleClick={handleSaveClick}
-              type={"primary"}
-            >
-              Save Changes
-            </Button>
+            {selectedMode === "content" ? (
+              <MarkdownEditor
+                value={editText}
+                handleChange={handleContentEdit}
+              />
+            ) : (
+              <VizEditor
+                visualizations={editText}
+                handleChange={handleVizEdit}
+              />
+            )}
           </div>
+          <div className="col-start-3 row-start-2 bg-white p-2 rounded-md overflow-auto">
+            <div className="flex justify-between p-2 mb-2">
+              <h3 className="text-xl">Preview</h3>
+              <Button
+                disabled={!hasEdits}
+                handleClick={handleSaveClick}
+                type={"primary"}
+              >
+                Save Changes
+              </Button>
+            </div>
 
-          {getPreview()}
-        </div>
-        <div className="col-span-2 col-start-2 row-start-3 bg-white p-2 rounded-md">
-        </div>
-        <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
-          <VersionControl
-            contentHistory={history || []}
-            handleClick={handleVersionChange}
-          />
-        </div></> :
+            {getPreview()}
+          </div>
+          <div className="col-span-2 col-start-2 row-start-3 bg-white p-2 rounded-md"></div>
+          <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
+            <VersionControl
+              contentHistory={history || []}
+              handleClick={handleVersionChange}
+            />
+          </div>
+        </>
+      ) : (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
           <SourceEditor />
         </div>
-      }
-
+      )}
 
       <UnsavedChangesModal
         isOpen={modalOpen}

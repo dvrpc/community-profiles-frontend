@@ -5,7 +5,7 @@ import { Mode } from "./Dashboard";
 
 interface Props {
   tree?: CategoryKeyMap;
-  handleClick: (category: string, subcategory: string, topic: string) => void;
+  handleClick: (id: number) => void;
   mode: Mode;
   handleModeChange: (mode: Mode) => void;
   geoLevel: GeoLevel;
@@ -32,10 +32,11 @@ export default function CategorySidebar(props: Props) {
   const handleItemClick = (
     category: string,
     subcategory: string,
-    topic: string
+    topic: string,
+    id: number
   ) => {
     setSelected({ category, subcategory, topic });
-    handleClick(category, subcategory, topic);
+    handleClick(id);
   };
 
   if (!tree) return <></>;
@@ -105,20 +106,26 @@ export default function CategorySidebar(props: Props) {
                             const isSelected =
                               selected?.category === category &&
                               selected?.subcategory === subcat &&
-                              selected?.topic === item;
+                              selected?.topic === item.topic;
 
                             return (
                               <li
-                                key={item}
+                                key={item.id}
                                 onClick={() =>
-                                  handleItemClick(category, subcat, item)
+                                  handleItemClick(
+                                    category,
+                                    subcat,
+                                    item.topic,
+                                    item.id
+                                  )
                                 }
-                                className={`px-2 py-1 rounded cursor-pointer transition ${isSelected
-                                  ? "bg-dvrpc-blue-1 text-white"
-                                  : "hover:bg-gray-300"
-                                  }`}
+                                className={`px-2 py-1 rounded cursor-pointer transition ${
+                                  isSelected
+                                    ? "bg-dvrpc-blue-1 text-white"
+                                    : "hover:bg-gray-300"
+                                }`}
                               >
-                                {item}
+                                {item.topic}
                               </li>
                             );
                           })}

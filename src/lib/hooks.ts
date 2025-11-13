@@ -1,5 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiDeleteAuthorized, apiGet, apiPost, apiPostAuthorized, apiPutAuthorized } from "@/lib/api";
+import {
+  apiDeleteAuthorized,
+  apiGet,
+  apiPost,
+  apiPostAuthorized,
+  apiPutAuthorized,
+} from "@/lib/api";
 import {
   CategoryKeyMap,
   Content,
@@ -26,48 +32,26 @@ export function useProfile(geoLevel: GeoLevel, geoid?: string) {
   });
 }
 
-export function useTemplate(
-  category: string,
-  subcategory: string,
-  topic: string,
-  mode: string,
-  geoLevel: GeoLevel
-) {
+export function useTemplate(mode: string, id: number) {
   return useQuery({
-    queryKey: ["template", mode, geoLevel, category, subcategory, topic],
-    queryFn: () =>
-      apiGet<string>(
-        `/${mode}/template/${geoLevel}?category=${category}&subcategory=${subcategory}&topic=${topic}`
-      ),
-    enabled: !!topic,
+    queryKey: ["content", mode, id],
+    queryFn: () => apiGet<string>(`/${mode}/${id}`),
+    enabled: id != 0,
   });
 }
 
-export function useHistory(
-  category: string,
-  subcategory: string,
-  topic: string,
-  mode: string,
-  geoLevel: GeoLevel
-) {
+export function useHistory(mode: string, id: number) {
   return useQuery({
-    queryKey: ["history", mode, geoLevel, category, subcategory, topic],
-    queryFn: () =>
-      apiGet<Content[]>(
-        `/${mode}/history/${geoLevel}?category=${category}&subcategory=${subcategory}&topic=${topic}`
-      ),
-    enabled: !!topic,
+    queryKey: ["history", mode, id],
+    queryFn: () => apiGet<Content[]>(`/${mode}/history/${id}`),
+    enabled: id != 0,
   });
 }
 
-export function useSource(
-) {
+export function useSource() {
   return useQuery({
     queryKey: ["source"],
-    queryFn: () =>
-      apiGet<Source[]>(
-        `/source`
-      ),
+    queryFn: () => apiGet<Source[]>(`/source`),
   });
 }
 
@@ -75,7 +59,8 @@ export function useCreateSource() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (source: SourceRequest) => apiPostAuthorized<Source>("/source", JSON.stringify(source)),
+    mutationFn: (source: SourceBase) =>
+      apiPostAuthorized<Source>("/source", source),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["source"] });
     },
@@ -86,8 +71,8 @@ export function useUpdateSource() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, source }: { id: number; source: SourceRequest }) =>
-      apiPutAuthorized<Source>(`/source/${id}`, JSON.stringify(source)),
+    mutationFn: ({ id, source }: { id: number; source: SourceBase }) =>
+      apiPutAuthorized<Source>(`/source/${id}`, source),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["source"] });
     },
@@ -98,8 +83,7 @@ export function useDeleteSource() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) =>
-      apiDeleteAuthorized<void>(`/source/${id}`),
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/source/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["source"] });
     },
@@ -116,7 +100,8 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${
+          geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),
