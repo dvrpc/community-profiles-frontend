@@ -1,11 +1,12 @@
 "use client"
+import { Topic } from "@/types/types";
 import { displaySubcategoryTopicTitle } from "@/utils";
 import { useState } from "react";
 
 interface Props {
   isActive: boolean;
   subcategory: string;
-  topics: string[];
+  topics: Topic[];
   navOpen: boolean;
 }
 
@@ -29,12 +30,12 @@ export default function SubcategoryDropdown(props: Props) {
       </a>
       <ul className={`absolute flex flex-col bg-dvrpc-blue-1 p-4 min-w-full rounded-b-sm transition-opacity duration-200 ease-in ${!isOpen ? "opacity-0 invisible" : "opacity-100"}`}>
         {topics.map((topic) => (
-          <li key={`${subcategory}-${topic}`}
+          <li key={`${subcategory}-${topic.name}`}
           >
             <a
-              href={`#${subcategory}-${topic}`}
+              href={`#${subcategory}-${topic.name}`}
             >
-              {displaySubcategoryTopicTitle(topic)}
+              {displaySubcategoryTopicTitle(topic.name)}
             </a>
           </li>
         ))}

@@ -106,7 +106,7 @@ export default function CategorySidebar(props: Props) {
                             const isSelected =
                               selected?.category === category &&
                               selected?.subcategory === subcat &&
-                              selected?.topic === item.topic;
+                              selected?.topic === item.name;
 
                             return (
                               <li
@@ -115,17 +115,16 @@ export default function CategorySidebar(props: Props) {
                                   handleItemClick(
                                     category,
                                     subcat,
-                                    item.topic,
+                                    item.name,
                                     item.id
                                   )
                                 }
-                                className={`px-2 py-1 rounded cursor-pointer transition ${
-                                  isSelected
-                                    ? "bg-dvrpc-blue-1 text-white"
-                                    : "hover:bg-gray-300"
-                                }`}
+                                className={`px-2 py-1 rounded cursor-pointer transition ${isSelected
+                                  ? "bg-dvrpc-blue-1 text-white"
+                                  : "hover:bg-gray-300"
+                                  }`}
                               >
-                                {item.topic}
+                                {item.name}
                               </li>
                             );
                           })}

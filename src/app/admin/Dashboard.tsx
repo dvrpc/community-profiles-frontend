@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import {
   useTree,
   useProfile,
-  useTemplate,
   useHistory,
   usePreview,
   useSave,
+  useContent,
+  useViz,
 } from "../../lib/hooks";
 import CategorySidebar from "./CategorySidebar";
 import MarkdownEditor from "./MarkdownEditor";
@@ -50,7 +51,9 @@ export default function Dashboard() {
   const { data: tree } = useTree(selectedGeoLevel);
   const { data: profile } = useProfile(selectedGeoLevel, geoid);
 
-  const { data: template } = useTemplate(selectedMode, selectedId);
+  const { data: content } = useContent(selectedId);
+  const { data: viz } = useViz(selectedId);
+
   const { data: history } = useHistory(selectedMode, selectedId);
 
   const { data: preview } = usePreview(
@@ -63,8 +66,10 @@ export default function Dashboard() {
   const saveMutation = useSave();
 
   useEffect(() => {
-    if (template) setEditText(template);
-  }, [template]);
+    if (selectedMode == 'content' && content) setEditText(content['file']);
+    if (selectedMode == 'viz' && viz) setEditText(JSON.parse(viz['file']));
+
+  }, [content, viz, selectedMode]);
 
   function handleTopicSelect(id: number) {
     if (hasEdits) {
@@ -121,7 +126,7 @@ export default function Dashboard() {
   }
 
   function handleVersionChange(file: string, index: number) {
-    setEditText(file);
+    setEditText(JSON.parse(file));
     setHasEdits(index > 0);
   }
 

@@ -14,12 +14,13 @@ import {
   Source,
   SourceBase,
   Visualization,
+  Viz,
 } from "@/types/types";
 
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({
     queryKey: ["tree", geoLevel],
-    queryFn: () => apiGet<CategoryKeyMap>(`/content/template/tree/${geoLevel}`),
+    queryFn: () => apiGet<CategoryKeyMap>(`/content/tree/${geoLevel}`),
   });
 }
 
@@ -32,10 +33,19 @@ export function useProfile(geoLevel: GeoLevel, geoid?: string) {
   });
 }
 
-export function useTemplate(mode: string, id: number) {
+
+export function useContent(id: number) {
   return useQuery({
-    queryKey: ["content", mode, id],
-    queryFn: () => apiGet<string>(`/${mode}/${id}`),
+    queryKey: ["content", id],
+    queryFn: () => apiGet<Content>(`/content/${id}`),
+    enabled: id != 0,
+  });
+}
+
+export function useViz(id: number) {
+  return useQuery({
+    queryKey: ["viz", id],
+    queryFn: () => apiGet<Viz>(`/viz/${id}`),
     enabled: id != 0,
   });
 }
@@ -43,7 +53,7 @@ export function useTemplate(mode: string, id: number) {
 export function useHistory(mode: string, id: number) {
   return useQuery({
     queryKey: ["history", mode, id],
-    queryFn: () => apiGet<Content[]>(`/${mode}/history/${id}`),
+    queryFn: () => apiGet<Content[]>(`/${mode}/${id}/history`),
     enabled: id != 0,
   });
 }
@@ -100,8 +110,7 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${
-          geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),

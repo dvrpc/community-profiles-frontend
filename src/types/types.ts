@@ -55,6 +55,7 @@ export interface SourceMap {
 }
 
 export interface Content {
+  id: number;
   category: string;
   subcategory: string;
   topic: string;
@@ -63,17 +64,30 @@ export interface Content {
   create_date: Date;
 }
 
+export interface Viz {
+  id: number;
+  category: string;
+  subcategory: string;
+  topic: string;
+  geo_level: string;
+  file: string;
+  create_date: Date;
+};
+
 export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
 
 export type SubcategoryContent = Record<string, TopicContent[]>;
 
 export type CategoryKeyMap = Record<CategoryKeys, SubcategoryKeyMap>;
 export type SubcategoryKeyMap = Record<string, Topic[]>;
+
 export type Topic = {
   id: number;
-  topic: string;
+  name: string;
 };
+
 export interface TopicContent {
+  id: number;
   name: string;
   content: string;
 }

@@ -1,8 +1,8 @@
-import { CategoryKeys, GeoLevel, ProfileContent, ProfileData } from "@/types/types";
+import { CategoryKeyMap, CategoryKeys, GeoLevel, ProfileContent, ProfileData } from "@/types/types";
 import Category from "./Category";
 import CategoryNav from "../CategoryNav/CategoryNav";
 import ScrollProvider from "@/context/ScrollProvider";
-import { getCategoryKeyMap } from "@/utils";
+import { API_BASE_URL } from "@/consts";
 
 interface Props {
   content: ProfileContent;
@@ -10,10 +10,11 @@ interface Props {
   geoLevel: GeoLevel;
 }
 
-export default function Content(props: Props) {
+export default async function Content(props: Props) {
   const { content, data, geoLevel } = props;
 
-  const categoryKeyMap = getCategoryKeyMap(content);
+  const treeResponse = await fetch(`${API_BASE_URL}/content/tree/${geoLevel}`);
+  const categoryKeyMap = (await treeResponse.json()) as CategoryKeyMap;
 
   return (
     <ScrollProvider>

@@ -40,7 +40,7 @@ export default function CategoryNav(props: Props) {
   };
 
   const entries = getTypedObjectEntries(iconMap);
-
+  console.log(categoryKeyMap)
   useEffect(() => {
     if (!stickyRef.current) return;
 

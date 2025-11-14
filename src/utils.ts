@@ -75,22 +75,3 @@ export function getAllCountyMunicipalityPairs() {
 
   return countyMunicipalityPairs;
 }
-
-export function getCategoryKeyMap(content: ProfileContent) {
-  const categoryMap = { ...emptyCategoryMap };
-
-  getTypedObjectEntries(content).forEach(([cat, subcatContent]) => {
-    const subcategoryMap: SubcategoryKeyMap = {};
-
-    Object.entries(subcatContent).forEach(([subcat, topicContent]) => {
-      const topics: string[] = [];
-      topicContent.forEach((topic) => {
-        topics.push(topic.name);
-      });
-      subcategoryMap[subcat] = topics;
-    });
-
-    categoryMap[cat] = subcategoryMap;
-  });
-  return categoryMap;
-}

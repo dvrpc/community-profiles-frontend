@@ -3,6 +3,7 @@ import Visualizations from "../Visualizations/Vizualizations";
 import { displaySubcategoryTopicTitle } from "@/utils";
 
 interface Props {
+  id: number;
   name: string;
   content: string;
   category: CategoryKeys;
@@ -15,7 +16,7 @@ interface Props {
 //TODO: infer props from route params?
 
 export default function Topic(props: Props) {
-  const { name, content, category, subcategory, geoid, buffer_bbox, geoLevel } =
+  const { id, name, content, category, subcategory, geoid, buffer_bbox, geoLevel } =
     props;
   return (
     <div className="py-6">
@@ -29,6 +30,7 @@ export default function Topic(props: Props) {
         />
         <div className="w-2/3 ml-16">
           <Visualizations
+            id={id}
             category={category}
             subcategory={subcategory}
             topic={name}

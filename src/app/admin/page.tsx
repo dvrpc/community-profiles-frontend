@@ -15,7 +15,7 @@ export default function Page() {
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
 
-        <main className="bg-dvrpc-gray-7">
+        <main className="bg-gray-100">
           <LoginWrapper>
             <Dashboard />
           </LoginWrapper>
