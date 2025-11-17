@@ -10,12 +10,15 @@ import {
   CategoryKeyMap,
   Content,
   GeoLevel,
+  Product,
+  ProductResponse,
   ProfileData,
   Source,
   SourceBase,
   Visualization,
   Viz,
 } from "@/types/types";
+import { PRODUCT_BASE_URL } from "@/consts";
 
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({
@@ -63,6 +66,16 @@ export function useSource() {
     queryKey: ["source"],
     queryFn: () => apiGet<Source[]>(`/source`),
   });
+}
+
+export function useAllProducts() {
+  return useQuery({
+    queryKey: ["product"],
+    queryFn: async () => {
+      const productResponse = await apiGet<ProductResponse>('/product?tags=Data Center&limit=999', PRODUCT_BASE_URL);
+      return productResponse.items
+    }
+  })
 }
 
 export function useCreateSource() {

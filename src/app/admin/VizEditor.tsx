@@ -17,7 +17,7 @@ export default function VizEditor(props: Props) {
         rootFontSize={12}
         maxWidth={"100%"}
         data={visualizations}
-        setData={onChange} // optional
+        setData={onChange}
       />
     </div>
   );

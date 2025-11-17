@@ -19,9 +19,10 @@ import VersionControl from "./VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
 import { GeoLevel, Visualization } from "@/types/types";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import Tabs from "./Header";
 import SourceEditor from "./SourceEditor";
+import ContentForm from "./ContentForm";
 
 const defaultGeoid = {
   region: "",
@@ -29,16 +30,12 @@ const defaultGeoid = {
   municipality: "4201704976",
 };
 
-export type Mode = "content" | "viz" | "sources";
+export type Mode = "content" | "viz" | "properties" | "sources";
 
 export default function Dashboard() {
   const [selectedGeoLevel, setSelectedGeoLevel] = useState<GeoLevel>("county");
   const [selectedMode, setSelectedMode] = useState<Mode>("content");
   const [selectedId, setSelectedId] = useState<number>(0);
-
-  // const [selectedCategory, setSelectedCategory] = useState("");
-  // const [selectedSubcategory, setSelectedSubcategory] = useState("");
-  // const [selectedTopic, setSelectedTopic] = useState("");
 
   const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
@@ -126,12 +123,16 @@ export default function Dashboard() {
   }
 
   function handleVersionChange(file: string, index: number) {
-    setEditText(JSON.parse(file));
+    console.log(file)
+    if (selectedMode == 'content') {
+      setEditText(file)
+    } else {
+      setEditText(JSON.parse(file))
+    }
     setHasEdits(index > 0);
   }
 
   function getPreview() {
-    // this is not great but needed some type workarounds, preview api call should be split up
     if (!preview) return <></>;
     if (selectedMode == "content")
       return <MarkdownPreview content={preview as string} />;
@@ -148,64 +149,73 @@ export default function Dashboard() {
 
   return (
     <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
-      <div className="row-span-3 p-2 overflow-auto">
-        <CategorySidebar
-          tree={tree}
-          handleClick={handleTopicSelect}
-          mode={selectedMode}
-          handleModeChange={handleModeChange}
-          geoLevel={selectedGeoLevel}
-          setGeoLevel={setSelectedGeoLevel}
-        />
-      </div>
-      <div className="col-span-3 p-2 bg-white flex justify-between rounded-md">
+
+      <div className="col-span-3 col-start-2 p-2 bg-white flex justify-between rounded-md">
         <Tabs currentTab={selectedMode} setCurrentTab={handleModeChange} />
       </div>
-      {selectedMode != "sources" ? (
+      <div className="p-2 col-start-1 row-start-1">
+        <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
+        <span className="">Admin Dasbhoard</span>
+      </div>
+      {selectedMode != 'sources' && (
         <>
-          <div className="col-start-2 row-start-2 bg-white p-2 flex flex-col rounded-md overflow-auto">
+          <div className="row-span-3 p-2 overflow-auto">
+            <CategorySidebar
+              tree={tree}
+              handleClick={handleTopicSelect}
+              geoLevel={selectedGeoLevel}
+              setGeoLevel={setSelectedGeoLevel}
+            />
+          </div>
+          {selectedMode != 'properties' ? (<><div className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}>
             <h3 className="text-xl p-2 mb-2">Editor</h3>
 
             {selectedMode === "content" ? (
               <MarkdownEditor
                 value={editText}
-                handleChange={handleContentEdit}
-              />
+                handleChange={handleContentEdit} />
             ) : (
               <VizEditor
                 visualizations={editText}
-                handleChange={handleVizEdit}
-              />
+                handleChange={handleVizEdit} />
             )}
-          </div>
-          <div className="col-start-3 row-start-2 bg-white p-2 rounded-md overflow-auto">
-            <div className="flex justify-between p-2 mb-2">
-              <h3 className="text-xl">Preview</h3>
-              <Button
-                disabled={!hasEdits}
-                handleClick={handleSaveClick}
-                type={"primary"}
-              >
-                Save Changes
-              </Button>
+          </div><div className={`col-start-3 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}>
+              <div className="flex justify-between p-2 mb-2">
+                <h3 className="text-xl">Preview</h3>
+                <Button
+                  disabled={!hasEdits}
+                  handleClick={handleSaveClick}
+                  type={"primary"}
+                >
+                  Save Changes
+                </Button>
+              </div>
+
+              {getPreview()}
             </div>
+            <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
+              <VersionControl
+                contentHistory={history || []}
+                handleClick={handleVersionChange}
+              />
+            </div>
+          </>) : (<div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
+            <ContentForm
 
-            {getPreview()}
-          </div>
-          <div className="col-span-2 col-start-2 row-start-3 bg-white p-2 rounded-md"></div>
-          <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
-            <VersionControl
-              contentHistory={history || []}
-              handleClick={handleVersionChange}
             />
-          </div>
-        </>
-      ) : (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
-          <SourceEditor />
-        </div>
-      )}
+          </div>)}
 
+        </>
+      )}
+      {selectedMode == 'sources' && <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+        <SourceEditor />
+      </div>
+      }
+      {selectedMode == 'properties' && <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
+        <ContentForm
+
+        />
+      </div>}
       <UnsavedChangesModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

@@ -82,8 +82,8 @@ export async function apiDeleteAuthorized<T>(path: string) {
 
 /* -------- Public Requests -------- */
 
-export async function apiGet<T>(path: string) {
-  const res = await fetch(`${API_BASE_URL}${path}`);
+export async function apiGet<T>(path: string, baseUrl = API_BASE_URL) {
+  const res = await fetch(`${baseUrl}${path}`);
   if (!res.ok) throw new Error(res.statusText);
   return res.json() as Promise<T>;
 }

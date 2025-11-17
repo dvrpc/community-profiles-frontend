@@ -6,14 +6,13 @@ import { Mode } from "./Dashboard";
 interface Props {
   tree?: CategoryKeyMap;
   handleClick: (id: number) => void;
-  mode: Mode;
-  handleModeChange: (mode: Mode) => void;
+
   geoLevel: GeoLevel;
   setGeoLevel: (geoLevel: GeoLevel) => void;
 }
 
 export default function CategorySidebar(props: Props) {
-  const { tree, handleClick, mode, handleModeChange, geoLevel, setGeoLevel } =
+  const { tree, handleClick, geoLevel, setGeoLevel } =
     props;
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<{
@@ -40,14 +39,9 @@ export default function CategorySidebar(props: Props) {
   };
 
   if (!tree) return <></>;
-  //w-80 h-full text-dvrpc-gray-1  overflow-y-auto p-4 space-y-4
+
   return (
     <div className="">
-      <div className="">
-        <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
-        <span className="">Admin Dasbhoard</span>
-      </div>
-
       <div>
         <label className="block text-sm font-semiboldmb-1 p-2">
           Geography Level

@@ -36,7 +36,6 @@ export function displayNumber(num: number) {
 }
 
 export function parseBounds(buffer_box: string) {
-  //POLYGON((-75.5172386174942 40.019966656385144,-75.52195819955206 40.635408512424895,-74.68232273049465 40.63615113388574,-74.68519528899041 40.020693387223744,-75.5172386174942 40.019966656385144))
   const allCoords = buffer_box.substring(9, buffer_box.length - 1).split(",");
   const sw = allCoords[0].split(" ").map(Number);
   const ne = allCoords[2].split(" ").map(Number);

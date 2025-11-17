@@ -43,7 +43,6 @@ export async function POST(req: Request) {
         );
     }
 
-    // Revalidate all paths in parallel
     await Promise.allSettled(paths.map((path) => revalidatePath(path)));
 
     return NextResponse.json({ revalidated: true, paths }, { status: 200 });

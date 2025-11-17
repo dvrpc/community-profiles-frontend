@@ -125,6 +125,19 @@ export type SourceForm = SourceBase & {
   id?: number;
 };
 
+export type ProductResponse = {
+  items: Product[]
+  hasMore: boolean;
+  limit: number;
+  offset: number;
+  count: number
+}
+export type Product = {
+  id: number;
+  title: string;
+  urllink: string;
+}
+
 export interface Feature {
   sourceUrl: string;
   sourceLayer: string;

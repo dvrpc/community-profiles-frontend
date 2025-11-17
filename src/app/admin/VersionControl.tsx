@@ -1,16 +1,19 @@
 import { Content } from "@/types/types";
+import { Loader2 } from "lucide-react";
 
 interface Props {
   contentHistory: Content[];
   handleClick: (file: string, index: number) => void;
 }
 
-export default function VersionControl({ contentHistory, handleClick }: Props) {
+export default function VersionControl(props: Props) {
+  const { contentHistory, handleClick } = props
   return (
     <>
       <h3 className="text-dvrpc-blue-1 text-2xl font-semibold p-4 border-b border-dvrpc-gray-6">
         History
       </h3>
+
 
       <div className="flex flex-col overflow-y-auto">
         {contentHistory.length === 0 ? (

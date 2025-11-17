@@ -13,7 +13,6 @@ interface Props {
   geoLevel: GeoLevel;
 }
 
-//TODO: infer props from route params?
 
 export default function Topic(props: Props) {
   const { id, name, content, category, subcategory, geoid, buffer_bbox, geoLevel } =

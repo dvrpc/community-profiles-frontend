@@ -56,7 +56,6 @@ export default function SourceManager() {
           <div className="flex gap-4">
             <h1 className="text-2xl font-semibold text-gray-800">Sources</h1>
             {(isLoading || changePending) && (
-              // ⬅️ Loading Spinner
               <div>
                 <Loader2 className="animate-spin text-dvrpc-blue-3" size={32} />
               </div>
@@ -100,12 +99,12 @@ export default function SourceManager() {
                     <IconButton
                       handleClick={() => handleEdit(source)}
                       description="Edit Source"
-                      icon={<Pencil size={18} className="text-dvrpc-blue-3" />} // className="inline-flex items-center text-blue-600 hover:text-blue-800 mr-3"
+                      icon={<Pencil size={18} className="text-dvrpc-blue-3" />}
                     />
                     <IconButton
                       handleClick={() => handleDelete(source.id)}
                       description="Edit Source"
-                      icon={<Trash2 size={18} color="red" />} // className="inline-flex items-center text-blue-600 hover:text-blue-800 mr-3"
+                      icon={<Trash2 size={18} color="red" />}
                     />
                   </td>
                 </tr>

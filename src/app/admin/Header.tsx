@@ -22,11 +22,10 @@ export default function Header(props: Props) {
           <li className="me-2">
             <a
               onClick={() => setCurrentTab("content")}
-              className={`inline-block ${
-                currentTab == "content"
-                  ? highlightTab
-                  : "border-b-2 border-transparent"
-              } p-4  rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+              className={`inline-block ${currentTab == "content"
+                ? highlightTab
+                : "border-b-2 border-transparent"
+                } p-4  rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
             >
               Content
             </a>
@@ -34,25 +33,35 @@ export default function Header(props: Props) {
           <li className="me-2">
             <a
               onClick={() => setCurrentTab("viz")}
-              className={`inline-block ${
-                currentTab == "viz"
-                  ? highlightTab
-                  : "border-b-2 border-transparent"
-              } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+              className={`inline-block ${currentTab == "viz"
+                ? highlightTab
+                : "border-b-2 border-transparent"
+                } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
             >
               Visualizations
+            </a>
+          </li>
+
+          <li className="me-2">
+            <a
+              onClick={() => setCurrentTab("properties")}
+              className={`inline-block ${currentTab == "properties"
+                ? highlightTab
+                : "border-b-2 border-transparent"
+                } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+            >
+              Properties
             </a>
           </li>
           <li className="me-2">
             <a
               onClick={() => setCurrentTab("sources")}
-              className={`inline-block ${
-                currentTab == "sources"
-                  ? highlightTab
-                  : "border-b-2 border-transparent"
-              } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+              className={`inline-block ${currentTab == "sources"
+                ? highlightTab
+                : "border-b-2 border-transparent"
+                } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
             >
-              Sources
+              Source Editor
             </a>
           </li>
         </ul>

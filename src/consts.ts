@@ -11,6 +11,8 @@ export const ACCESS_TOKEN = process.env
   .NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
+export const PRODUCT_BASE_URL = 'https://apis.dvrpc.org/internal/dvrpc_products/products'
+export const PRODUCT_IMAGE_BASE_URL = 'https://www.dvrpc.org/asp/pubs/201px'
 
 export const regionBounds = new LngLatBounds(
   { lng: -76.09405517578125, lat: 39.49211914385648 },

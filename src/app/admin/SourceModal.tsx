@@ -21,7 +21,6 @@ export default function SourceModal(props: Props) {
     ) => {
         const { name, value } = e.target;
 
-        // For numeric fields, store number or undefined
         if (name === "year_from" || name === "year_to") {
             setForm({ ...form, [name]: value ? parseInt(value) : undefined });
         } else {

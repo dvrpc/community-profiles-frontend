@@ -24,7 +24,7 @@ export default function Title(props: Props) {
       const position = ref.current.getBoundingClientRect();
 
       if (position.top - SCROLL_THRESHOLD <= 0) {
-        setActiveCategories(category, subcategory); //TODO: use top rather than in view?
+        setActiveCategories(category, subcategory);
       }
     });
   }, []);

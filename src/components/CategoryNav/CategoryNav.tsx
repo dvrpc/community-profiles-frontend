@@ -62,7 +62,6 @@ export default function CategoryNav(props: Props) {
     };
   }, []);
 
-  //test
   return (
     <div
       ref={stickyRef}
