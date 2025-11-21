@@ -40,7 +40,7 @@ export default function CategoryNav(props: Props) {
   };
 
   const entries = getTypedObjectEntries(iconMap);
-  console.log(categoryKeyMap)
+
   useEffect(() => {
     if (!stickyRef.current) return;
 
@@ -62,6 +62,7 @@ export default function CategoryNav(props: Props) {
     };
   }, []);
 
+
   return (
     <div
       ref={stickyRef}
@@ -82,7 +83,7 @@ export default function CategoryNav(props: Props) {
       </div>
       <SubcategoryNav
         isVisible={isPinned}
-        subcategoryKeyMap={categoryKeyMap[activeCategory]}
+        subcategories={categoryKeyMap[activeCategory].subcategories}
         activeSubcategory={activeSubcategory}
       />
     </div>

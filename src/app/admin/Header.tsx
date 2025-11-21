@@ -68,9 +68,9 @@ export default function Header(props: Props) {
       </div>
 
       <div className="flex items-center gap-2 pr-4">
-        {/* <Button handleClick={() => signOut()} type="primary">
+        <Button handleClick={() => signOut()} type="primary">
           Refresh Session
-        </Button> */}
+        </Button>
 
         <img
           src={session.user.image}

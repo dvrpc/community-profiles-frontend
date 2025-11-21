@@ -9,6 +9,11 @@ import {
   useSave,
   useContent,
   useViz,
+  useUpdateSource,
+  useUpdateSubcategory,
+  useUpdateTopic,
+  useCreateSubcategory,
+  useCreateTopic,
 } from "../../lib/hooks";
 import CategorySidebar from "./CategorySidebar";
 import MarkdownEditor from "./MarkdownEditor";
@@ -61,6 +66,11 @@ export default function Dashboard() {
   );
 
   const saveMutation = useSave();
+  const subcategoryUpdateMutation = useUpdateSubcategory();
+  const topicUpdateMutation = useUpdateTopic();
+  const subcategoryCreateMutation = useCreateSubcategory();
+  const topicCreateMutation = useCreateTopic();
+
 
   useEffect(() => {
     if (selectedMode == 'content' && content) setEditText(content['file']);
@@ -147,6 +157,23 @@ export default function Dashboard() {
       );
   }
 
+  function addSubcategory(categoryId: number, newSubcat: string) {
+    subcategoryCreateMutation.mutate({ categoryId, newSubcat })
+  }
+
+  function addTopic(subcatId: number, newTopic: string) {
+    topicCreateMutation.mutate({ subcatId, newTopic })
+  }
+
+  function updateSubcategory(subcatId: number, newSubcat: string) {
+    subcategoryUpdateMutation.mutate({ subcatId, newSubcat })
+  }
+
+  function updateTopic(topicId: number, newTopic: string) {
+    topicUpdateMutation.mutate({ topicId, newTopic })
+  }
+
+
   return (
     <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
 
@@ -165,6 +192,10 @@ export default function Dashboard() {
               handleClick={handleTopicSelect}
               geoLevel={selectedGeoLevel}
               setGeoLevel={setSelectedGeoLevel}
+              addSubcategory={addSubcategory}
+              addTopic={addTopic}
+              updateSubcategory={updateSubcategory}
+              updateTopic={updateTopic}
             />
           </div>
           {selectedMode != 'properties' ? (<><div className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}>

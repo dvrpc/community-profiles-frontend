@@ -90,6 +90,56 @@ export function useCreateSource() {
   });
 }
 
+export function useCreateSubcategory() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ categoryId, newSubcat }: { categoryId: number; newSubcat: string }) =>
+      apiPostAuthorized<number>(`/tree/subcategory?category_id=${categoryId}&name=${newSubcat}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tree"] });
+    },
+  });
+}
+
+export function useCreateTopic() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ subcatId, newTopic }: { subcatId: number; newTopic: string }) =>
+      apiPostAuthorized<number>(`/tree/topic?subcategory_id=${subcatId}&name=${newTopic}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tree"] });
+    },
+  });
+}
+
+export function useUpdateSubcategory() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ subcatId, newSubcat }: { subcatId: number; newSubcat: string }) =>
+      apiPutAuthorized<number>(`/tree/subcategory?id=${subcatId}&name=${newSubcat}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tree"] });
+    },
+  });
+}
+
+export function useUpdateTopic() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ topicId, newTopic }: { topicId: number; newTopic: string }) =>
+      apiPutAuthorized<number>(`/tree/topic?id=${topicId}&name=${newTopic}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tree"] });
+    },
+  });
+}
+
+
+
 export function useUpdateSource() {
   const qc = useQueryClient();
 

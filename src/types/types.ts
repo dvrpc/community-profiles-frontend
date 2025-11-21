@@ -78,8 +78,28 @@ export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
 
 export type SubcategoryContent = Record<string, TopicContent[]>;
 
-export type CategoryKeyMap = Record<CategoryKeys, SubcategoryKeyMap>;
-export type SubcategoryKeyMap = Record<string, Topic[]>;
+export type CategoryKeyMap = Record<CategoryKeys, CategoryTree>;
+
+export type CategoryTree = {
+  id: number;
+  label: string;
+  subcategories: SubcategoryTree[]
+}
+
+export type TreeTopic = {
+  name: string;
+  id: number;
+  label: string;
+  content_id: number;
+}
+export type SubcategoryTree = {
+  name: string;
+  id: number;
+  label: string;
+  topics: TreeTopic[]
+};
+
+
 
 export type Topic = {
   id: number;

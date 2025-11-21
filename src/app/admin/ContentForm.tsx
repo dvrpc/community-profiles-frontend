@@ -86,6 +86,7 @@ export default function ContentForm(props: Props) {
                     <label>Related Products</label>
                     <MultiSelect value={selectedProducts} options={productOptions} onChange={handleProductChange} />
                 </div>
+
             </div>
             <div className="">
                 <Button type="primary" handleClick={handleSave}>

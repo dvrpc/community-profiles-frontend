@@ -1,9 +1,8 @@
 import { LngLatBounds } from "mapbox-gl";
-import { countyInfoMap, emptyCategoryMap, municipalityInfoMap } from "./consts";
+import { countyInfoMap, municipalityInfoMap } from "./consts";
 import {
   getTypedObjectEntries,
   ProfileContent,
-  SubcategoryKeyMap,
 } from "./types/types";
 
 export const titleCase = (str: string) =>

@@ -30,17 +30,6 @@ export const categoryTitleMap: Record<CategoryKeys, string> = {
   transit: "Transit",
 };
 
-export const emptyCategoryMap: CategoryKeyMap = {
-  "active-transportation": {},
-  "demographics-housing": {},
-  economy: {},
-  environment: {},
-  freight: {},
-  roadways: {},
-  "safety-health": {},
-  transit: {},
-};
-
 export const CATEGORIES: CategoryKeys[] = [
   "demographics-housing",
   "economy",
