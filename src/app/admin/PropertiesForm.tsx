@@ -14,7 +14,7 @@ interface Props {
     sources: Source[];
 
 }
-export default function ContentForm(props: Props) {
+export default function PropertiesForm(props: Props) {
     const { data: sources } = useSource();
     const { data: products } = useAllProducts();
 

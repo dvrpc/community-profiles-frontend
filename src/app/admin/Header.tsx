@@ -6,12 +6,13 @@ import Button from "@/components/Buttons/Button";
 interface Props {
   currentTab: Mode;
   setCurrentTab: (mode: Mode) => void;
+  categorySelected: boolean;
 }
 
 const highlightTab =
   "text-dvrpc-blue-3 border-dvrpc-blue-3 border-b-2 border-dvrpc-blue-3";
 export default function Header(props: Props) {
-  const { currentTab, setCurrentTab } = props;
+  const { currentTab, setCurrentTab, categorySelected } = props;
   const { data: session } = useSession();
 
   if (!session) return <></>;
@@ -30,29 +31,25 @@ export default function Header(props: Props) {
               Content
             </a>
           </li>
-          <li className="me-2">
+          {!categorySelected && <><li className="me-2">
             <a
               onClick={() => setCurrentTab("viz")}
               className={`inline-block ${currentTab == "viz"
                 ? highlightTab
-                : "border-b-2 border-transparent"
-                } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+                : "border-b-2 border-transparent"} p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
             >
               Visualizations
             </a>
-          </li>
-
-          <li className="me-2">
-            <a
-              onClick={() => setCurrentTab("properties")}
-              className={`inline-block ${currentTab == "properties"
-                ? highlightTab
-                : "border-b-2 border-transparent"
-                } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
-            >
-              Properties
-            </a>
-          </li>
+          </li><li className="me-2">
+              <a
+                onClick={() => setCurrentTab("properties")}
+                className={`inline-block ${currentTab == "properties"
+                  ? highlightTab
+                  : "border-b-2 border-transparent"} p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+              >
+                Properties
+              </a>
+            </li></>}
           <li className="me-2">
             <a
               onClick={() => setCurrentTab("sources")}

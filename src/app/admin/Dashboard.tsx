@@ -14,6 +14,8 @@ import {
   useUpdateTopic,
   useCreateSubcategory,
   useCreateTopic,
+  useDeleteTopic,
+  useDeleteSubcategory,
 } from "../../lib/hooks";
 import CategorySidebar from "./CategorySidebar";
 import MarkdownEditor from "./MarkdownEditor";
@@ -27,7 +29,7 @@ import { GeoLevel, Visualization } from "@/types/types";
 import { getSession, useSession } from "next-auth/react";
 import Tabs from "./Header";
 import SourceEditor from "./SourceEditor";
-import ContentForm from "./ContentForm";
+import PropertiesForm from "./PropertiesForm";
 
 const defaultGeoid = {
   region: "",
@@ -41,6 +43,7 @@ export default function Dashboard() {
   const [selectedGeoLevel, setSelectedGeoLevel] = useState<GeoLevel>("county");
   const [selectedMode, setSelectedMode] = useState<Mode>("content");
   const [selectedId, setSelectedId] = useState<number>(0);
+  const [categorySelected, setCategorySelected] = useState<boolean>(false);
 
   const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
@@ -70,7 +73,8 @@ export default function Dashboard() {
   const topicUpdateMutation = useUpdateTopic();
   const subcategoryCreateMutation = useCreateSubcategory();
   const topicCreateMutation = useCreateTopic();
-
+  const topicDeleteMutation = useDeleteTopic();
+  const subcategoryDeleteMutation = useDeleteSubcategory();
 
   useEffect(() => {
     if (selectedMode == 'content' && content) setEditText(content['file']);
@@ -78,15 +82,25 @@ export default function Dashboard() {
 
   }, [content, viz, selectedMode]);
 
-  function handleTopicSelect(id: number) {
+  function handleCategorySidebarSelect(id: number, isCategory = false) {
     if (hasEdits) {
       setPendingId(id);
       setModalOpen(true);
       return;
     }
 
+    if (!categorySelected && isCategory) {
+      setCategorySelected(true)
+    }
+
+    if (categorySelected && !isCategory) {
+      setCategorySelected(false)
+    }
+
     setSelectedId(id);
   }
+
+
 
   function handleContinue(save: boolean) {
     if (save) {
@@ -173,12 +187,20 @@ export default function Dashboard() {
     topicUpdateMutation.mutate({ topicId, newTopic })
   }
 
+  function deleteTopic(topicId: number) {
+    topicDeleteMutation.mutate(topicId);
+  }
+
+  function deleteSubcategory(subcatId: number) {
+    subcategoryDeleteMutation.mutate(subcatId);
+  }
+
 
   return (
     <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
 
       <div className="col-span-3 col-start-2 p-2 bg-white flex justify-between rounded-md">
-        <Tabs currentTab={selectedMode} setCurrentTab={handleModeChange} />
+        <Tabs currentTab={selectedMode} setCurrentTab={handleModeChange} categorySelected={categorySelected} />
       </div>
       <div className="p-2 col-start-1 row-start-1">
         <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
@@ -189,13 +211,15 @@ export default function Dashboard() {
           <div className="row-span-3 p-2 overflow-auto">
             <CategorySidebar
               tree={tree}
-              handleClick={handleTopicSelect}
+              handleClick={handleCategorySidebarSelect}
               geoLevel={selectedGeoLevel}
               setGeoLevel={setSelectedGeoLevel}
               addSubcategory={addSubcategory}
               addTopic={addTopic}
               updateSubcategory={updateSubcategory}
               updateTopic={updateTopic}
+              deleteTopic={deleteTopic}
+              deleteSubcategory={deleteSubcategory}
             />
           </div>
           {selectedMode != 'properties' ? (<><div className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}>
@@ -231,7 +255,7 @@ export default function Dashboard() {
               />
             </div>
           </>) : (<div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
-            <ContentForm
+            <PropertiesForm
 
             />
           </div>)}
@@ -243,7 +267,7 @@ export default function Dashboard() {
       </div>
       }
       {selectedMode == 'properties' && <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
-        <ContentForm
+        <PropertiesForm
 
         />
       </div>}

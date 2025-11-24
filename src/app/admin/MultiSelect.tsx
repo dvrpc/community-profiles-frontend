@@ -2,7 +2,7 @@ import { Source } from "@/types/types";
 import Select, { MultiValue, OptionsOrGroups } from 'react-select'
 import {
     Option
-} from "./ContentForm";
+} from "./PropertiesForm";
 
 interface Props {
     options: Option[];

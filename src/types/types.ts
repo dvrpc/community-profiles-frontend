@@ -83,6 +83,7 @@ export type CategoryKeyMap = Record<CategoryKeys, CategoryTree>;
 export type CategoryTree = {
   id: number;
   label: string;
+  content_id: number;
   subcategories: SubcategoryTree[]
 }
 

@@ -163,6 +163,28 @@ export function useDeleteSource() {
   });
 }
 
+export function useDeleteTopic() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/tree/topic/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tree"] });
+    },
+  });
+}
+
+export function useDeleteSubcategory() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/tree/subcategory/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tree"] });
+    },
+  });
+}
+
 export function usePreview(
   template: string,
   mode: string,
