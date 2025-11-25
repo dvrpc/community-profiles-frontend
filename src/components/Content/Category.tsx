@@ -1,5 +1,6 @@
 import { categoryTitleMap, regionBounds } from "@/consts";
 import {
+  CategoryContent,
   CategoryKeys,
   GeoLevel,
   ProfileData,
@@ -10,15 +11,13 @@ import Title from "./Title";
 
 interface Props {
   category: CategoryKeys;
-  subcategories: SubcategoryContent;
+  categoryContent: CategoryContent;
   profileData: ProfileData;
   geoLevel: GeoLevel;
 }
 
-
 export default function Category(props: Props) {
-  const { category, subcategories, profileData, geoLevel } = props;
-
+  const { category, categoryContent, profileData, geoLevel } = props;
 
   return (
     <div className="p-16">
@@ -28,9 +27,13 @@ export default function Category(props: Props) {
         category={category}
         subcategory=""
       />
+      <div
+        className="max-w-6xl columns-2xs gap-x-5 m-auto"
+        dangerouslySetInnerHTML={{ __html: categoryContent.content }}
+      ></div>
 
       <div>
-        {Object.entries(subcategories).map(([key, value]) => (
+        {Object.entries(categoryContent.subcategories).map(([key, value]) => (
           <Subcategory
             key={category + key}
             subcategory={key}

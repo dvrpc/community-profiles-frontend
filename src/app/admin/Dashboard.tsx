@@ -17,7 +17,7 @@ import {
   useDeleteTopic,
   useDeleteSubcategory,
 } from "../../lib/hooks";
-import CategorySidebar from "./CategorySidebar";
+import CategorySidebar from "./CategorySidebar/CategorySidebar";
 import MarkdownEditor from "./MarkdownEditor";
 import MarkdownPreview from "./MarkdownPreview";
 import VizEditor from "./VizEditor";
@@ -77,9 +77,8 @@ export default function Dashboard() {
   const subcategoryDeleteMutation = useDeleteSubcategory();
 
   useEffect(() => {
-    if (selectedMode == 'content' && content) setEditText(content['file']);
-    if (selectedMode == 'viz' && viz) setEditText(JSON.parse(viz['file']));
-
+    if (selectedMode == "content" && content) setEditText(content["file"]);
+    if (selectedMode == "viz" && viz) setEditText(JSON.parse(viz["file"]));
   }, [content, viz, selectedMode]);
 
   function handleCategorySidebarSelect(id: number, isCategory = false) {
@@ -90,17 +89,15 @@ export default function Dashboard() {
     }
 
     if (!categorySelected && isCategory) {
-      setCategorySelected(true)
+      setCategorySelected(true);
     }
 
     if (categorySelected && !isCategory) {
-      setCategorySelected(false)
+      setCategorySelected(false);
     }
 
     setSelectedId(id);
   }
-
-
 
   function handleContinue(save: boolean) {
     if (save) {
@@ -147,11 +144,11 @@ export default function Dashboard() {
   }
 
   function handleVersionChange(file: string, index: number) {
-    console.log(file)
-    if (selectedMode == 'content') {
-      setEditText(file)
+    console.log(file);
+    if (selectedMode == "content") {
+      setEditText(file);
     } else {
-      setEditText(JSON.parse(file))
+      setEditText(JSON.parse(file));
     }
     setHasEdits(index > 0);
   }
@@ -172,19 +169,19 @@ export default function Dashboard() {
   }
 
   function addSubcategory(categoryId: number, newSubcat: string) {
-    subcategoryCreateMutation.mutate({ categoryId, newSubcat })
+    subcategoryCreateMutation.mutate({ categoryId, newSubcat });
   }
 
   function addTopic(subcatId: number, newTopic: string) {
-    topicCreateMutation.mutate({ subcatId, newTopic })
+    topicCreateMutation.mutate({ subcatId, newTopic });
   }
 
   function updateSubcategory(subcatId: number, newSubcat: string) {
-    subcategoryUpdateMutation.mutate({ subcatId, newSubcat })
+    subcategoryUpdateMutation.mutate({ subcatId, newSubcat });
   }
 
   function updateTopic(topicId: number, newTopic: string) {
-    topicUpdateMutation.mutate({ topicId, newTopic })
+    topicUpdateMutation.mutate({ topicId, newTopic });
   }
 
   function deleteTopic(topicId: number) {
@@ -195,18 +192,20 @@ export default function Dashboard() {
     subcategoryDeleteMutation.mutate(subcatId);
   }
 
-
   return (
     <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
-
       <div className="col-span-3 col-start-2 p-2 bg-white flex justify-between rounded-md">
-        <Tabs currentTab={selectedMode} setCurrentTab={handleModeChange} categorySelected={categorySelected} />
+        <Tabs
+          currentTab={selectedMode}
+          setCurrentTab={handleModeChange}
+          categorySelected={categorySelected}
+        />
       </div>
       <div className="p-2 col-start-1 row-start-1">
         <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
         <span className="">Admin Dasbhoard</span>
       </div>
-      {selectedMode != 'sources' && (
+      {selectedMode != "sources" && (
         <>
           <div className="row-span-3 p-2 overflow-auto">
             <CategorySidebar
@@ -222,55 +221,65 @@ export default function Dashboard() {
               deleteSubcategory={deleteSubcategory}
             />
           </div>
-          {selectedMode != 'properties' ? (<><div className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}>
-            <h3 className="text-xl p-2 mb-2">Editor</h3>
+          {selectedMode != "properties" ? (
+            <>
+              <div
+                className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
+              >
+                <h3 className="text-xl p-2 mb-2">Editor</h3>
 
-            {selectedMode === "content" ? (
-              <MarkdownEditor
-                value={editText}
-                handleChange={handleContentEdit} />
-            ) : (
-              <VizEditor
-                visualizations={editText}
-                handleChange={handleVizEdit} />
-            )}
-          </div><div className={`col-start-3 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}>
-              <div className="flex justify-between p-2 mb-2">
-                <h3 className="text-xl">Preview</h3>
-                <Button
-                  disabled={!hasEdits}
-                  handleClick={handleSaveClick}
-                  type={"primary"}
-                >
-                  Save Changes
-                </Button>
+                {selectedMode === "content" ? (
+                  <MarkdownEditor
+                    value={editText}
+                    handleChange={handleContentEdit}
+                  />
+                ) : (
+                  <VizEditor
+                    visualizations={editText}
+                    handleChange={handleVizEdit}
+                  />
+                )}
               </div>
+              <div
+                className={`col-start-3 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
+              >
+                <div className="flex justify-between p-2 mb-2">
+                  <h3 className="text-xl">Preview</h3>
+                  <Button
+                    disabled={!hasEdits}
+                    handleClick={handleSaveClick}
+                    type={"primary"}
+                  >
+                    Save Changes
+                  </Button>
+                </div>
 
-              {getPreview()}
+                {getPreview()}
+              </div>
+              <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
+                <VersionControl
+                  contentHistory={history || []}
+                  handleClick={handleVersionChange}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
+              <PropertiesForm sources={[]} />
             </div>
-            <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
-              <VersionControl
-                contentHistory={history || []}
-                handleClick={handleVersionChange}
-              />
-            </div>
-          </>) : (<div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
-            <PropertiesForm
-
-            />
-          </div>)}
-
+          )}
         </>
       )}
-      {selectedMode == 'sources' && <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
-        <SourceEditor />
-      </div>
-      }
-      {selectedMode == 'properties' && <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
-        <PropertiesForm
-
-        />
-      </div>}
+      {selectedMode == "sources" && (
+        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+          <SourceEditor />
+        </div>
+      )}
+      {selectedMode == "properties" && (
+        <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
+          <PropertiesForm sources={[]} />
+        </div>
+      )}
       <UnsavedChangesModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

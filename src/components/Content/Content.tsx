@@ -1,4 +1,10 @@
-import { CategoryKeyMap, CategoryKeys, GeoLevel, ProfileContent, ProfileData } from "@/types/types";
+import {
+  CategoryKeyMap,
+  CategoryKeys,
+  GeoLevel,
+  ProfileContent,
+  ProfileData,
+} from "@/types/types";
 import Category from "./Category";
 import CategoryNav from "../CategoryNav/CategoryNav";
 import ScrollProvider from "@/context/ScrollProvider";
@@ -26,7 +32,7 @@ export default async function Content(props: Props) {
             <Category
               key={category}
               category={category}
-              subcategories={value}
+              categoryContent={value}
               profileData={data}
               geoLevel={geoLevel}
             />

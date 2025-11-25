@@ -72,9 +72,16 @@ export interface Viz {
   geo_level: string;
   file: string;
   create_date: Date;
-};
+}
 
-export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
+export type ProfileContent = Record<CategoryKeys, CategoryContent>;
+
+export type CategoryContent = {
+  content_id: number;
+  category_id: number;
+  content: string;
+  subcategories: SubcategoryContent;
+};
 
 export type SubcategoryContent = Record<string, TopicContent[]>;
 
@@ -84,23 +91,21 @@ export type CategoryTree = {
   id: number;
   label: string;
   content_id: number;
-  subcategories: SubcategoryTree[]
-}
+  subcategories: SubcategoryTree[];
+};
 
 export type TreeTopic = {
   name: string;
   id: number;
   label: string;
   content_id: number;
-}
+};
 export type SubcategoryTree = {
   name: string;
   id: number;
   label: string;
-  topics: TreeTopic[]
+  topics: TreeTopic[];
 };
-
-
 
 export type Topic = {
   id: number;
@@ -147,17 +152,17 @@ export type SourceForm = SourceBase & {
 };
 
 export type ProductResponse = {
-  items: Product[]
+  items: Product[];
   hasMore: boolean;
   limit: number;
   offset: number;
-  count: number
-}
+  count: number;
+};
 export type Product = {
   id: number;
   title: string;
   urllink: string;
-}
+};
 
 export interface Feature {
   sourceUrl: string;

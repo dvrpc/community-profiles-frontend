@@ -41,7 +41,7 @@ export default function Title(props: Props) {
     );
   } else {
     return (
-      <h3 id={subcategory} className="text-3xl scroll-mt-32" ref={ref}>
+      <h3 id={subcategory} className="text-3xl scroll-mt-32 mt-16" ref={ref}>
         {title}
       </h3>
     );

@@ -36,7 +36,6 @@ export function useProfile(geoLevel: GeoLevel, geoid?: string) {
   });
 }
 
-
 export function useContent(id: number) {
   return useQuery({
     queryKey: ["content", id],
@@ -57,7 +56,7 @@ export function useHistory(mode: string, id: number) {
   return useQuery({
     queryKey: ["history", mode, id],
     queryFn: () => apiGet<Content[]>(`/${mode}/${id}/history`),
-    enabled: id != 0,
+    enabled: id != 0 && (mode == "content" || mode == "viz"),
   });
 }
 
@@ -72,10 +71,13 @@ export function useAllProducts() {
   return useQuery({
     queryKey: ["product"],
     queryFn: async () => {
-      const productResponse = await apiGet<ProductResponse>('/product?tags=Data Center&limit=999', PRODUCT_BASE_URL);
-      return productResponse.items
-    }
-  })
+      const productResponse = await apiGet<ProductResponse>(
+        "/product?tags=Data Center&limit=999",
+        PRODUCT_BASE_URL
+      );
+      return productResponse.items;
+    },
+  });
 }
 
 export function useCreateSource() {
@@ -94,8 +96,16 @@ export function useCreateSubcategory() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ categoryId, newSubcat }: { categoryId: number; newSubcat: string }) =>
-      apiPostAuthorized<number>(`/tree/subcategory?category_id=${categoryId}&name=${newSubcat}`),
+    mutationFn: ({
+      categoryId,
+      newSubcat,
+    }: {
+      categoryId: number;
+      newSubcat: string;
+    }) =>
+      apiPostAuthorized<number>(
+        `/tree/subcategory?category_id=${categoryId}&name=${newSubcat}`
+      ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -106,8 +116,16 @@ export function useCreateTopic() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ subcatId, newTopic }: { subcatId: number; newTopic: string }) =>
-      apiPostAuthorized<number>(`/tree/topic?subcategory_id=${subcatId}&name=${newTopic}`),
+    mutationFn: ({
+      subcatId,
+      newTopic,
+    }: {
+      subcatId: number;
+      newTopic: string;
+    }) =>
+      apiPostAuthorized<number>(
+        `/tree/topic?subcategory_id=${subcatId}&name=${newTopic}`
+      ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -118,8 +136,16 @@ export function useUpdateSubcategory() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ subcatId, newSubcat }: { subcatId: number; newSubcat: string }) =>
-      apiPutAuthorized<number>(`/tree/subcategory?id=${subcatId}&name=${newSubcat}`),
+    mutationFn: ({
+      subcatId,
+      newSubcat,
+    }: {
+      subcatId: number;
+      newSubcat: string;
+    }) =>
+      apiPutAuthorized<number>(
+        `/tree/subcategory?id=${subcatId}&name=${newSubcat}`
+      ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -130,15 +156,19 @@ export function useUpdateTopic() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ topicId, newTopic }: { topicId: number; newTopic: string }) =>
+    mutationFn: ({
+      topicId,
+      newTopic,
+    }: {
+      topicId: number;
+      newTopic: string;
+    }) =>
       apiPutAuthorized<number>(`/tree/topic?id=${topicId}&name=${newTopic}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
   });
 }
-
-
 
 export function useUpdateSource() {
   const qc = useQueryClient();
@@ -178,7 +208,8 @@ export function useDeleteSubcategory() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/tree/subcategory/${id}`),
+    mutationFn: (id: number) =>
+      apiDeleteAuthorized<void>(`/tree/subcategory/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -195,7 +226,8 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${
+          geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),

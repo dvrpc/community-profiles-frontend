@@ -1,6 +1,17 @@
-import { CategoryKeyMap, GeoLevel, Topic } from "@/types/types";
-import { ChevronDownIcon, ChevronRightIcon, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import {
+  CategoryKeyMap,
+  CategoryKeys,
+  GeoLevel,
+  getTypedObjectEntries,
+  Topic,
+} from "@/types/types";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  Pencil,
+  Trash2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import DeleteModal from "./DeleteModal";
 
 interface Props {
@@ -27,12 +38,12 @@ export default function CategorySidebar(props: Props) {
     updateSubcategory,
     updateTopic,
     deleteTopic,
-    deleteSubcategory
+    deleteSubcategory,
   } = props;
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<{
-    category: string;
+    category: CategoryKeys;
     subcategory: string;
     topic: string;
   } | null>(null);
@@ -40,17 +51,22 @@ export default function CategorySidebar(props: Props) {
   const [pendingDelete, setPendingDelete] = useState<{
     type: "subcategory" | "topic";
     id: number;
-    name: string
+    name: string;
   } | null>(null);
-
+  const [pendingGeoLevelChange, setPendingGeoLevelChange] = useState(false);
   const toggleSection = (sectionKey: string) => {
-    setOpenSections(prev => ({
+    setOpenSections((prev) => ({
       ...prev,
       [sectionKey]: !prev[sectionKey],
     }));
   };
 
-  const handleItemClick = (category: string, subcategory: string, topic: string, id: number) => {
+  const handleItemClick = (
+    category: CategoryKeys,
+    subcategory: string,
+    topic: string,
+    id: number
+  ) => {
     setSelected({ category, subcategory, topic });
     handleClick(id);
   };
@@ -92,25 +108,53 @@ export default function CategorySidebar(props: Props) {
 
   const confirmDeletion = () => {
     if (!pendingDelete) return;
-    if (pendingDelete.type === "subcategory") deleteSubcategory(pendingDelete.id);
+    if (pendingDelete.type === "subcategory")
+      deleteSubcategory(pendingDelete.id);
     if (pendingDelete.type === "topic") deleteTopic(pendingDelete.id);
     setDeleteModalOpen(false);
     setPendingDelete(null);
   };
 
-  const handleCategorySelect = (category: string, content_id: string) => {
+  const handleGeoLevelChange = (geoLevel: GeoLevel) => {
+    setGeoLevel(geoLevel);
+    setPendingGeoLevelChange(true);
+  };
 
-  }
+  useEffect(() => {
+    function selectOnGeoLevelChange() {
+      if (pendingGeoLevelChange && selected && tree) {
+        if (selected.topic == "") {
+          const content_id = tree[selected["category"]].content_id;
+          handleClick(content_id);
+        } else {
+          const subcategory = tree[selected["category"]].subcategories.find(
+            (s) => s.name == selected.subcategory
+          );
+          if (!subcategory) return;
+          const topic = subcategory.topics.find(
+            (t) => t.name == selected.topic
+          );
+          if (!topic) return;
+          handleClick(topic.content_id);
+        }
+        setPendingGeoLevelChange(false);
+      }
+    }
+
+    selectOnGeoLevelChange();
+  }, [tree]);
 
   if (!tree) return <></>;
 
   return (
     <div>
       <div className="pb-2">
-        <label className="block text-sm font-semibold mb-1 p-2">Geography Level</label>
+        <label className="block text-sm font-semibold mb-1 p-2">
+          Geography Level
+        </label>
         <select
           value={geoLevel}
-          onChange={e => setGeoLevel(e.target.value as GeoLevel)}
+          onChange={(e) => handleGeoLevelChange(e.target.value as GeoLevel)}
           className="w-full px-2 py-2 rounded bg-white border border-gray-300 text-gray-800 cursor-pointer"
         >
           <option value="region">Region</option>
@@ -119,7 +163,7 @@ export default function CategorySidebar(props: Props) {
         </select>
       </div>
 
-      {Object.entries(tree).map(([category, categoryTree]) => {
+      {getTypedObjectEntries(tree).map(([category, categoryTree]) => {
         const subcats = categoryTree.subcategories;
         const categoryKey = `cat-${category}`;
         const isCategoryOpen = !!openSections[categoryKey];
@@ -127,10 +171,11 @@ export default function CategorySidebar(props: Props) {
         return (
           <div key={category} className="mb-4">
             <div
-              className={`flex items-center justify-between w-full px-2 py-2 font-bold rounded cursor-pointer select-none ${selected?.category === category && !selected?.subcategory
-                ? "bg-dvrpc-blue-1 text-white"
-                : "hover:bg-gray-200"
-                }`}
+              className={`flex items-center justify-between w-full px-2 py-2 font-bold rounded cursor-pointer select-none ${
+                selected?.category === category && !selected?.subcategory
+                  ? "bg-dvrpc-blue-1 text-white"
+                  : "hover:bg-gray-200"
+              }`}
             >
               <span
                 onClick={(e) => {
@@ -143,11 +188,7 @@ export default function CategorySidebar(props: Props) {
                 {category}
               </span>
 
-              <button
-                onClick={() =>
-                  toggleSection(categoryKey)
-                }
-              >
+              <button onClick={() => toggleSection(categoryKey)}>
                 {isCategoryOpen ? (
                   <ChevronDownIcon className="w-4 h-4" />
                 ) : (
@@ -158,7 +199,7 @@ export default function CategorySidebar(props: Props) {
 
             {isCategoryOpen && (
               <div className="ml-4 mt-2">
-                {subcats.map(subcat => {
+                {subcats.map((subcat) => {
                   const subcatKey = `${categoryKey}-${subcat.id}`;
                   const isSubcatOpen = !!openSections[subcatKey];
 
@@ -178,13 +219,17 @@ export default function CategorySidebar(props: Props) {
                         </button>
 
                         <button
-                          onClick={() => handleEditSubcategory(subcat.id, subcat.name)}
+                          onClick={() =>
+                            handleEditSubcategory(subcat.id, subcat.name)
+                          }
                           className="text-sm text-gray-500 hover:underline ml-2"
                         >
                           <Pencil size={16} />
                         </button>
                         <button
-                          onClick={() => handleDeleteSubcategory(subcat.id, subcat.name)}
+                          onClick={() =>
+                            handleDeleteSubcategory(subcat.id, subcat.name)
+                          }
                           className="text-sm text-gray-500 hover:underline ml-2"
                         >
                           <Trash2 size={16} color="red" />
@@ -193,37 +238,60 @@ export default function CategorySidebar(props: Props) {
 
                       {isSubcatOpen && (
                         <ul className="ml-4 mt-1">
-                          {subcat.topics.map(topic => (
-                            <li key={topic.id} className="flex justify-between items-center">
+                          {subcat.topics.map((topic) => (
+                            <li
+                              key={topic.id}
+                              className="flex justify-between items-center"
+                            >
                               <div
-                                className={`px-2 py-1 rounded cursor-pointer flex-1 ${selected?.category === category &&
+                                className={`px-2 py-1 rounded cursor-pointer flex-1 ${
+                                  selected?.category === category &&
                                   selected?.subcategory === subcat.name &&
                                   selected?.topic === topic.name
-                                  ? "bg-dvrpc-blue-1 text-white"
-                                  : "hover:bg-gray-300"
-                                  }`}
-                                onClick={() => handleItemClick(category, subcat.name, topic.name, topic.content_id)}
+                                    ? "bg-dvrpc-blue-1 text-white"
+                                    : "hover:bg-gray-300"
+                                }`}
+                                onClick={() =>
+                                  handleItemClick(
+                                    category,
+                                    subcat.name,
+                                    topic.name,
+                                    topic.content_id
+                                  )
+                                }
                               >
                                 {topic.name}
                               </div>
                               <button
-                                onClick={() => handleEditTopic(topic.name, topic.id)}
+                                onClick={() =>
+                                  handleEditTopic(topic.name, topic.id)
+                                }
                                 className="text-sm text-gray-500 hover:underline ml-2"
                               >
                                 <Pencil size={16} />
                               </button>
                               <button
-                                onClick={() => handleDeleteTopic(topic.id, topic.name)}
+                                onClick={() =>
+                                  handleDeleteTopic(topic.id, topic.name)
+                                }
+                                disabled={subcat.topics.length == 1}
                                 className="text-sm text-gray-500 hover:underline ml-2"
                               >
-                                <Trash2 size={16} color="red" />
+                                <Trash2
+                                  size={16}
+                                  color={
+                                    subcat.topics.length != 1 ? "red" : "black"
+                                  }
+                                />
                               </button>
                             </li>
                           ))}
 
                           <li className="mt-2">
                             <button
-                              onClick={() => handleAddTopic(subcat.id, subcat.name)}
+                              onClick={() =>
+                                handleAddTopic(subcat.id, subcat.name)
+                              }
                               className="text-sm text-dvrpc-blue-3 hover:underline"
                             >
                               + Add Topic
@@ -236,7 +304,9 @@ export default function CategorySidebar(props: Props) {
                 })}
 
                 <button
-                  onClick={() => handleAddSubcategory(categoryTree.id, category)}
+                  onClick={() =>
+                    handleAddSubcategory(categoryTree.id, category)
+                  }
                   className="text-sm text-dvrpc-blue-3 hover:underline mt-3 ml-4"
                 >
                   + Add Subcategory
