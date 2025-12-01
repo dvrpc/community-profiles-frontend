@@ -8,11 +8,15 @@ interface Props {
     onSave: (source: SourceForm, id?: number) => void;
 }
 
+function buildCitation(agency: string, dataset: string, year_to: number, year_from?: number) {
+    return `${agency}, ${dataset}, ${year_from ? year_from + '-' : ''}${year_to}`
+}
+
 export default function SourceModal(props: Props) {
     const { initialData, onCancel, onSave } = props
 
     const [form, setForm] = useState<SourceForm>(
-        initialData || { name: "", year_to: new Date().getFullYear(), citation: "" }
+        initialData || { agency: "", dataset: "", year_to: new Date().getFullYear(), citation: "" }
     );
     const [error, setError] = useState<string>("");
 
@@ -20,7 +24,6 @@ export default function SourceModal(props: Props) {
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
-
         if (name === "year_from" || name === "year_to") {
             setForm({ ...form, [name]: value ? parseInt(value) : undefined });
         } else {
@@ -28,9 +31,18 @@ export default function SourceModal(props: Props) {
         }
     };
 
+    const handleGenerateCitationClick = () => {
+        const citation = buildCitation(form.agency, form.dataset, form.year_to, form.year_from)
+        setForm({ ...form, citation: citation })
+    }
+
     const handleSaveClick = () => {
-        if (!form.name.trim()) {
-            setError("Name is required.");
+        if (!form.agency.trim()) {
+            setError("Agency is required.");
+            return;
+        }
+        if (!form.dataset.trim()) {
+            setError("Dataset is required.");
             return;
         }
         if (form.year_to === undefined || isNaN(form.year_to)) {
@@ -54,10 +66,20 @@ export default function SourceModal(props: Props) {
                 {error && <p className="text-red-600 mb-2">{error}</p>}
                 <div className="space-y-4">
                     <div>
-                        <label className="block font-medium mb-1">Name <span className="text-red-600">*</span></label>
+                        <label className="block font-medium mb-1">Agency <span className="text-red-600">*</span></label>
                         <input
-                            name="name"
-                            value={form.name}
+                            name="agency"
+                            value={form.agency}
+                            onChange={handleChange}
+                            required
+                            className="w-full border rounded-lg p-2"
+                        />
+                    </div>
+                    <div>
+                        <label className="block font-medium mb-1">Dataset <span className="text-red-600">*</span></label>
+                        <input
+                            name="dataset"
+                            value={form.dataset}
                             onChange={handleChange}
                             required
                             className="w-full border rounded-lg p-2"
@@ -98,19 +120,28 @@ export default function SourceModal(props: Props) {
                     </div>
                 </div>
 
-                <div className="flex justify-end gap-3 mt-6">
+                <div className="flex justify-between mt-6">
                     <Button
                         handleClick={onCancel}
                         type="secondary"
                     >
                         Cancel
                     </Button>
-                    <Button
-                        handleClick={handleSaveClick}
-                        type="primary"
-                    >
-                        Save
-                    </Button>
+                    <div className="flex gap-3">
+                        <Button
+                            handleClick={handleGenerateCitationClick}
+                            type="primary"
+                        >
+                            Generate Citation
+                        </Button>
+
+                        <Button
+                            handleClick={handleSaveClick}
+                            type="primary"
+                        >
+                            Save
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

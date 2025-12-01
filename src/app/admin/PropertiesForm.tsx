@@ -1,149 +1,174 @@
 "use client";
-import { useAllProducts, useSource } from "@/lib/hooks";
-import { Source } from "@/types/types";
-import MultiSelect from "./MultiSelect";
-import { useState } from "react";
-import Button from "@/components/Buttons/Button";
 
-export interface Option {
-  value: number;
-  label: string;
-}
+import { useAllProducts, useSource } from "@/lib/hooks";
+import { PropertyForm, SelectOption, Source } from "@/types/types";
+import MultiSelect from "./MultiSelect";
+import { useState, useMemo, useEffect } from "react";
+import Button from "@/components/Buttons/Button";
+import { diff } from "@/lib/utils";
 
 interface Props {
-  sources: Source[];
+    id: number;
+    initialData: PropertyForm;
+    handleSave: (id: number, payload: Partial<PropertyForm>) => void;
 }
 
-export default function PropertiesForm(props: Props) {
-  const { data: sources } = useSource();
-  const { data: products } = useAllProducts();
+const mapIdsToOptions = <T extends { id: string | number; citation?: string; title?: string }>(
+    ids: number[],
+    list: T[],
+    labelKey: "citation" | "title"
+): SelectOption[] => {
+    return ids
+        .map((id) => {
+            const item = list.find((x) => Number(x.id) === id);
+            if (!item) return null;
+            return { value: id, label: item[labelKey] ?? "" };
+        })
+        .filter(Boolean) as SelectOption[];
+};
 
-  const [selectedContentSources, setSelectedContentSources] = useState<
-    Option[]
-  >([]);
-  const [selectedProducts, setSelectedProducts] = useState<Option[]>([]);
-  const [selectedVizSources, setSelectedVizSources] = useState<Option[]>([]);
-  const [isVisible, setIsVisible] = useState<boolean>(true);
-  const [dataCatalogLink, setDataCatalogLink] = useState<string>("");
-  const [censusLink, setCensusLink] = useState<string>("");
 
-  if (!sources || !products) return <></>;
+const getCitationString = (selectedSources: SelectOption[], sources: Source[]) => {
+    const selectedIds = new Set(selectedSources.map((s) => s.value));
+    const filtered = sources.filter((s) => selectedIds.has(s.id));
+    return filtered
+        .map((s, i) => s.citation + (i < filtered.length - 1 ? ", " : "."))
+        .join("");
+};
 
-  const sourceOptions: Option[] = sources.map((source) => ({
-    value: source.id,
-    label: source.name,
-  }));
+export default function PropertiesForm({ id, initialData, handleSave }: Props) {
+    const { data: sources } = useSource();
+    const { data: products } = useAllProducts();
 
-  const productOptions: Option[] = products.map((product) => ({
-    value: product.id,
-    label: product.title,
-  }));
+    const selectedContentSourcesOptions = useMemo(() => {
+        if (!sources) return [];
+        return mapIdsToOptions(initialData.content_sources, sources, "citation");
+    }, [initialData.content_sources, sources]);
 
-  const handleSourceChange = (values: readonly Option[]) => {
-    setSelectedContentSources([...values]);
-  };
+    const selectedVizSourcesOptions = useMemo(() => {
+        if (!sources) return [];
+        return mapIdsToOptions(initialData.viz_sources, sources, "citation");
+    }, [initialData.viz_sources, sources]);
 
-  const handleProductChange = (values: readonly Option[]) => {
-    setSelectedProducts([...values]);
-  };
+    const selectedProductsOptions = useMemo(() => {
+        if (!products) return [];
+        return mapIdsToOptions(initialData.related_products, products, "title");
+    }, [initialData.related_products, products]);
 
-  const handleVizSourceChange = (values: readonly Option[]) => {
-    setSelectedVizSources([...values]);
-  };
+    const [selectedContentSources, setSelectedContentSources] = useState<SelectOption[]>(selectedContentSourcesOptions);
+    const [selectedVizSources, setSelectedVizSources] = useState<SelectOption[]>(selectedVizSourcesOptions);
+    const [selectedProducts, setSelectedProducts] = useState<SelectOption[]>(selectedProductsOptions);
 
-  const handleSave = () => {
-    const payload = {
-      sources: selectedContentSources.map((s) => s.value),
-      products: selectedProducts.map((p) => p.value),
-      vizSources: selectedVizSources.map((v) => v.value),
-      isVisible,
-      dataCatalogLink,
-      censusLink,
+    const [isVisible, setIsVisible] = useState(initialData.is_visible);
+    const [dataCatalogLink, setDataCatalogLink] = useState(initialData.catalog_link);
+    const [censusLink, setCensusLink] = useState(initialData.census_link);
+
+    useEffect(() => {
+        setSelectedContentSources(selectedContentSourcesOptions);
+        setSelectedVizSources(selectedVizSourcesOptions);
+        setSelectedProducts(selectedProductsOptions);
+        setIsVisible(initialData.is_visible);
+        setDataCatalogLink(initialData.catalog_link);
+        setCensusLink(initialData.census_link);
+    }, [id, selectedContentSourcesOptions, selectedVizSourcesOptions, selectedProductsOptions]);
+
+    if (!sources || !products) return <div>Loading...</div>;
+
+    const sourceOptions = sources.map((s) => ({ value: s.id, label: s.citation }));
+    const productOptions = products.map((p) => ({ value: Number(p.id), label: p.title }));
+
+    const handleSaveClick = () => {
+        const current: PropertyForm = {
+            content_sources: selectedContentSources.map((s) => s.value),
+            viz_sources: selectedVizSources.map((v) => v.value),
+            related_products: selectedProducts.map((p) => p.value),
+            is_visible: isVisible,
+            catalog_link: dataCatalogLink,
+            census_link: censusLink,
+        };
+
+        const changedPayload = diff(initialData, current);
+
+        if (Object.keys(changedPayload).length === 0) {
+            alert("No changes detected.");
+            return;
+        }
+
+        handleSave(id, changedPayload);
     };
-  };
 
-  const citationString = () => {
-    if (!sources) return "";
 
-    const sourceIds = selectedContentSources.map((s) => s.value);
-    const selectedSourceIds = new Set(sourceIds);
-    const filteredSources = sources.filter((source) =>
-      selectedSourceIds.has(source.id)
+    return (
+        <form className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4">
+                <div className="w-100">
+                    <label className="font-medium">Sources</label>
+                    <MultiSelect
+                        value={selectedContentSources}
+                        options={sourceOptions}
+                        onChange={(vals) => setSelectedContentSources([...vals])}
+                    />
+                    <span className="italic text-sm">{getCitationString(selectedContentSources, sources)}</span>
+                </div>
+
+                <div className="w-100">
+                    <label className="font-medium">Viz Sources</label>
+                    <MultiSelect
+                        value={selectedVizSources}
+                        options={sourceOptions}
+                        onChange={(vals) => setSelectedVizSources([...vals])}
+                    />
+                    <span className="italic text-sm">{getCitationString(selectedVizSources, sources)}</span>
+
+                </div>
+
+                <div className="w-100">
+                    <label className="font-medium">Related Products</label>
+                    <MultiSelect
+                        value={selectedProducts}
+                        options={productOptions}
+                        onChange={(vals) => setSelectedProducts([...vals])}
+                    />
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <label className="font-medium">Visible</label>
+                    <input
+                        type="checkbox"
+                        checked={isVisible}
+                        onChange={() => setIsVisible(!isVisible)}
+                        className="h-5 w-5"
+                    />
+                </div>
+
+                <div className="w-100 flex flex-col gap-1">
+                    <label className="font-medium">Data Catalog Link</label>
+                    <input
+                        type="text"
+                        value={dataCatalogLink}
+                        onChange={(e) => setDataCatalogLink(e.target.value)}
+                        className="border border-dvrpc-gray-5  p-2 rounded"
+                        placeholder="https://..."
+                    />
+                </div>
+
+                <div className="w-100 flex flex-col gap-1">
+                    <label className="font-medium">Census Link</label>
+                    <input
+                        type="text"
+                        value={censusLink}
+                        onChange={(e) => setCensusLink(e.target.value)}
+                        className="border border-dvrpc-gray-5 p-2 rounded"
+                        placeholder="https://..."
+                    />
+                </div>
+            </div>
+
+            <div className="mt-4">
+                <Button type="primary" handleClick={handleSaveClick}>
+                    Save
+                </Button>
+            </div>
+        </form>
     );
-    return filteredSources
-      .map((s, i) => s.citation + (i < filteredSources.length - 1 ? ", " : "."))
-      .join("");
-  };
-
-  return (
-    <form className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        <div className="w-100">
-          <label className="font-medium">Sources</label>
-          <MultiSelect
-            value={selectedContentSources}
-            options={sourceOptions}
-            onChange={handleSourceChange}
-          />
-          <span className="italic text-sm">{citationString()}</span>
-        </div>
-
-        <div className="w-100">
-          <label className="font-medium">Viz Sources</label>
-          <MultiSelect
-            value={selectedVizSources}
-            options={sourceOptions}
-            onChange={handleVizSourceChange}
-          />
-        </div>
-
-        <div className="w-100">
-          <label className="font-medium">Related Products</label>
-          <MultiSelect
-            value={selectedProducts}
-            options={productOptions}
-            onChange={handleProductChange}
-          />
-        </div>
-
-        <div className="flex items-center gap-2">
-          <label className="font-medium">Visible</label>
-          <input
-            type="checkbox"
-            checked={isVisible}
-            onChange={() => setIsVisible(!isVisible)}
-            className="h-5 w-5"
-          />
-        </div>
-
-        <div className="w-100 flex flex-col gap-1">
-          <label className="font-medium">Data Catalog Link</label>
-          <input
-            type="text"
-            value={dataCatalogLink}
-            onChange={(e) => setDataCatalogLink(e.target.value)}
-            className="border border-dvrpc-gray-5  p-2 rounded"
-            placeholder="https://..."
-          />
-        </div>
-
-        <div className="w-100 flex flex-col gap-1">
-          <label className="font-medium">Census Link</label>
-          <input
-            type="text"
-            value={censusLink}
-            onChange={(e) => setCensusLink(e.target.value)}
-            className="border border-dvrpc-gray-5 p-2 rounded"
-            placeholder="https://..."
-          />
-        </div>
-      </div>
-
-      <div className="mt-4">
-        <Button type="primary" handleClick={handleSave}>
-          Save
-        </Button>
-      </div>
-    </form>
-  );
 }

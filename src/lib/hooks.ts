@@ -13,6 +13,7 @@ import {
   Product,
   ProductResponse,
   ProfileData,
+  PropertyForm,
   Source,
   SourceBase,
   Visualization,
@@ -182,6 +183,18 @@ export function useUpdateSource() {
   });
 }
 
+export function usePropertiesForm() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, source }: { id: number; source: SourceBase }) =>
+      apiPutAuthorized<Source>(`/source/${id}`, source),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["source"] });
+    },
+  });
+}
+
 export function useDeleteSource() {
   const qc = useQueryClient();
 
@@ -226,13 +239,24 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${
-          geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),
     enabled: template !== "" && template !== "[]",
     staleTime: 0,
+  });
+}
+
+export function useUpdateProperties() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: Partial<PropertyForm> }) =>
+      apiPutAuthorized(`/content/${id}/properties`, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["content"] });
+      qc.invalidateQueries({ queryKey: ["viz"] });
+    },
   });
 }
 

@@ -28,7 +28,6 @@ export default function SourceManager() {
   if (!sources) return <></>;
 
   const handleSave = (source: SourceForm) => {
-    console.log(source);
     if (!source.id) {
       createMutation(source);
     } else {
@@ -76,7 +75,8 @@ export default function SourceManager() {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-dvrpc-gray-7 text-left">
-                <th className="p-3">Name</th>
+                <th className="p-3">Agency</th>
+                <th className="p-3">Dataset</th>
                 <th className="p-3">Year From</th>
                 <th className="p-3">Year To</th>
                 <th className="p-3">Citation</th>
@@ -89,7 +89,8 @@ export default function SourceManager() {
                   key={source.id}
                   className="border-b hover:bg-gray-50 transition"
                 >
-                  <td className="p-3">{source.name}</td>
+                  <td className="p-3">{source.agency}</td>
+                  <td className="p-3">{source.dataset}</td>
                   <td className="p-3">{source.year_from ?? "—"}</td>
                   <td className="p-3">{source.year_to ?? "—"}</td>
                   <td className="p-3 text-sm text-dvrpc-gray-2">

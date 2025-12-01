@@ -40,7 +40,6 @@ export default function Visualizations(props: Props) {
       let url = `${API_BASE_URL}/viz/${id}/${geoLevel}`
 
       if (geoLevel != 'region') {
-        console.log(geoLevel)
         url += `/${geoid}`
       }
       const vizResponse = await fetch(url);

@@ -16,19 +16,20 @@ import {
   useCreateTopic,
   useDeleteTopic,
   useDeleteSubcategory,
+  useUpdateProperties,
 } from "../../lib/hooks";
 import CategorySidebar from "./CategorySidebar/CategorySidebar";
-import MarkdownEditor from "./MarkdownEditor";
-import MarkdownPreview from "./MarkdownPreview";
-import VizEditor from "./VizEditor";
-import VizPreview from "./VizPreview";
+import MarkdownEditor from "./Content/MarkdownEditor";
+import MarkdownPreview from "./Content/MarkdownPreview";
+import VizEditor from "./Viz/VizEditor";
+import VizPreview from "./Viz/VizPreview";
 import VersionControl from "./VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
-import { GeoLevel, Visualization } from "@/types/types";
+import { GeoLevel, PropertyForm, Visualization } from "@/types/types";
 import { getSession, useSession } from "next-auth/react";
-import Tabs from "./Header";
-import SourceEditor from "./SourceEditor";
+import Header from "./Header";
+import SourceEditor from "./Source/SourceEditor";
 import PropertiesForm from "./PropertiesForm";
 
 const defaultGeoid = {
@@ -75,6 +76,7 @@ export default function Dashboard() {
   const topicCreateMutation = useCreateTopic();
   const topicDeleteMutation = useDeleteTopic();
   const subcategoryDeleteMutation = useDeleteSubcategory();
+  const propetiesMutation = useUpdateProperties();
 
   useEffect(() => {
     if (selectedMode == "content" && content) setEditText(content["file"]);
@@ -90,6 +92,9 @@ export default function Dashboard() {
 
     if (!categorySelected && isCategory) {
       setCategorySelected(true);
+      if (selectedMode == 'properties' || selectedMode == 'viz') {
+        setSelectedMode('content')
+      }
     }
 
     if (categorySelected && !isCategory) {
@@ -144,13 +149,16 @@ export default function Dashboard() {
   }
 
   function handleVersionChange(file: string, index: number) {
-    console.log(file);
     if (selectedMode == "content") {
       setEditText(file);
     } else {
       setEditText(JSON.parse(file));
     }
     setHasEdits(index > 0);
+  }
+
+  function handlePropertiesSave(id: number, payload: Partial<PropertyForm>) {
+    propetiesMutation.mutate({ id, payload })
   }
 
   function getPreview() {
@@ -195,7 +203,7 @@ export default function Dashboard() {
   return (
     <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
       <div className="col-span-3 col-start-2 p-2 bg-white flex justify-between rounded-md">
-        <Tabs
+        <Header
           currentTab={selectedMode}
           setCurrentTab={handleModeChange}
           categorySelected={categorySelected}
@@ -205,79 +213,85 @@ export default function Dashboard() {
         <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
         <span className="">Admin Dasbhoard</span>
       </div>
-      {selectedMode != "sources" && (
+      <div className="row-span-3 p-2 overflow-auto">
+        <CategorySidebar
+          tree={tree}
+          handleClick={handleCategorySidebarSelect}
+          geoLevel={selectedGeoLevel}
+          setGeoLevel={setSelectedGeoLevel}
+          addSubcategory={addSubcategory}
+          addTopic={addTopic}
+          updateSubcategory={updateSubcategory}
+          updateTopic={updateTopic}
+          deleteTopic={deleteTopic}
+          deleteSubcategory={deleteSubcategory}
+        />
+      </div>
+      {(selectedMode == "content" || selectedMode == 'viz') && (
         <>
-          <div className="row-span-3 p-2 overflow-auto">
-            <CategorySidebar
-              tree={tree}
-              handleClick={handleCategorySidebarSelect}
-              geoLevel={selectedGeoLevel}
-              setGeoLevel={setSelectedGeoLevel}
-              addSubcategory={addSubcategory}
-              addTopic={addTopic}
-              updateSubcategory={updateSubcategory}
-              updateTopic={updateTopic}
-              deleteTopic={deleteTopic}
-              deleteSubcategory={deleteSubcategory}
+          <div
+            className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
+          >
+            <h3 className="text-xl p-2 mb-2">Editor</h3>
+
+            {selectedMode === "content" ? (
+              <MarkdownEditor
+                value={editText}
+                handleChange={handleContentEdit}
+              />
+            ) : (
+              <VizEditor
+                visualizations={editText}
+                handleChange={handleVizEdit}
+              />
+            )}
+          </div>
+          <div
+            className={`col-start-3 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
+          >
+            <div className="flex justify-between p-2 mb-2">
+              <h3 className="text-xl">Preview</h3>
+              <Button
+                disabled={!hasEdits}
+                handleClick={handleSaveClick}
+                type={"primary"}
+              >
+                Save Changes
+              </Button>
+            </div>
+
+            {getPreview()}
+          </div>
+          <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
+            <VersionControl
+              contentHistory={history || []}
+              handleClick={handleVersionChange}
             />
           </div>
-          {selectedMode != "properties" ? (
-            <>
-              <div
-                className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
-              >
-                <h3 className="text-xl p-2 mb-2">Editor</h3>
-
-                {selectedMode === "content" ? (
-                  <MarkdownEditor
-                    value={editText}
-                    handleChange={handleContentEdit}
-                  />
-                ) : (
-                  <VizEditor
-                    visualizations={editText}
-                    handleChange={handleVizEdit}
-                  />
-                )}
-              </div>
-              <div
-                className={`col-start-3 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
-              >
-                <div className="flex justify-between p-2 mb-2">
-                  <h3 className="text-xl">Preview</h3>
-                  <Button
-                    disabled={!hasEdits}
-                    handleClick={handleSaveClick}
-                    type={"primary"}
-                  >
-                    Save Changes
-                  </Button>
-                </div>
-
-                {getPreview()}
-              </div>
-              <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
-                <VersionControl
-                  contentHistory={history || []}
-                  handleClick={handleVersionChange}
-                />
-              </div>
-            </>
-          ) : (
-            <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
-              <PropertiesForm sources={[]} />
-            </div>
-          )}
         </>
+
       )}
       {selectedMode == "sources" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
           <SourceEditor />
         </div>
       )}
-      {selectedMode == "properties" && (
+      {(selectedMode == "properties" && content && viz) && (
         <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
-          <PropertiesForm sources={[]} />
+          <PropertiesForm
+            id={content.id}
+            initialData={{
+              content_sources: content.source_ids,
+              viz_sources: viz.source_ids,
+              related_products: content.product_ids,
+              is_visible: content.is_visible,
+              catalog_link: content.catalog_link ? content.catalog_link : "",
+              census_link: content.census_link ? content.census_link : ""
+            }
+            }
+
+            handleSave={handlePropertiesSave} />
+
         </div>
       )}
       <UnsavedChangesModal

@@ -37,3 +37,32 @@ export const authOptions: AuthOptions = {
     maxAge: 3600 // 1 hour
   }
 };
+
+export const diff = <T extends object>(initial: T, current: T): Partial<T> => {
+  const changed: Partial<T> = {};
+
+  (Object.keys(current) as (keyof T)[]).forEach((key) => {
+    const a = initial[key];
+    const b = current[key];
+
+    let isEqual = false;
+
+    if (typeof a === "string" && typeof b === "string") {
+      isEqual = (a || "") === (b || "");
+    } else if (Array.isArray(a) && Array.isArray(b)) {
+      type Elem = T[typeof key] extends (infer U)[] ? U : never;
+
+      isEqual =
+        a.length === b.length &&
+        a.every((v, i) => v === (b as Elem[])[i]);
+    } else {
+      isEqual = a === b;
+    }
+
+    if (!isEqual) {
+      changed[key] = b;
+    }
+  });
+
+  return changed;
+};

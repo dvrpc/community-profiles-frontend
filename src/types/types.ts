@@ -56,24 +56,40 @@ export interface SourceMap {
 
 export interface Content {
   id: number;
-  category: string;
-  subcategory: string;
-  topic: string;
+  topic_id: number;
+  category_id: number;
   geo_level: string;
   file: string;
   create_date: Date;
+  is_visible: boolean;
+  census_link?: string;
+  catalog_link?: string;
+  source_ids: number[];
+  product_ids: number[];
 }
 
 export interface Viz {
   id: number;
-  category: string;
-  subcategory: string;
-  topic: string;
+  topic_id: number;
   geo_level: string;
   file: string;
   create_date: Date;
+  source_ids: number[];
 }
 
+export interface SelectOption {
+  value: number;
+  label: string;
+}
+
+export interface PropertyForm {
+  content_sources: number[];
+  viz_sources: number[];
+  related_products: number[];
+  is_visible: boolean;
+  catalog_link: string;
+  census_link: string;
+}
 export type ProfileContent = Record<CategoryKeys, CategoryContent>;
 
 export type CategoryContent = {
@@ -137,7 +153,8 @@ export interface ChartVisualization {
 }
 
 export interface SourceBase {
-  name: string;
+  agency: string;
+  dataset: string;
   year_from?: number;
   year_to: number;
   citation: string;
@@ -158,8 +175,9 @@ export type ProductResponse = {
   offset: number;
   count: number;
 };
+
 export type Product = {
-  id: number;
+  id: string;
   title: string;
   urllink: string;
 };

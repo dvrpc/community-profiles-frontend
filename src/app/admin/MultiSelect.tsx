@@ -1,20 +1,13 @@
-import { Source } from "@/types/types";
+import { Source, SelectOption } from "@/types/types";
 import Select, { MultiValue, OptionsOrGroups } from 'react-select'
-import {
-    Option
-} from "./PropertiesForm";
+
 
 interface Props {
-    options: Option[];
-    value: Option[];
-    onChange: (selectedValue: readonly Option[]) => void;
+    options: SelectOption[];
+    value: SelectOption[];
+    onChange: (selectedValue: readonly SelectOption[]) => void;
 }
 
-// const options = [
-//     { value: 'chocolate', label: 'Chocolate' },
-//     { value: 'strawberry', label: 'Strawberry' },
-//     { value: 'vanilla', label: 'Vanilla' }
-// ]
 
 
 export default function MultiSelect(props: Props) {

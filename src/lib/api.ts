@@ -46,7 +46,6 @@ function buildBodyOptions(body?: string | object): {
   };
 }
 
-/* -------- Authorized Requests -------- */
 
 export async function apiGetAuthorized<T>(path: string) {
   return authorizedRequest<T>(path, { method: "GET" });

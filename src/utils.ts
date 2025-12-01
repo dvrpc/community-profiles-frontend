@@ -28,7 +28,7 @@ export function getMunicipalitySlugFromGeoid(county: string, geoid: string) {
 }
 
 export function displayNumber(num: number) {
-  if (!num) return 'undefined'
+  if (!num) return 0
   return num.toLocaleString("en-US", {
     maximumFractionDigits: 1,
   });
