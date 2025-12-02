@@ -12,7 +12,7 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: { params: { hd: "dvrpc.org" } },
+      // authorization: { params: { hd: "dvrpc.org" } },
     }),
   ],
   callbacks: {
