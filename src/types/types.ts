@@ -55,22 +55,83 @@ export interface SourceMap {
 }
 
 export interface Content {
-  category: string;
-  subcategory: string;
-  topic: string;
+  id: number;
+  topic_id: number;
+  label: string;
+  category_id: number;
   geo_level: string;
   file: string;
-  create_date: Date
+  create_date: Date;
+  is_visible: boolean;
+  census_link?: string;
+  catalog_link?: string;
+  source_ids: number[];
+  product_ids: string[];
 }
 
-export type ProfileContent = Record<CategoryKeys, SubcategoryContent>;
+export interface Viz {
+  id: number;
+  topic_id: number;
+  geo_level: string;
+  file: string;
+  create_date: Date;
+  source_ids: number[];
+}
+
+export interface SelectOption {
+  value: number | string;
+  label: string;
+}
+
+export interface PropertyForm {
+  label: string;
+  content_sources: number[];
+  viz_sources: number[];
+  related_products: string[];
+  is_visible: boolean;
+  catalog_link: string;
+  census_link: string;
+}
+export type ProfileContent = Record<CategoryKeys, CategoryContent>;
+
+export type CategoryContent = {
+  content_id: number;
+  category_id: number;
+  content: string;
+  subcategories: SubcategoryContent;
+};
 
 export type SubcategoryContent = Record<string, TopicContent[]>;
 
-export type CategoryKeyMap = Record<CategoryKeys, SubcategoryKeyMap>;
-export type SubcategoryKeyMap = Record<string, string[]>;
+export type CategoryKeyMap = Record<CategoryKeys, CategoryTree>;
+
+export type CategoryTree = {
+  id: number;
+  label: string;
+  content_id: number;
+  subcategories: SubcategoryTree[];
+};
+
+export type TreeTopic = {
+  name: string;
+  id: number;
+  label: string;
+  content_id: number;
+};
+export type SubcategoryTree = {
+  name: string;
+  id: number;
+  label: string;
+  topics: TreeTopic[];
+};
+
+export type Topic = {
+  id: number;
+  name: string;
+};
 
 export interface TopicContent {
+  id: number;
   name: string;
   content: string;
 }
@@ -92,6 +153,36 @@ export interface ChartVisualization {
   type: "chart";
   schema: TopLevelSpec;
 }
+
+export interface SourceBase {
+  agency: string;
+  dataset: string;
+  year_from?: number;
+  year_to: number;
+  citation: string;
+}
+
+export type Source = SourceBase & {
+  id: number;
+};
+
+export type SourceForm = SourceBase & {
+  id?: number;
+};
+
+export type ProductResponse = {
+  items: Product[];
+  hasMore: boolean;
+  limit: number;
+  offset: number;
+  count: number;
+};
+
+export type Product = {
+  id: string;
+  title: string;
+  urllink: string;
+};
 
 export interface Feature {
   sourceUrl: string;
@@ -650,9 +741,6 @@ export interface ProfileData {
   pct_change_ldv: number;
   percent_cost_burdened: number;
 }
-
-
-
 
 export interface MunicipalityInfo {
   geoid: string;

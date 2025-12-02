@@ -1,14 +1,14 @@
 import { API_BASE_URL } from "@/consts";
 import { getSession } from "next-auth/react";
 
-async function authorizedFetch<T>(
+async function authorizedRequest<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const session = await getSession();
 
-  // Only attach token if it exists (for admin-protected routes)
   const headers = new Headers(options.headers);
+
   if (session?.id_token) {
     headers.set("Authorization", `Bearer ${session.id_token}`);
   }
@@ -26,50 +26,85 @@ async function authorizedFetch<T>(
   return res.json();
 }
 
+/** Utility to build request options based on whether body is text or JSON */
+function buildBodyOptions(body?: string | object): {
+  headers: HeadersInit;
+  body?: string;
+} {
+  if (body === undefined) return { headers: {} };
+
+  if (typeof body === "object") {
+    return {
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    };
+  }
+
+  return {
+    headers: { "Content-Type": "text/plain" },
+    body,
+  };
+}
+
+
 export async function apiGetAuthorized<T>(path: string) {
-  return authorizedFetch<T>(path, { method: "GET" });
+  return authorizedRequest<T>(path, { method: "GET" });
 }
 
-export async function apiPostAuthorized<T>(path: string, body: string) {
-  return authorizedFetch<T>(path, { method: "POST", body });
+export async function apiPostAuthorized<T>(
+  path: string,
+  body?: string | object
+) {
+  const { headers, body: finalBody } = buildBodyOptions(body);
+  return authorizedRequest<T>(path, {
+    method: "POST",
+    headers,
+    body: finalBody,
+  });
 }
 
-export async function apiPutAuthorized<T>(path: string, body: string) {
-  return authorizedFetch<T>(path, { method: "PUT", body });
+export async function apiPutAuthorized<T>(
+  path: string,
+  body?: string | object
+) {
+  const { headers, body: finalBody } = buildBodyOptions(body);
+  return authorizedRequest<T>(path, {
+    method: "PUT",
+    headers,
+    body: finalBody,
+  });
 }
 
-export async function apiGet<T>(path: string) {
-  const res = await fetch(`${API_BASE_URL}${path}`);
+export async function apiDeleteAuthorized<T>(path: string) {
+  return authorizedRequest<T>(path, { method: "DELETE" });
+}
 
+/* -------- Public Requests -------- */
+
+export async function apiGet<T>(path: string, baseUrl = API_BASE_URL) {
+  const res = await fetch(`${baseUrl}${path}`);
   if (!res.ok) throw new Error(res.statusText);
-
   return res.json() as Promise<T>;
 }
 
-export async function apiPost<T>(path: string, body: string) {
+export async function apiPost<T>(path: string, body?: string | object) {
+  const { headers, body: finalBody } = buildBodyOptions(body);
   const res = await fetch(`${API_BASE_URL}${path}`, {
     method: "POST",
-
-    headers: { "Content-Type": "text/plain" },
-
-    body,
+    headers,
+    body: finalBody,
   });
-
   if (!res.ok) throw new Error(res.statusText);
-
   return res.json() as Promise<T>;
 }
 
-export async function apiPut(path: string, body: string) {
+export async function apiPut<T>(path: string, body?: string | object) {
+  const { headers, body: finalBody } = buildBodyOptions(body);
   const res = await fetch(`${API_BASE_URL}${path}`, {
     method: "PUT",
-
-    headers: { "Content-Type": "text/plain" },
-
-    body,
+    headers,
+    body: finalBody,
   });
-
   if (!res.ok) throw new Error(res.statusText);
-
-  return res.json();
+  return res.json() as Promise<T>;
 }

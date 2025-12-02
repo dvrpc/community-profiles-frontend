@@ -62,7 +62,7 @@ export default function CategoryNav(props: Props) {
     };
   }, []);
 
-  //test
+
   return (
     <div
       ref={stickyRef}
@@ -83,7 +83,7 @@ export default function CategoryNav(props: Props) {
       </div>
       <SubcategoryNav
         isVisible={isPinned}
-        subcategoryKeyMap={categoryKeyMap[activeCategory]}
+        subcategories={categoryKeyMap[activeCategory].subcategories}
         activeSubcategory={activeSubcategory}
       />
     </div>

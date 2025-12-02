@@ -11,7 +11,7 @@ interface ModalProps {
 export default function UnsavedChangesModal(props: ModalProps) {
 
     const { isOpen, onClose, handleContinue, children } = props
-    // Close modal on outside click
+
     useEffect(() => {
         const handleOutsideClick = (e: MouseEvent) => {
             const modal = document.getElementById("modal-container");

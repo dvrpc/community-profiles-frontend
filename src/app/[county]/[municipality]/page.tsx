@@ -26,11 +26,11 @@ export default async function Municipality(props: Params) {
   const munName = municipalityInfoMap[params.county][params.municipality].label;
   const geoid = municipalityInfoMap[params.county][params.municipality].geoid;
   const profileResponse = await fetch(
-    `${API_BASE_URL}/profile/municipality/${geoid}`
+    `${API_BASE_URL}/profile/municipality/${geoid}`, { next: { tags: ['municipality'] } }
   );
   const municipalityData = (await profileResponse.json()) as ProfileData;
   const contentResponse = await fetch(
-    `${API_BASE_URL}/content/municipality/${geoid}`,
+    `${API_BASE_URL}/content/municipality/${geoid}`, { next: { tags: ['municipality'] } }
   );
   const content = (await contentResponse.json()) as ProfileContent;
 

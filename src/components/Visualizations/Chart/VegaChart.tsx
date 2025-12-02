@@ -10,12 +10,6 @@ interface Props {
   options?: EmbedOptions;
 }
 
-// export default function VegaChart(props: Props) {
-//     const { spec, options } = props
-
-//     spec.width = 1000
-//     return <VegaEmbed spec={spec} options={options} />;
-// }
 
 export default function VegaChart(props: Props) {
   const { spec } = props;

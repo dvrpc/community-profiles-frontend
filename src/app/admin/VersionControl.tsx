@@ -5,12 +5,14 @@ interface Props {
   handleClick: (file: string, index: number) => void;
 }
 
-export default function VersionControl({ contentHistory, handleClick }: Props) {
+export default function VersionControl(props: Props) {
+  const { contentHistory, handleClick } = props
   return (
-    <div className="bg-dvrpc-gray-7 w-64 flex flex-col border-l border-dvrpc-gray-6">
+    <>
       <h3 className="text-dvrpc-blue-1 text-2xl font-semibold p-4 border-b border-dvrpc-gray-6">
         History
       </h3>
+
 
       <div className="flex flex-col overflow-y-auto">
         {contentHistory.length === 0 ? (
@@ -28,6 +30,6 @@ export default function VersionControl({ contentHistory, handleClick }: Props) {
           ))
         )}
       </div>
-    </div>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import {
   CategoryKeys,
   GeoLevel,
-  SubcategoryContent,
   TopicContent,
 } from "@/types/types";
 import Topic from "./Topic";
@@ -29,6 +28,7 @@ export default function Subcategory(props: Props) {
       {topics.map((t) => (
         <Topic
           key={`${subcategory}-${t.name}`}
+          id={t.id}
           name={t.name}
           content={t.content}
           category={category}

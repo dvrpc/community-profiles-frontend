@@ -19,11 +19,11 @@ export default async function County(props: Params) {
   const countyName = countyInfoMap[params.county].label;
   const geoid = countyInfoMap[params.county].geoid;
   const profileResponse = await fetch(
-    `${API_BASE_URL}/profile/county/${geoid}`
+    `${API_BASE_URL}/profile/county/${geoid}`, { next: { tags: ['county'] } }
   );
   const countyData = (await profileResponse.json()) as ProfileData;
   const contentResponse = await fetch(
-    `${API_BASE_URL}/content/county/${geoid}`
+    `${API_BASE_URL}/content/county/${geoid}`, { next: { tags: ['county'] } }
   );
   const content = (await contentResponse.json()) as ProfileContent;
 

@@ -1,4 +1,3 @@
-import Button from "@/components/Buttons/Button";
 
 interface Props {
   content: string;

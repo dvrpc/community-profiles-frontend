@@ -1,26 +1,26 @@
-import { SubcategoryKeyMap } from "@/types/types";
+import { SubcategoryTree } from "@/types/types";
 import SubcategoryDropdown from "./SubcategoryDropdown";
 
 interface Props {
-  subcategoryKeyMap: SubcategoryKeyMap;
+  subcategories: SubcategoryTree[];
   isVisible: boolean;
   activeSubcategory: string;
 }
 
 export default function SubcategoryNav(props: Props) {
-  const { subcategoryKeyMap, isVisible, activeSubcategory } = props;
+  const { subcategories, isVisible, activeSubcategory } = props;
 
   return (
     <div
       className={`flex bg-dvrpc-blue-1 text-white justify-center gap-4 transition-all duration-300 ease-out ${!isVisible ? "max-h-0" : "max-h-8"
         }`}
     >
-      {isVisible && Object.entries(subcategoryKeyMap).map(([key, topics], index) => (
+      {isVisible && subcategories.map(subcategory => (
         <SubcategoryDropdown
-          key={`${key}-${index}`}
-          subcategory={key}
-          topics={topics}
-          isActive={key == activeSubcategory}
+          key={subcategory.id}
+          subcategory={subcategory.name}
+          topics={subcategory.topics}
+          isActive={subcategory.name == activeSubcategory}
           navOpen={isVisible}
         />
       ))}

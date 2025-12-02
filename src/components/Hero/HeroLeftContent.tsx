@@ -23,10 +23,6 @@ type Props = {
 export default function HeroLeftContent(props: Props) {
   const { title, profileData, geoLevel } = props;
 
-
-  // if (geoLevel == 'municipality') backLink = getBackLink(profileData.county)
-
-
   return (
     <div className="w-1/3 z-10 pl-16 pt-8 flex flex-col">
       {geoLevel != 'region' && <BackLink parentCounty={geoLevel == 'municipality' ? profileData.county : ''} />}

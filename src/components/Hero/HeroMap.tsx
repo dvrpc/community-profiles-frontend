@@ -2,7 +2,7 @@
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useRef, useEffect, useState } from "react";
-import mapboxgl, { LngLatBounds, Map } from "mapbox-gl";
+import mapboxgl, { Map } from "mapbox-gl";
 import { ACCESS_TOKEN, regionBounds } from "@/consts";
 import sources from "./mapSources";
 import getLayers from "./mapLayers";
@@ -35,8 +35,6 @@ export default function HeroMap(props: Props) {
   const mapRef = useRef<Map>(null);
   const hoverIdRef = useRef(hoverId);
   const router = useRouter();
-
-  // ref required for hoverId as mounting/unmounting hover events is too slow for fast mouse movement
 
   useEffect(() => {
     const bounds = buffer_box ? parseBounds(buffer_box) : regionBounds;
@@ -81,7 +79,6 @@ export default function HeroMap(props: Props) {
           },
           { hover: true }
         );
-        // Populate the popup and set its coordinates based on the feature found.
         const properties = e.features[0].properties;
         if (!properties) return;
         const tooltipHTML = geoLevel
@@ -91,8 +88,6 @@ export default function HeroMap(props: Props) {
       }
     };
 
-    // When the mouse leaves the state-fill layer, update the feature state of the
-    // previously hovered feature.
     const leaveGeoFill = () => {
       const map = mapRef.current;
       if (!map) return;
@@ -139,7 +134,6 @@ export default function HeroMap(props: Props) {
       mapRef.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: "mapbox://styles/ckirby98/cm16u1uii005r01qkaqb42e2j",
-        // center: [-75.2273, 40.071],
         trackResize: true,
         scrollZoom: false,
         dragPan: false,

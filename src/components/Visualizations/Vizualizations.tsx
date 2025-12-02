@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/consts";
 
 interface Props {
+  id: number;
   category: CategoryKeys;
   subcategory: string;
   topic: string;
@@ -19,7 +20,7 @@ interface Props {
 export default function Visualizations(props: Props) {
   const [visualizations, setVisualizations] = useState<Visualization[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const { category, subcategory, topic, geoLevel, geoid, buffer_bbox } = props;
+  const { id, category, subcategory, topic, geoLevel, geoid, buffer_bbox } = props;
   const { ref, inView } = useInView({
     /* Optional options */
     threshold: 0,
@@ -28,17 +29,13 @@ export default function Visualizations(props: Props) {
   useEffect(() => {
     if (isLoaded || !inView) return;
 
-    const searchParams = new URLSearchParams({
-      ...(geoLevel != "region" && { geoid: geoid }),
-      category: category,
-      subcategory: subcategory,
-      topic: topic,
-    });
-
     const fetchVisualizations = async () => {
-      const vizResponse = await fetch(
-        `${API_BASE_URL}/viz/${geoLevel}?${searchParams}`
-      );
+      let url = `${API_BASE_URL}/viz/${id}/${geoLevel}`
+
+      if (geoLevel != 'region') {
+        url += `/${geoid}`
+      }
+      const vizResponse = await fetch(url);
       const data = (await vizResponse.json()) as Visualization[];
       setVisualizations(data);
       setIsLoaded(true);

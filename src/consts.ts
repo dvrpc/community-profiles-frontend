@@ -1,5 +1,5 @@
 import { LngLatBounds } from "mapbox-gl";
-import { CategoryKeys, CategoryKeyMap } from "./types/types";
+import { CategoryKeys } from "./types/types";
 
 export const HEADER_HEIGHT = 172;
 export const NAV_HEIGHT = 64;
@@ -11,6 +11,8 @@ export const ACCESS_TOKEN = process.env
   .NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
+export const PRODUCT_BASE_URL = 'https://apis.dvrpc.org/internal/dvrpc_products/products'
+export const PRODUCT_IMAGE_BASE_URL = 'https://www.dvrpc.org/asp/pubs/201px'
 
 export const regionBounds = new LngLatBounds(
   { lng: -76.09405517578125, lat: 39.49211914385648 },
@@ -26,17 +28,6 @@ export const categoryTitleMap: Record<CategoryKeys, string> = {
   roadways: "Roadways",
   "safety-health": "Safety & Health",
   transit: "Transit",
-};
-
-export const emptyCategoryMap: CategoryKeyMap = {
-  "active-transportation": {},
-  "demographics-housing": {},
-  economy: {},
-  environment: {},
-  freight: {},
-  roadways: {},
-  "safety-health": {},
-  transit: {},
 };
 
 export const CATEGORIES: CategoryKeys[] = [

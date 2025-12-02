@@ -7,9 +7,9 @@ import Nav from "./Nav";
 import Footer from "./Footer";
 
 export default async function Home() {
-  const regionResponse = await fetch(`${API_BASE_URL}/profile/region`);
+  const regionResponse = await fetch(`${API_BASE_URL}/profile/region`, { next: { tags: ['region'] } });
   const regionData = (await regionResponse.json()) as ProfileData;
-  const contentResponse = await fetch(`${API_BASE_URL}/content/region`);
+  const contentResponse = await fetch(`${API_BASE_URL}/content/region`, { next: { tags: ['region'] } });
   const content = (await contentResponse.json()) as ProfileContent;
 
   return (
