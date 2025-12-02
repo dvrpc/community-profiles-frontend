@@ -1,9 +1,8 @@
 "use client";
-import { useEffect } from "react";
-import SmallHeader from "../SmallHeader";
+
 import Dashboard from "./Dashboard";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useSession, signIn, SessionProvider } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
 import LoginWrapper from "./LoginWrapper";
 
 const queryClient = new QueryClient();

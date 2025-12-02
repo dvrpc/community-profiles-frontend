@@ -3,7 +3,6 @@ import {
   CategoryKeys,
   GeoLevel,
   getTypedObjectEntries,
-  Topic,
 } from "@/types/types";
 import {
   ChevronDownIcon,
@@ -171,11 +170,10 @@ export default function CategorySidebar(props: Props) {
         return (
           <div key={category} className="mb-4">
             <div
-              className={`flex items-center justify-between w-full px-2 py-2 font-bold rounded cursor-pointer select-none ${
-                selected?.category === category && !selected?.subcategory
+              className={`flex items-center justify-between w-full px-2 py-2 font-bold rounded cursor-pointer select-none ${selected?.category === category && !selected?.subcategory
                   ? "bg-dvrpc-blue-1 text-white"
                   : "hover:bg-gray-200"
-              }`}
+                }`}
             >
               <span
                 onClick={(e) => {
@@ -244,13 +242,12 @@ export default function CategorySidebar(props: Props) {
                               className="flex justify-between items-center"
                             >
                               <div
-                                className={`px-2 py-1 rounded cursor-pointer flex-1 ${
-                                  selected?.category === category &&
-                                  selected?.subcategory === subcat.name &&
-                                  selected?.topic === topic.name
+                                className={`px-2 py-1 rounded cursor-pointer flex-1 ${selected?.category === category &&
+                                    selected?.subcategory === subcat.name &&
+                                    selected?.topic === topic.name
                                     ? "bg-dvrpc-blue-1 text-white"
                                     : "hover:bg-gray-300"
-                                }`}
+                                  }`}
                                 onClick={() =>
                                   handleItemClick(
                                     category,

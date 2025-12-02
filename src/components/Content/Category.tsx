@@ -1,10 +1,9 @@
-import { categoryTitleMap, regionBounds } from "@/consts";
+import { categoryTitleMap } from "@/consts";
 import {
   CategoryContent,
   CategoryKeys,
   GeoLevel,
   ProfileData,
-  SubcategoryContent,
 } from "@/types/types";
 import Subcategory from "./Subcategory";
 import Title from "./Title";
@@ -29,7 +28,7 @@ export default function Category(props: Props) {
       />
       <div
         className="max-w-6xl columns-2xs gap-x-5 m-auto"
-        dangerouslySetInnerHTML={{ __html: categoryContent.content }}
+        dangerouslySetInnerHTML={{ __html: categoryContent?.content }}
       ></div>
 
       <div>

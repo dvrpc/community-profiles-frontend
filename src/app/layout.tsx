@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "./Header";
-import Nav from "./Nav";
-import Footer from "./Footer";
+
 
 export const metadata: Metadata = {
   title: "Community Profiles",

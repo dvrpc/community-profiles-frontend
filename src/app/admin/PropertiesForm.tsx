@@ -9,18 +9,19 @@ import { diff } from "@/lib/utils";
 
 interface Props {
     id: number;
+    topic_id: number;
     initialData: PropertyForm;
-    handleSave: (id: number, payload: Partial<PropertyForm>) => void;
+    handleSave: (id: number, topic_id: number, payload: Partial<PropertyForm>) => void;
 }
 
 const mapIdsToOptions = <T extends { id: string | number; citation?: string; title?: string }>(
-    ids: number[],
+    ids: number[] | string[],
     list: T[],
     labelKey: "citation" | "title"
 ): SelectOption[] => {
     return ids
         .map((id) => {
-            const item = list.find((x) => Number(x.id) === id);
+            const item = list.find((x) => x.id === id);
             if (!item) return null;
             return { value: id, label: item[labelKey] ?? "" };
         })
@@ -36,7 +37,8 @@ const getCitationString = (selectedSources: SelectOption[], sources: Source[]) =
         .join("");
 };
 
-export default function PropertiesForm({ id, initialData, handleSave }: Props) {
+export default function PropertiesForm(props: Props) {
+    const { id, topic_id, initialData, handleSave } = props
     const { data: sources } = useSource();
     const { data: products } = useAllProducts();
 
@@ -62,8 +64,10 @@ export default function PropertiesForm({ id, initialData, handleSave }: Props) {
     const [isVisible, setIsVisible] = useState(initialData.is_visible);
     const [dataCatalogLink, setDataCatalogLink] = useState(initialData.catalog_link);
     const [censusLink, setCensusLink] = useState(initialData.census_link);
+    const [label, setLabel] = useState(initialData.label);
 
     useEffect(() => {
+        setLabel(initialData.label)
         setSelectedContentSources(selectedContentSourcesOptions);
         setSelectedVizSources(selectedVizSourcesOptions);
         setSelectedProducts(selectedProductsOptions);
@@ -75,13 +79,14 @@ export default function PropertiesForm({ id, initialData, handleSave }: Props) {
     if (!sources || !products) return <div>Loading...</div>;
 
     const sourceOptions = sources.map((s) => ({ value: s.id, label: s.citation }));
-    const productOptions = products.map((p) => ({ value: Number(p.id), label: p.title }));
+    const productOptions = products.map((p) => ({ value: p.id, label: p.title }));
 
     const handleSaveClick = () => {
         const current: PropertyForm = {
-            content_sources: selectedContentSources.map((s) => s.value),
-            viz_sources: selectedVizSources.map((v) => v.value),
-            related_products: selectedProducts.map((p) => p.value),
+            label: label,
+            content_sources: selectedContentSources.map((s) => Number(s.value)),
+            viz_sources: selectedVizSources.map((v) => Number(v.value)),
+            related_products: selectedProducts.map((p) => String(p.value)),
             is_visible: isVisible,
             catalog_link: dataCatalogLink,
             census_link: censusLink,
@@ -94,13 +99,22 @@ export default function PropertiesForm({ id, initialData, handleSave }: Props) {
             return;
         }
 
-        handleSave(id, changedPayload);
+        handleSave(id, topic_id, changedPayload);
     };
 
 
     return (
         <form className="flex flex-col gap-6">
             <div className="flex flex-col gap-4">
+                <div className="w-100 flex flex-col gap-1">
+                    <label className="font-medium">Topic Label</label>
+                    <input
+                        type="text"
+                        value={label}
+                        onChange={(e) => setLabel(e.target.value)}
+                        className="border border-dvrpc-gray-5  p-2 rounded"
+                    />
+                </div>
                 <div className="w-100">
                     <label className="font-medium">Sources</label>
                     <MultiSelect
@@ -162,13 +176,13 @@ export default function PropertiesForm({ id, initialData, handleSave }: Props) {
                         placeholder="https://..."
                     />
                 </div>
-            </div>
+            </div >
 
             <div className="mt-4">
                 <Button type="primary" handleClick={handleSaveClick}>
                     Save
                 </Button>
             </div>
-        </form>
+        </form >
     );
 }

@@ -1,4 +1,4 @@
-import { JsonData, JsonEditor } from "json-edit-react";
+import { JsonEditor } from "json-edit-react";
 
 interface Props {
   visualizations: string;

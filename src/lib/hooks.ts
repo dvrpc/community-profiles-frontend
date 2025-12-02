@@ -10,7 +10,6 @@ import {
   CategoryKeyMap,
   Content,
   GeoLevel,
-  Product,
   ProductResponse,
   ProfileData,
   PropertyForm,
@@ -152,7 +151,6 @@ export function useUpdateSubcategory() {
     },
   });
 }
-
 export function useUpdateTopic() {
   const qc = useQueryClient();
 
@@ -160,11 +158,20 @@ export function useUpdateTopic() {
     mutationFn: ({
       topicId,
       newTopic,
+      newLabel,
     }: {
       topicId: number;
-      newTopic: string;
-    }) =>
-      apiPutAuthorized<number>(`/tree/topic?id=${topicId}&name=${newTopic}`),
+      newTopic?: string;
+      newLabel?: string;
+    }) => {
+      const params = new URLSearchParams({ id: String(topicId) });
+
+      if (newTopic) params.append("name", newTopic);
+      if (newLabel) params.append("label", newLabel);
+
+      return apiPutAuthorized(`/tree/topic?${params.toString()}`);
+    },
+
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },

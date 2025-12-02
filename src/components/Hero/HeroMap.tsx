@@ -2,7 +2,7 @@
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useRef, useEffect, useState } from "react";
-import mapboxgl, { LngLatBounds, Map } from "mapbox-gl";
+import mapboxgl, { Map } from "mapbox-gl";
 import { ACCESS_TOKEN, regionBounds } from "@/consts";
 import sources from "./mapSources";
 import getLayers from "./mapLayers";

@@ -1,9 +1,6 @@
 import { LngLatBounds } from "mapbox-gl";
 import { countyInfoMap, municipalityInfoMap } from "./consts";
-import {
-  getTypedObjectEntries,
-  ProfileContent,
-} from "./types/types";
+
 
 export const titleCase = (str: string) =>
   str.replace(/-/g, " ").replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());

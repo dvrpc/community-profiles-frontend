@@ -1,5 +1,4 @@
 import Button from "@/components/Buttons/Button";
-import { ReactNode } from "react";
 
 interface Props {
     open: boolean;

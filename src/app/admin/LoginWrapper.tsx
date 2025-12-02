@@ -6,7 +6,7 @@ interface Props {
 }
 export default function LoginWrapper(props: Props) {
     const { children } = props
-    const { data: session, status } = useSession();
+    const { status } = useSession();
 
     useEffect(() => {
         if (status === "unauthenticated") signIn("google");

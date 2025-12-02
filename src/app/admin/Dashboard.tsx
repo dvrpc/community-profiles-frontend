@@ -9,7 +9,6 @@ import {
   useSave,
   useContent,
   useViz,
-  useUpdateSource,
   useUpdateSubcategory,
   useUpdateTopic,
   useCreateSubcategory,
@@ -27,7 +26,6 @@ import VersionControl from "./VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
 import { GeoLevel, PropertyForm, Visualization } from "@/types/types";
-import { getSession, useSession } from "next-auth/react";
 import Header from "./Header";
 import SourceEditor from "./Source/SourceEditor";
 import PropertiesForm from "./PropertiesForm";
@@ -157,8 +155,14 @@ export default function Dashboard() {
     setHasEdits(index > 0);
   }
 
-  function handlePropertiesSave(id: number, payload: Partial<PropertyForm>) {
+  function handlePropertiesSave(id: number, topicId: number, payload: Partial<PropertyForm>) {
+
+    if (payload.label) {
+      topicUpdateMutation.mutate({ topicId, newLabel: payload.label })
+      delete payload.label
+    }
     propetiesMutation.mutate({ id, payload })
+
   }
 
   function getPreview() {
@@ -280,7 +284,9 @@ export default function Dashboard() {
         <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
           <PropertiesForm
             id={content.id}
+            topic_id={content.topic_id}
             initialData={{
+              label: content.label,
               content_sources: content.source_ids,
               viz_sources: viz.source_ids,
               related_products: content.product_ids,

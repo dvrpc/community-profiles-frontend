@@ -29,13 +29,6 @@ export default function Visualizations(props: Props) {
   useEffect(() => {
     if (isLoaded || !inView) return;
 
-    const searchParams = new URLSearchParams({
-      ...(geoLevel != "region" && { geoid: geoid }),
-      category: category,
-      subcategory: subcategory,
-      topic: topic,
-    });
-
     const fetchVisualizations = async () => {
       let url = `${API_BASE_URL}/viz/${id}/${geoLevel}`
 

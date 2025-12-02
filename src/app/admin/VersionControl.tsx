@@ -1,5 +1,4 @@
 import { Content } from "@/types/types";
-import { Loader2 } from "lucide-react";
 
 interface Props {
   contentHistory: Content[];

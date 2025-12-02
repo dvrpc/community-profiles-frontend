@@ -1,5 +1,5 @@
 import { LngLatBounds } from "mapbox-gl";
-import { CategoryKeys, CategoryKeyMap } from "./types/types";
+import { CategoryKeys } from "./types/types";
 
 export const HEADER_HEIGHT = 172;
 export const NAV_HEIGHT = 64;

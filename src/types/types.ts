@@ -57,6 +57,7 @@ export interface SourceMap {
 export interface Content {
   id: number;
   topic_id: number;
+  label: string;
   category_id: number;
   geo_level: string;
   file: string;
@@ -65,7 +66,7 @@ export interface Content {
   census_link?: string;
   catalog_link?: string;
   source_ids: number[];
-  product_ids: number[];
+  product_ids: string[];
 }
 
 export interface Viz {
@@ -78,14 +79,15 @@ export interface Viz {
 }
 
 export interface SelectOption {
-  value: number;
+  value: number | string;
   label: string;
 }
 
 export interface PropertyForm {
+  label: string;
   content_sources: number[];
   viz_sources: number[];
-  related_products: number[];
+  related_products: string[];
   is_visible: boolean;
   catalog_link: string;
   census_link: string;

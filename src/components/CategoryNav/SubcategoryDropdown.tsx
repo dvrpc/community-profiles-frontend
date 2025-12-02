@@ -1,5 +1,5 @@
 "use client"
-import { Topic, TreeTopic } from "@/types/types";
+import { TreeTopic } from "@/types/types";
 import { displaySubcategoryTopicTitle } from "@/utils";
 import { useState } from "react";
 

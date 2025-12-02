@@ -1,5 +1,5 @@
-import { Source, SelectOption } from "@/types/types";
-import Select, { MultiValue, OptionsOrGroups } from 'react-select'
+import { SelectOption } from "@/types/types";
+import Select from 'react-select'
 
 
 interface Props {
