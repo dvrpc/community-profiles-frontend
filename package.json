@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "build": "rm -rf .next/cache && next build",
     "build:local": "rm -rf .next/cache && env-cmd -f .env.development next build",
     "build:staging": "rm -rf .next/cache && env-cmd -f .env.staging next build",
     "build:production": "rm -rf .next/cache && env-cmd -f .env.production next build",
