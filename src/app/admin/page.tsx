@@ -8,12 +8,9 @@ import LoginWrapper from "./LoginWrapper";
 const queryClient = new QueryClient();
 
 export default function Page() {
-
-
   return (
-    <SessionProvider>
+    <SessionProvider basePath="/community-profiles/api/auth">
       <QueryClientProvider client={queryClient}>
-
         <main className="bg-gray-100">
           <LoginWrapper>
             <Dashboard />

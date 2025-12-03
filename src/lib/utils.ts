@@ -32,17 +32,6 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
-  cookies: {
-    state: {
-      name: "__Secure-next-auth.state",
-      options: {
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
-        path: "/community-profiles",
-      },
-    },
-  },
   session: {
     strategy: "jwt",
     maxAge: 3600, // 1 hour
