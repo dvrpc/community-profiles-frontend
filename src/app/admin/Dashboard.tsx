@@ -90,8 +90,8 @@ export default function Dashboard() {
 
     if (!categorySelected && isCategory) {
       setCategorySelected(true);
-      if (selectedMode == 'properties' || selectedMode == 'viz') {
-        setSelectedMode('content')
+      if (selectedMode == "properties" || selectedMode == "viz") {
+        setSelectedMode("content");
       }
     }
 
@@ -155,14 +155,23 @@ export default function Dashboard() {
     setHasEdits(index > 0);
   }
 
-  function handlePropertiesSave(id: number, topicId: number, payload: Partial<PropertyForm>) {
-
-    if (payload.label) {
-      topicUpdateMutation.mutate({ topicId, newLabel: payload.label })
-      delete payload.label
+  function handlePropertiesSave(
+    id: number,
+    topicId: number,
+    payload: Partial<PropertyForm>
+  ) {
+    if (payload.label || payload.sort_weight) {
+      topicUpdateMutation.mutate({
+        topicId,
+        topic: {
+          label: payload.label,
+          sort_weight: payload.sort_weight,
+        },
+      });
+      delete payload.label;
+      delete payload.sort_weight;
     }
-    propetiesMutation.mutate({ id, payload })
-
+    propetiesMutation.mutate({ id, payload });
   }
 
   function getPreview() {
@@ -193,7 +202,12 @@ export default function Dashboard() {
   }
 
   function updateTopic(topicId: number, newTopic: string) {
-    topicUpdateMutation.mutate({ topicId, newTopic });
+    topicUpdateMutation.mutate({
+      topicId,
+      topic: {
+        name: newTopic,
+      },
+    });
   }
 
   function deleteTopic(topicId: number) {
@@ -231,7 +245,7 @@ export default function Dashboard() {
           deleteSubcategory={deleteSubcategory}
         />
       </div>
-      {(selectedMode == "content" || selectedMode == 'viz') && (
+      {(selectedMode == "content" || selectedMode == "viz") && (
         <>
           <div
             className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
@@ -273,31 +287,29 @@ export default function Dashboard() {
             />
           </div>
         </>
-
       )}
       {selectedMode == "sources" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
           <SourceEditor />
         </div>
       )}
-      {(selectedMode == "properties" && content && viz) && (
+      {selectedMode == "properties" && content && viz && (
         <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
           <PropertiesForm
             id={content.id}
             topic_id={content.topic_id}
             initialData={{
               label: content.label,
+              sort_weight: content.sort_weight,
               content_sources: content.source_ids,
               viz_sources: viz.source_ids,
               related_products: content.product_ids,
               is_visible: content.is_visible,
               catalog_link: content.catalog_link ? content.catalog_link : "",
-              census_link: content.census_link ? content.census_link : ""
-            }
-            }
-
-            handleSave={handlePropertiesSave} />
-
+              census_link: content.census_link ? content.census_link : "",
+            }}
+            handleSave={handlePropertiesSave}
+          />
         </div>
       )}
       <UnsavedChangesModal

@@ -11,21 +11,22 @@ import { displayNumber } from "@/utils";
 import SearchInput from "./SearchInput";
 import BackLink from "./BackLink";
 
-
-
 type Props = {
   title: string;
   profileData: ProfileData;
   geoLevel: GeoLevel;
-}
-
+};
 
 export default function HeroLeftContent(props: Props) {
   const { title, profileData, geoLevel } = props;
 
   return (
     <div className="w-1/3 z-10 pl-16 pt-8 flex flex-col">
-      {geoLevel != 'region' && <BackLink parentCounty={geoLevel == 'municipality' ? profileData.county : ''} />}
+      {geoLevel != "region" && (
+        <BackLink
+          parentCounty={geoLevel == "municipality" ? profileData.county : ""}
+        />
+      )}
       <h1 className="text-5xl text-dvrpc-blue-1 font-bold mb-16 mt-4">
         {title}
       </h1>

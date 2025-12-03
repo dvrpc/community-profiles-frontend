@@ -15,6 +15,8 @@ import {
   PropertyForm,
   Source,
   SourceBase,
+  TopicBase,
+  TopicRequest,
   Visualization,
   Viz,
 } from "@/types/types";
@@ -157,20 +159,11 @@ export function useUpdateTopic() {
   return useMutation({
     mutationFn: ({
       topicId,
-      newTopic,
-      newLabel,
+      topic,
     }: {
       topicId: number;
-      newTopic?: string;
-      newLabel?: string;
-    }) => {
-      const params = new URLSearchParams({ id: String(topicId) });
-
-      if (newTopic) params.append("name", newTopic);
-      if (newLabel) params.append("label", newLabel);
-
-      return apiPutAuthorized(`/tree/topic?${params.toString()}`);
-    },
+      topic: TopicRequest;
+    }) => apiPutAuthorized<Source>(`/tree/topic/${topicId}`, topic),
 
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -246,7 +239,8 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${
+          geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),
@@ -258,8 +252,13 @@ export function usePreview(
 export function useUpdateProperties() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: Partial<PropertyForm> }) =>
-      apiPutAuthorized(`/content/${id}/properties`, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: Partial<PropertyForm>;
+    }) => apiPutAuthorized(`/content/${id}/properties`, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["content"] });
       qc.invalidateQueries({ queryKey: ["viz"] });

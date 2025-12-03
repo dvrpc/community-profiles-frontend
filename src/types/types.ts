@@ -58,6 +58,7 @@ export interface Content {
   id: number;
   topic_id: number;
   label: string;
+  sort_weight: number;
   category_id: number;
   geo_level: string;
   file: string;
@@ -85,6 +86,7 @@ export interface SelectOption {
 
 export interface PropertyForm {
   label: string;
+  sort_weight: number;
   content_sources: number[];
   viz_sources: number[];
   related_products: string[];
@@ -125,11 +127,21 @@ export type SubcategoryTree = {
   topics: TreeTopic[];
 };
 
-export type Topic = {
+export type Topic = TopicBase & {
   id: number;
-  name: string;
 };
 
+export type TopicBase = {
+  name: string;
+  label: string;
+  sort_weight: number;
+};
+
+export type TopicRequest = {
+  name?: string;
+  label?: string;
+  sort_weight?: number;
+};
 export interface TopicContent {
   id: number;
   name: string;
