@@ -32,10 +32,21 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
+  cookies: {
+    state: {
+      name: "__Secure-next-auth.state",
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        path: "/community-profiles",
+      },
+    },
+  },
   session: {
     strategy: "jwt",
-    maxAge: 3600 // 1 hour
-  }
+    maxAge: 3600, // 1 hour
+  },
 };
 
 export const diff = <T extends object>(initial: T, current: T): Partial<T> => {
@@ -53,8 +64,7 @@ export const diff = <T extends object>(initial: T, current: T): Partial<T> => {
       type Elem = T[typeof key] extends (infer U)[] ? U : never;
 
       isEqual =
-        a.length === b.length &&
-        a.every((v, i) => v === (b as Elem[])[i]);
+        a.length === b.length && a.every((v, i) => v === (b as Elem[])[i]);
     } else {
       isEqual = a === b;
     }
