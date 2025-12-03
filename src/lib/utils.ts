@@ -3,6 +3,8 @@ import { twMerge } from "tailwind-merge";
 import { AuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
+const allowedEmails = process.env.NEXT_PUBLIC_ALLOWED_USERS?.split(",");
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -12,12 +14,14 @@ export const authOptions: AuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      // authorization: { params: { hd: "dvrpc.org" } },
+      authorization: { params: { hd: "dvrpc.org" } },
     }),
   ],
   callbacks: {
     async signIn({ user }) {
-      const allowedEmails = ["ckirby@dvrpc.org"];
+      if (!allowedEmails) {
+        throw new Error("Whitelisted emails not provided");
+      }
       return allowedEmails.includes(user.email!);
     },
     async jwt({ token, account }) {
