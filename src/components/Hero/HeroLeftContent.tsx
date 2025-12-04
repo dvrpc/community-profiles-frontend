@@ -27,12 +27,14 @@ export default function HeroLeftContent(props: Props) {
           parentCounty={geoLevel == "municipality" ? profileData.county : ""}
         />
       )}
-      <h1 className="text-5xl text-dvrpc-blue-1 font-bold mb-16 mt-4">
+      <h1 className="text-5xl text-dvrpc-blue-1 font-bold mb-4 mt-4">
         {title}
       </h1>
-      {!profileData && <SearchInput />}
+      {geoLevel != "municipality" && profileData.geoid != "42101" && (
+        <SearchInput />
+      )}
       {profileData && (
-        <div className="grid grid-cols-2 auto-rows-fr flex-1">
+        <div className="grid grid-cols-2 auto-rows-fr flex-1 mt-8">
           <div className="flex">
             <DemographicHousingIcon
               fill="fill-dvrpc-gray-1"

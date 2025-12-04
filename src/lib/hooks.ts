@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useQueries,
+} from "@tanstack/react-query";
 import {
   apiDeleteAuthorized,
   apiGet,
@@ -20,7 +25,7 @@ import {
   Visualization,
   Viz,
 } from "@/types/types";
-import { PRODUCT_BASE_URL } from "@/consts";
+import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({
@@ -80,6 +85,21 @@ export function useAllProducts() {
       return productResponse.items;
     },
   });
+}
+
+export function useProducts(productIds: string[]) {
+  const queries = productIds.map((id) => ({
+    queryKey: ["product", id],
+    queryFn: async () => {
+      const productResponse = await apiGet<ProductResponse>(
+        `/product?id=${id}`,
+        PRODUCT_BASE_URL
+      );
+      return productResponse.items[0];
+    },
+  }));
+
+  return useQueries({ queries });
 }
 
 export function useCreateSource() {
@@ -153,6 +173,7 @@ export function useUpdateSubcategory() {
     },
   });
 }
+
 export function useUpdateTopic() {
   const qc = useQueryClient();
 

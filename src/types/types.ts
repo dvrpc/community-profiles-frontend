@@ -146,6 +146,8 @@ export interface TopicContent {
   id: number;
   name: string;
   content: string;
+  citations: string[];
+  related_products: string[];
 }
 
 export type Visualization = (MapVisualization | ChartVisualization) & {

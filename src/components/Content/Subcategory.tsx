@@ -1,8 +1,4 @@
-import {
-  CategoryKeys,
-  GeoLevel,
-  TopicContent,
-} from "@/types/types";
+import { CategoryKeys, GeoLevel, TopicContent } from "@/types/types";
 import Topic from "./Topic";
 import { displaySubcategoryTopicTitle } from "@/utils";
 import Title from "./Title";
@@ -32,10 +28,12 @@ export default function Subcategory(props: Props) {
           name={t.name}
           content={t.content}
           category={category}
+          citations={t.citations}
           subcategory={subcategory}
           geoid={geoid}
           buffer_bbox={buffer_bbox}
           geoLevel={geoLevel}
+          relatedProducts={t.related_products}
         />
       ))}
     </div>
