@@ -1,18 +1,18 @@
 import { useSession } from "next-auth/react";
-import { Mode } from "./Dashboard";
+import { Mode, TreeLevel } from "./Dashboard";
 import { signOut } from "next-auth/react";
 import Button from "@/components/Buttons/Button";
 
 interface Props {
   currentTab: Mode;
   setCurrentTab: (mode: Mode) => void;
-  categorySelected: boolean;
+  treeLevel: TreeLevel;
 }
 
 const highlightTab =
   "text-dvrpc-blue-3 border-dvrpc-blue-3 border-b-2 border-dvrpc-blue-3";
 export default function Header(props: Props) {
-  const { currentTab, setCurrentTab, categorySelected } = props;
+  const { currentTab, setCurrentTab, treeLevel } = props;
   const { data: session } = useSession();
 
   const contentTab = () => <li className="me-2">
@@ -67,9 +67,9 @@ export default function Header(props: Props) {
     <>
       <div className="text-sm font-medium text-center text-dvrpc-gray-2 pt-4">
         <ul className="flex flex-wrap -mb-px">
-          {contentTab()}
-          {!categorySelected && vizTab()}
-          {!categorySelected && propertiesTab()}
+          {treeLevel != 'subcategory' && contentTab()}
+          {treeLevel == 'topic' && vizTab()}
+          {(treeLevel == 'topic' || treeLevel == 'subcategory') && propertiesTab()}
           {sourceTab()}
 
         </ul>

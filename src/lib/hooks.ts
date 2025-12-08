@@ -17,13 +17,14 @@ import {
   GeoLevel,
   ProductResponse,
   ProfileData,
-  PropertyForm,
+  TopicPropertyForm,
   Source,
   SourceBase,
   TopicBase,
   TopicRequest,
   Visualization,
   Viz,
+  SubcategoryRequest,
 } from "@/types/types";
 import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 
@@ -79,7 +80,7 @@ export function useAllProducts() {
     queryKey: ["product"],
     queryFn: async () => {
       const productResponse = await apiGet<ProductResponse>(
-        "/product?tags=Data Center&limit=999",
+        "/product?limit=999",
         PRODUCT_BASE_URL
       );
       return productResponse.items;
@@ -159,14 +160,14 @@ export function useUpdateSubcategory() {
 
   return useMutation({
     mutationFn: ({
-      subcatId,
-      newSubcat,
+      subcategoryId,
+      subcategory,
     }: {
-      subcatId: number;
-      newSubcat: string;
+      subcategoryId: number;
+      subcategory: SubcategoryRequest;
     }) =>
       apiPutAuthorized<number>(
-        `/tree/subcategory?id=${subcatId}&name=${newSubcat}`
+        `/tree/subcategory/${subcategoryId}`, subcategory
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -184,7 +185,7 @@ export function useUpdateTopic() {
     }: {
       topicId: number;
       topic: TopicRequest;
-    }) => apiPutAuthorized<Source>(`/tree/topic/${topicId}`, topic),
+    }) => apiPutAuthorized<number>(`/tree/topic/${topicId}`, topic),
 
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -260,8 +261,7 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${
-          geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),
@@ -278,7 +278,7 @@ export function useUpdateProperties() {
       payload,
     }: {
       id: number;
-      payload: Partial<PropertyForm>;
+      payload: Partial<TopicPropertyForm>;
     }) => apiPutAuthorized(`/content/${id}/properties`, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["content"] });

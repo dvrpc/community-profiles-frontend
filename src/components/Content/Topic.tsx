@@ -7,6 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 interface Props {
   id: number;
   name: string;
+  label: string;
   content: string;
   citations: string[];
   category: CategoryKeys;
@@ -21,6 +22,7 @@ export default function Topic(props: Props) {
   const {
     id,
     name,
+    label,
     content,
     category,
     citations,
@@ -33,7 +35,7 @@ export default function Topic(props: Props) {
   return (
     <div className="py-6">
       <h4 id={`${subcategory}-${name}`} className="text-2xl scroll-mt-32">
-        {displaySubcategoryTopicTitle(name)}
+        {label}
       </h4>
       <div className="flex flex-row ">
         <div className="w-1/3 flex flex-col gap-4">

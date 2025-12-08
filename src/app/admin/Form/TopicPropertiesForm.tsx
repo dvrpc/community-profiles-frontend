@@ -1,8 +1,8 @@
 "use client";
 
 import { useAllProducts, useSource } from "@/lib/hooks";
-import { PropertyForm, SelectOption, Source } from "@/types/types";
-import MultiSelect from "./MultiSelect";
+import { TopicPropertyForm, SelectOption, Source } from "@/types/types";
+import MultiSelect from "../MultiSelect";
 import { useState, useMemo, useEffect } from "react";
 import Button from "@/components/Buttons/Button";
 import { diff } from "@/lib/utils";
@@ -10,11 +10,11 @@ import { diff } from "@/lib/utils";
 interface Props {
   id: number;
   topic_id: number;
-  initialData: PropertyForm;
+  initialData: TopicPropertyForm;
   handleSave: (
     id: number,
     topic_id: number,
-    payload: Partial<PropertyForm>
+    payload: Partial<TopicPropertyForm>
   ) => void;
 }
 
@@ -45,7 +45,7 @@ const getCitationString = (
     .join("");
 };
 
-export default function PropertiesForm(props: Props) {
+export default function TopicPropertiesForm(props: Props) {
   const { id, topic_id, initialData, handleSave } = props;
   const { data: sources } = useSource();
   const { data: products } = useAllProducts();
@@ -108,7 +108,7 @@ export default function PropertiesForm(props: Props) {
   const productOptions = products.map((p) => ({ value: p.id, label: p.title }));
 
   const handleSaveClick = () => {
-    const current: PropertyForm = {
+    const current: TopicPropertyForm = {
       label: label,
       sort_weight: sortWeight,
       content_sources: selectedContentSources.map((s) => Number(s.value)),

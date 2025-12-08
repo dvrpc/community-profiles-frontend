@@ -65,11 +65,15 @@ export default function RelatedProducts({ relatedProducts }: Props) {
         {products.map((result, index) => (
           <div key={index} className="mx-1 w-55">
             <div className="w-full h-35 overflow-hidden rounded-md shadow-md">
-              <img
-                src={`${PRODUCT_IMAGE_BASE_URL}/${result.data?.id}.png`}
-                alt={`Thumbnail of ${result.data?.title}`}
-                className="w-full h-full object-cover"
-              />
+              <a href={result.data?.urllink} target="_blank">
+
+                <img
+                  src={`${PRODUCT_IMAGE_BASE_URL}/${result.data?.id}.png`}
+                  alt={`Thumbnail of ${result.data?.title}`}
+                  className="w-full h-full object-cover"
+                />
+              </a>
+
             </div>
             <span className="block mt-2 text-left text-sm">
               {result.data?.title}

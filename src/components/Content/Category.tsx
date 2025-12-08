@@ -32,11 +32,12 @@ export default function Category(props: Props) {
       ></div>
 
       <div>
-        {Object.entries(categoryContent.subcategories).map(([key, value]) => (
+        {categoryContent.subcategories.map(subcat => (
           <Subcategory
-            key={category + key}
-            subcategory={key}
-            topics={value}
+            key={subcat.id}
+            subcategory={subcat.name}
+            label={subcat.label}
+            topics={subcat.topics}
             category={category}
             geoid={profileData.geoid}
             buffer_bbox={profileData.buffer_bbox}
