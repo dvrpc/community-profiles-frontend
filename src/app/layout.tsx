@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-
+import { Providers } from "./Providers";
 
 export const metadata: Metadata = {
   title: "Community Profiles",
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useQueries,
+} from "@tanstack/react-query";
 import {
   apiDeleteAuthorized,
   apiGet,
@@ -12,13 +17,16 @@ import {
   GeoLevel,
   ProductResponse,
   ProfileData,
-  PropertyForm,
+  TopicPropertyForm,
   Source,
   SourceBase,
+  TopicBase,
+  TopicRequest,
   Visualization,
   Viz,
+  SubcategoryRequest,
 } from "@/types/types";
-import { PRODUCT_BASE_URL } from "@/consts";
+import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({
@@ -72,12 +80,27 @@ export function useAllProducts() {
     queryKey: ["product"],
     queryFn: async () => {
       const productResponse = await apiGet<ProductResponse>(
-        "/product?tags=Data Center&limit=999",
+        "/product?limit=999",
         PRODUCT_BASE_URL
       );
       return productResponse.items;
     },
   });
+}
+
+export function useProducts(productIds: string[]) {
+  const queries = productIds.map((id) => ({
+    queryKey: ["product", id],
+    queryFn: async () => {
+      const productResponse = await apiGet<ProductResponse>(
+        `/product?id=${id}`,
+        PRODUCT_BASE_URL
+      );
+      return productResponse.items[0];
+    },
+  }));
+
+  return useQueries({ queries });
 }
 
 export function useCreateSource() {
@@ -137,40 +160,32 @@ export function useUpdateSubcategory() {
 
   return useMutation({
     mutationFn: ({
-      subcatId,
-      newSubcat,
+      subcategoryId,
+      subcategory,
     }: {
-      subcatId: number;
-      newSubcat: string;
+      subcategoryId: number;
+      subcategory: SubcategoryRequest;
     }) =>
       apiPutAuthorized<number>(
-        `/tree/subcategory?id=${subcatId}&name=${newSubcat}`
+        `/tree/subcategory/${subcategoryId}`, subcategory
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
   });
 }
+
 export function useUpdateTopic() {
   const qc = useQueryClient();
 
   return useMutation({
     mutationFn: ({
       topicId,
-      newTopic,
-      newLabel,
+      topic,
     }: {
       topicId: number;
-      newTopic?: string;
-      newLabel?: string;
-    }) => {
-      const params = new URLSearchParams({ id: String(topicId) });
-
-      if (newTopic) params.append("name", newTopic);
-      if (newLabel) params.append("label", newLabel);
-
-      return apiPutAuthorized(`/tree/topic?${params.toString()}`);
-    },
+      topic: TopicRequest;
+    }) => apiPutAuthorized<number>(`/tree/topic/${topicId}`, topic),
 
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -258,8 +273,13 @@ export function usePreview(
 export function useUpdateProperties() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: Partial<PropertyForm> }) =>
-      apiPutAuthorized(`/content/${id}/properties`, payload),
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number;
+      payload: Partial<TopicPropertyForm>;
+    }) => apiPutAuthorized(`/content/${id}/properties`, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["content"] });
       qc.invalidateQueries({ queryKey: ["viz"] });

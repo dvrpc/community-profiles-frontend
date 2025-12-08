@@ -3,7 +3,7 @@ import Select, { OnChangeValue } from "react-select";
 
 import { CSSProperties } from "react";
 import { countyInfoMap, municipalityInfoMap } from "@/consts";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 const groupStyles = {
   display: "flex",
@@ -74,8 +74,21 @@ const formatGroupLabel = (data: GroupedOption) => (
   </div>
 );
 
+function getMunicipalityOptions(county: string) {
+  const municipalityOptions: SelectOption[] = [];
+  Object.entries(municipalityInfoMap[county]).map(([key, value]) => {
+    municipalityOptions.push({
+      value: key,
+      label: value.label,
+      county: county,
+    });
+  });
+  return municipalityOptions.sort((a, b) => a.label.localeCompare(b.label));
+}
+
 export default function SearchInput() {
   const router = useRouter();
+  const pathname = usePathname();
 
   function handleSelect(e: OnChangeValue<SelectOption, false>) {
     if (!e) return;
@@ -87,13 +100,25 @@ export default function SearchInput() {
     }
   }
 
-  return (
-    <Select<SelectOption, false, GroupedOption>
-      instanceId={"geo-search-select"}
-      options={groupedOptions}
-      formatGroupLabel={formatGroupLabel}
-      onChange={handleSelect}
-      placeholder="Select a county or municipality..."
-    />
-  );
+  if (pathname == "/") {
+    return (
+      <Select<SelectOption, false, GroupedOption>
+        instanceId={"geo-search-select"}
+        options={groupedOptions}
+        formatGroupLabel={formatGroupLabel}
+        onChange={handleSelect}
+        placeholder="Select a county or municipality..."
+      />
+    );
+  } else {
+    return (
+      <Select<SelectOption, false>
+        instanceId={"geo-search-select"}
+        options={getMunicipalityOptions(pathname.slice(1))}
+        // formatGroupLabel={formatGroupLabel}
+        onChange={handleSelect}
+        placeholder="Select a municipality..."
+      />
+    );
+  }
 }

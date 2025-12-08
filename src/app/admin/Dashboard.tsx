@@ -25,10 +25,11 @@ import VizPreview from "./Viz/VizPreview";
 import VersionControl from "./VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
-import { GeoLevel, PropertyForm, Visualization } from "@/types/types";
+import { CategoryKeyMap, GeoLevel, SubcategoryPropertyForm, TopicPropertyForm, Visualization } from "@/types/types";
 import Header from "./Header";
 import SourceEditor from "./Source/SourceEditor";
-import PropertiesForm from "./PropertiesForm";
+import TopicPropertiesForm from "./Form/TopicPropertiesForm";
+import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
 
 const defaultGeoid = {
   region: "",
@@ -37,12 +38,26 @@ const defaultGeoid = {
 };
 
 export type Mode = "content" | "viz" | "properties" | "sources";
+export type TreeLevel = 'category' | 'subcategory' | 'topic' | ''
+
+function getSubcategoryById(subcategoryId: number, tree?: CategoryKeyMap) {
+  if (tree) {
+    for (const category of Object.values(tree)) {
+      const subcat = category.subcategories.find(
+        (sub) => sub.id === subcategoryId
+      );
+      if (subcat) return subcat;
+    }
+  }
+  return null;
+}
 
 export default function Dashboard() {
   const [selectedGeoLevel, setSelectedGeoLevel] = useState<GeoLevel>("county");
   const [selectedMode, setSelectedMode] = useState<Mode>("content");
   const [selectedId, setSelectedId] = useState<number>(0);
-  const [categorySelected, setCategorySelected] = useState<boolean>(false);
+  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<number>(0);
+  const [selectedTreeLevel, setSelectedTreeLevel] = useState<TreeLevel>('');
 
   const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
@@ -56,6 +71,7 @@ export default function Dashboard() {
   const { data: profile } = useProfile(selectedGeoLevel, geoid);
 
   const { data: content } = useContent(selectedId);
+
   const { data: viz } = useViz(selectedId);
 
   const { data: history } = useHistory(selectedMode, selectedId);
@@ -76,30 +92,33 @@ export default function Dashboard() {
   const subcategoryDeleteMutation = useDeleteSubcategory();
   const propetiesMutation = useUpdateProperties();
 
+  const selectedSubcategory = getSubcategoryById(selectedSubcategoryId, tree)
+
   useEffect(() => {
     if (selectedMode == "content" && content) setEditText(content["file"]);
     if (selectedMode == "viz" && viz) setEditText(JSON.parse(viz["file"]));
   }, [content, viz, selectedMode]);
 
-  function handleCategorySidebarSelect(id: number, isCategory = false) {
+  function handleCategorySidebarSelect(id: number, newTreeLevel: TreeLevel) {
     if (hasEdits) {
       setPendingId(id);
       setModalOpen(true);
       return;
     }
 
-    if (!categorySelected && isCategory) {
-      setCategorySelected(true);
-      if (selectedMode == 'properties' || selectedMode == 'viz') {
-        setSelectedMode('content')
-      }
+    if (selectedTreeLevel != newTreeLevel) {
+      setSelectedTreeLevel(newTreeLevel)
+
+      if (newTreeLevel == 'category' || newTreeLevel == 'topic') setSelectedMode('content')
+      if (newTreeLevel == 'subcategory') setSelectedMode('properties')
     }
 
-    if (categorySelected && !isCategory) {
-      setCategorySelected(false);
-    }
+    if (newTreeLevel == 'subcategory') {
+      setSelectedSubcategoryId(id)
+    } else {
+      setSelectedId(id);
 
-    setSelectedId(id);
+    }
   }
 
   function handleContinue(save: boolean) {
@@ -155,14 +174,36 @@ export default function Dashboard() {
     setHasEdits(index > 0);
   }
 
-  function handlePropertiesSave(id: number, topicId: number, payload: Partial<PropertyForm>) {
-
-    if (payload.label) {
-      topicUpdateMutation.mutate({ topicId, newLabel: payload.label })
-      delete payload.label
+  function handleTopicPropertiesSave(
+    id: number,
+    topicId: number,
+    payload: Partial<TopicPropertyForm>
+  ) {
+    if (payload.label || payload.sort_weight) {
+      topicUpdateMutation.mutate({
+        topicId,
+        topic: {
+          label: payload.label,
+          sort_weight: payload.sort_weight,
+        },
+      });
+      delete payload.label;
+      delete payload.sort_weight;
     }
-    propetiesMutation.mutate({ id, payload })
+    propetiesMutation.mutate({ id, payload });
+  }
 
+  function handleSubcategoryPropertiesSave(
+    subcategoryId: number,
+    payload: Partial<SubcategoryPropertyForm>
+  ) {
+    subcategoryUpdateMutation.mutate({
+      subcategoryId,
+      subcategory: {
+        label: payload.label,
+        sort_weight: payload.sort_weight
+      }
+    })
   }
 
   function getPreview() {
@@ -188,12 +229,22 @@ export default function Dashboard() {
     topicCreateMutation.mutate({ subcatId, newTopic });
   }
 
-  function updateSubcategory(subcatId: number, newSubcat: string) {
-    subcategoryUpdateMutation.mutate({ subcatId, newSubcat });
+  function updateSubcategory(subcategoryId: number, newSubcat: string) {
+    subcategoryUpdateMutation.mutate({
+      subcategoryId,
+      subcategory: {
+        name: newSubcat,
+      }
+    })
   }
 
   function updateTopic(topicId: number, newTopic: string) {
-    topicUpdateMutation.mutate({ topicId, newTopic });
+    topicUpdateMutation.mutate({
+      topicId,
+      topic: {
+        name: newTopic,
+      },
+    });
   }
 
   function deleteTopic(topicId: number) {
@@ -204,13 +255,14 @@ export default function Dashboard() {
     subcategoryDeleteMutation.mutate(subcatId);
   }
 
+
   return (
     <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
       <div className="col-span-3 col-start-2 p-2 bg-white flex justify-between rounded-md">
         <Header
           currentTab={selectedMode}
           setCurrentTab={handleModeChange}
-          categorySelected={categorySelected}
+          treeLevel={selectedTreeLevel}
         />
       </div>
       <div className="p-2 col-start-1 row-start-1">
@@ -231,7 +283,7 @@ export default function Dashboard() {
           deleteSubcategory={deleteSubcategory}
         />
       </div>
-      {(selectedMode == "content" || selectedMode == 'viz') && (
+      {(selectedMode == "content" || selectedMode == "viz") && (
         <>
           <div
             className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
@@ -273,31 +325,35 @@ export default function Dashboard() {
             />
           </div>
         </>
-
       )}
       {selectedMode == "sources" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
           <SourceEditor />
         </div>
       )}
-      {(selectedMode == "properties" && content && viz) && (
+      {selectedMode == "properties" && (
         <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
-          <PropertiesForm
+          {selectedTreeLevel == 'topic' && content && viz && <TopicPropertiesForm
             id={content.id}
             topic_id={content.topic_id}
             initialData={{
               label: content.label,
+              sort_weight: content.sort_weight,
               content_sources: content.source_ids,
               viz_sources: viz.source_ids,
               related_products: content.product_ids,
               is_visible: content.is_visible,
               catalog_link: content.catalog_link ? content.catalog_link : "",
-              census_link: content.census_link ? content.census_link : ""
-            }
-            }
-
-            handleSave={handlePropertiesSave} />
-
+              census_link: content.census_link ? content.census_link : "",
+            }}
+            handleSave={handleTopicPropertiesSave}
+          />}
+          {(selectedTreeLevel == 'subcategory' && selectedSubcategory) &&
+            <SubcategoryPropertiesForm id={selectedSubcategoryId} initialData={{
+              label: selectedSubcategory?.label,
+              sort_weight: selectedSubcategory?.sort_weight
+            }}
+              handleSave={handleSubcategoryPropertiesSave} />}
         </div>
       )}
       <UnsavedChangesModal

@@ -58,6 +58,7 @@ export interface Content {
   id: number;
   topic_id: number;
   label: string;
+  sort_weight: number;
   category_id: number;
   geo_level: string;
   file: string;
@@ -83,8 +84,9 @@ export interface SelectOption {
   label: string;
 }
 
-export interface PropertyForm {
+export interface TopicPropertyForm {
   label: string;
+  sort_weight: number;
   content_sources: number[];
   viz_sources: number[];
   related_products: string[];
@@ -92,16 +94,27 @@ export interface PropertyForm {
   catalog_link: string;
   census_link: string;
 }
+
+export interface SubcategoryPropertyForm {
+  label: string;
+  sort_weight: number;
+}
+
 export type ProfileContent = Record<CategoryKeys, CategoryContent>;
 
 export type CategoryContent = {
   content_id: number;
   category_id: number;
   content: string;
-  subcategories: SubcategoryContent;
+  subcategories: SubcategoryContent[];
 };
 
-export type SubcategoryContent = Record<string, TopicContent[]>;
+export type SubcategoryContent = {
+  id: number;
+  name: string;
+  label: string;
+  topics: TopicContent[]
+};
 
 export type CategoryKeyMap = Record<CategoryKeys, CategoryTree>;
 
@@ -122,18 +135,39 @@ export type SubcategoryTree = {
   name: string;
   id: number;
   label: string;
+  sort_weight: number;
   topics: TreeTopic[];
 };
 
-export type Topic = {
+export type Topic = TopicBase & {
   id: number;
+};
+
+export type TopicBase = {
   name: string;
+  label: string;
+  sort_weight: number;
+};
+
+export type TopicRequest = {
+  name?: string;
+  label?: string;
+  sort_weight?: number;
+};
+
+export type SubcategoryRequest = {
+  name?: string;
+  label?: string;
+  sort_weight?: number;
 };
 
 export interface TopicContent {
   id: number;
   name: string;
+  label: string;
   content: string;
+  citations: string[];
+  related_products: string[];
 }
 
 export type Visualization = (MapVisualization | ChartVisualization) & {
