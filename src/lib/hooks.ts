@@ -205,17 +205,7 @@ export function useUpdateSource() {
   });
 }
 
-export function usePropertiesForm() {
-  const qc = useQueryClient();
 
-  return useMutation({
-    mutationFn: ({ id, source }: { id: number; source: SourceBase }) =>
-      apiPutAuthorized<Source>(`/source/${id}`, source),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["source"] });
-    },
-  });
-}
 
 export function useDeleteSource() {
   const qc = useQueryClient();
@@ -283,6 +273,8 @@ export function useUpdateProperties() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["content"] });
       qc.invalidateQueries({ queryKey: ["viz"] });
+      qc.invalidateQueries({ queryKey: ["tree"] });
+
     },
   });
 }

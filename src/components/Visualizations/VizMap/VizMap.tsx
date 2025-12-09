@@ -24,6 +24,7 @@ interface Props {
   buffer_box: string;
   geoLevel: GeoLevel;
   geoid: string;
+  alt?: string;
   legendOverride?: LegendOverrideItem[];
 }
 
@@ -53,7 +54,7 @@ export default function VizMap(props: Props) {
   const [hover, setHover] = useState<HoverObject | null>(null);
   const [select, setSelect] = useState<SelectObject | null>(null);
 
-  const { features, buffer_box, geoLevel, geoid, legendOverride } = props;
+  const { features, buffer_box, geoLevel, geoid, alt, legendOverride } = props;
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map>(null);
@@ -220,7 +221,7 @@ export default function VizMap(props: Props) {
   }, [select]);
 
   return (
-    <div className="w-full aspect-[3/2] shadow" ref={mapContainerRef}>
+    <div className="w-full aspect-[3/2] shadow" ref={mapContainerRef} aria-label={alt}>
       {select?.properties && (
         <SelectionPopup
           properties={select.properties}

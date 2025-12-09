@@ -51,6 +51,7 @@ export default function Visualizations(props: Props) {
           key={i}
           features={viz.features}
           legendOverride={viz.legendOverride}
+          alt={viz.alt}
           buffer_box={buffer_bbox}
           geoLevel={geoLevel}
           geoid={geoid}

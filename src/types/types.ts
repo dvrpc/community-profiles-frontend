@@ -129,6 +129,7 @@ export type TreeTopic = {
   name: string;
   id: number;
   label: string;
+  is_visible: boolean;
   content_id: number;
 };
 export type SubcategoryTree = {
@@ -181,6 +182,7 @@ export interface MapVisualization {
   type: "map";
   features: Feature[];
   legendOverride?: LegendOverrideItem[];
+  alt?: string;
 }
 
 export interface ChartVisualization {

@@ -81,6 +81,10 @@ export default function HeroMap(props: Props) {
         );
         const properties = e.features[0].properties;
         if (!properties) return;
+        if (geoLevel == 'county' && !('mun_name' in properties)) {
+          popup.remove()
+          return
+        };
         const tooltipHTML = geoLevel
           ? properties.mun_name
           : properties.co_name + " County";
