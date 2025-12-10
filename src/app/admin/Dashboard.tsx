@@ -360,9 +360,9 @@ export default function Dashboard() {
                 viz_sources: viz.source_ids,
                 related_products: content.product_ids,
                 is_visible: content.is_visible,
-                catalog_links: content.catalog_link_ids,
-                census_links: content.census_link_ids,
-                other_links: content.other_link_ids,
+                catalog_links: content.catalog_links,
+                census_links: content.census_links,
+                other_links: content.other_links,
               }}
               handleSave={handleTopicPropertiesSave}
             />

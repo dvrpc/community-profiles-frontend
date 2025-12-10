@@ -89,13 +89,6 @@ export function useAllProducts() {
   });
 }
 
-export function useAllLinks() {
-  return useQuery({
-    queryKey: ["link"],
-    queryFn: () => apiGet<Link[]>(`/link`),
-  });
-}
-
 export function useProducts(productIds: string[]) {
   const queries = productIds.map((id) => ({
     queryKey: ["product", id],

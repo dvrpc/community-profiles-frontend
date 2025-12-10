@@ -13,7 +13,8 @@ interface Props {
   geoLevel: GeoLevel;
 }
 export default function Subcategory(props: Props) {
-  const { subcategory, label, topics, category, geoid, buffer_bbox, geoLevel } = props;
+  const { subcategory, label, topics, category, geoid, buffer_bbox, geoLevel } =
+    props;
   return (
     <div>
       <Title
@@ -36,6 +37,8 @@ export default function Subcategory(props: Props) {
           buffer_bbox={buffer_bbox}
           geoLevel={geoLevel}
           relatedProducts={t.related_products}
+          censusLinks={[]}
+          catalogLinks={[]}
         />
       ))}
     </div>
