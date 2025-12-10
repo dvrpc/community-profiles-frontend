@@ -46,7 +46,6 @@ function buildBodyOptions(body?: string | object): {
   };
 }
 
-
 export async function apiGetAuthorized<T>(path: string) {
   return authorizedRequest<T>(path, { method: "GET" });
 }
@@ -78,8 +77,6 @@ export async function apiPutAuthorized<T>(
 export async function apiDeleteAuthorized<T>(path: string) {
   return authorizedRequest<T>(path, { method: "DELETE" });
 }
-
-/* -------- Public Requests -------- */
 
 export async function apiGet<T>(path: string, baseUrl = API_BASE_URL) {
   const res = await fetch(`${baseUrl}${path}`);

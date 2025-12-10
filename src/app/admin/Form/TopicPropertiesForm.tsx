@@ -1,11 +1,12 @@
 "use client";
 
-import { useAllProducts, useSource } from "@/lib/hooks";
+import { useAllLinks, useAllProducts, useSource } from "@/lib/hooks";
 import { TopicPropertyForm, SelectOption, Source } from "@/types/types";
-import MultiSelect from "../MultiSelect";
+import MultiSelect from "./MultiSelect";
 import { useState, useMemo, useEffect } from "react";
 import Button from "@/components/Buttons/Button";
 import { diff } from "@/lib/utils";
+import LinkDropdown from "./CreateSelect";
 
 interface Props {
   id: number;
@@ -19,11 +20,16 @@ interface Props {
 }
 
 const mapIdsToOptions = <
-  T extends { id: string | number; citation?: string; title?: string }
+  T extends {
+    id: string | number;
+    citation?: string;
+    title?: string;
+    link?: string;
+  }
 >(
   ids: number[] | string[],
   list: T[],
-  labelKey: "citation" | "title"
+  labelKey: "citation" | "title" | "link"
 ): SelectOption[] => {
   return ids
     .map((id) => {
@@ -49,6 +55,7 @@ export default function TopicPropertiesForm(props: Props) {
   const { id, topic_id, initialData, handleSave } = props;
   const { data: sources } = useSource();
   const { data: products } = useAllProducts();
+  const { data: links } = useAllLinks();
 
   const selectedContentSourcesOptions = useMemo(() => {
     if (!sources) return [];
@@ -65,6 +72,24 @@ export default function TopicPropertiesForm(props: Props) {
     return mapIdsToOptions(initialData.related_products, products, "title");
   }, [initialData.related_products, products]);
 
+  const selectedCatalogLinkOptions = useMemo(() => {
+    if (!links) return [];
+    const catalog_links = links.filter((l) => l.type == "catalog");
+    return mapIdsToOptions(initialData.catalog_links, catalog_links, "link");
+  }, [initialData.catalog_links, links]);
+
+  const selectedCensusLinkOptions = useMemo(() => {
+    if (!links) return [];
+    const census_links = links.filter((l) => l.type == "census");
+    return mapIdsToOptions(initialData.census_links, census_links, "link");
+  }, [initialData.census_links, links]);
+
+  const selectedOtherLinkOptions = useMemo(() => {
+    if (!links) return [];
+    const other_links = links.filter((l) => l.type == "other");
+    return mapIdsToOptions(initialData.other_links, other_links, "link");
+  }, [initialData.other_links, links]);
+
   const [selectedContentSources, setSelectedContentSources] = useState<
     SelectOption[]
   >(selectedContentSourcesOptions);
@@ -74,12 +99,17 @@ export default function TopicPropertiesForm(props: Props) {
   const [selectedProducts, setSelectedProducts] = useState<SelectOption[]>(
     selectedProductsOptions
   );
-
-  const [isVisible, setIsVisible] = useState(initialData.is_visible);
-  const [dataCatalogLink, setDataCatalogLink] = useState(
-    initialData.catalog_link
+  const [selectedCatalogLinks, setSelectedCatalogLinks] = useState<
+    SelectOption[]
+  >(selectedCatalogLinkOptions);
+  const [selectedCensusLinks, setSelectedCensusLinks] = useState<
+    SelectOption[]
+  >(selectedCensusLinkOptions);
+  const [selectedOtherLinks, setSelectedOtherLinks] = useState<SelectOption[]>(
+    selectedCensusLinkOptions
   );
-  const [censusLink, setCensusLink] = useState(initialData.census_link);
+  const [isVisible, setIsVisible] = useState(initialData.is_visible);
+
   const [label, setLabel] = useState(initialData.label);
   const [sortWeight, setSortWeight] = useState(initialData.sort_weight);
 
@@ -89,23 +119,36 @@ export default function TopicPropertiesForm(props: Props) {
     setSelectedVizSources(selectedVizSourcesOptions);
     setSelectedProducts(selectedProductsOptions);
     setIsVisible(initialData.is_visible);
-    setDataCatalogLink(initialData.catalog_link);
-    setCensusLink(initialData.census_link);
+    setSelectedCatalogLinks(selectedCatalogLinkOptions);
+    setSelectedCensusLinks(selectedCensusLinkOptions);
+    setSelectedOtherLinks(selectedOtherLinkOptions);
     setSortWeight(initialData.sort_weight);
   }, [
     id,
     selectedContentSourcesOptions,
     selectedVizSourcesOptions,
     selectedProductsOptions,
+    selectedCatalogLinkOptions,
+    selectedCensusLinkOptions,
+    selectedOtherLinkOptions,
   ]);
 
-  if (!sources || !products) return <div>Loading...</div>;
+  if (!sources || !products || !links) return <div>Loading...</div>;
 
   const sourceOptions = sources.map((s) => ({
     value: s.id,
     label: s.citation,
   }));
   const productOptions = products.map((p) => ({ value: p.id, label: p.title }));
+  const catalogLinkOptions = links
+    .filter((l) => l.type == "catalog")
+    .map((l) => ({ value: l.id, label: l.link }));
+  const censusLinkOptions = links
+    .filter((l) => l.type == "census")
+    .map((l) => ({ value: l.id, label: l.link }));
+  const otherLinkOptions = links
+    .filter((l) => l.type == "other")
+    .map((l) => ({ value: l.id, label: l.link }));
 
   const handleSaveClick = () => {
     const current: TopicPropertyForm = {
@@ -115,8 +158,9 @@ export default function TopicPropertiesForm(props: Props) {
       viz_sources: selectedVizSources.map((v) => Number(v.value)),
       related_products: selectedProducts.map((p) => String(p.value)),
       is_visible: isVisible,
-      catalog_link: dataCatalogLink,
-      census_link: censusLink,
+      catalog_links: selectedCatalogLinks.map((l) => Number(l.value)),
+      census_links: selectedCensusLinks.map((l) => Number(l.value)),
+      other_links: selectedOtherLinks.map((l) => Number(l.value)),
     };
 
     const changedPayload = diff(initialData, current);
@@ -192,8 +236,14 @@ export default function TopicPropertiesForm(props: Props) {
             className="h-5 w-5"
           />
         </div>
-
-        <div className="w-100 flex flex-col gap-1">
+        <div className="w-100">
+          <label className="font-medium">Catalog Links</label>
+          <LinkDropdown
+            options={catalogLinkOptions}
+            value={selectedCatalogLinks}
+          />
+        </div>
+        {/* <div className="w-100 flex flex-col gap-1">
           <label className="font-medium">Data Catalog Link</label>
           <input
             type="text"
@@ -213,7 +263,7 @@ export default function TopicPropertiesForm(props: Props) {
             className="border border-dvrpc-gray-5 p-2 rounded"
             placeholder="https://..."
           />
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-4">

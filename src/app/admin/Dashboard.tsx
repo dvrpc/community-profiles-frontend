@@ -25,11 +25,19 @@ import VizPreview from "./Viz/VizPreview";
 import VersionControl from "./VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import Button from "@/components/Buttons/Button";
-import { CategoryKeyMap, GeoLevel, SubcategoryPropertyForm, TopicPropertyForm, Visualization } from "@/types/types";
+import {
+  CategoryKeyMap,
+  GeoLevel,
+  SubcategoryPropertyForm,
+  TopicPropertyForm,
+  Visualization,
+} from "@/types/types";
 import Header from "./Header";
 import SourceEditor from "./Source/SourceEditor";
 import TopicPropertiesForm from "./Form/TopicPropertiesForm";
 import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
+import { useSession } from "next-auth/react";
+import { json } from "stream/consumers";
 
 const defaultGeoid = {
   region: "",
@@ -38,7 +46,7 @@ const defaultGeoid = {
 };
 
 export type Mode = "content" | "viz" | "properties" | "sources";
-export type TreeLevel = 'category' | 'subcategory' | 'topic' | ''
+export type TreeLevel = "category" | "subcategory" | "topic" | "";
 
 function getSubcategoryById(subcategoryId: number, tree?: CategoryKeyMap) {
   if (tree) {
@@ -57,7 +65,7 @@ export default function Dashboard() {
   const [selectedMode, setSelectedMode] = useState<Mode>("content");
   const [selectedId, setSelectedId] = useState<number>(0);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<number>(0);
-  const [selectedTreeLevel, setSelectedTreeLevel] = useState<TreeLevel>('');
+  const [selectedTreeLevel, setSelectedTreeLevel] = useState<TreeLevel>("");
 
   const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
@@ -66,6 +74,7 @@ export default function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const geoid = defaultGeoid[selectedGeoLevel];
+  const { data: session } = useSession();
 
   const { data: tree } = useTree(selectedGeoLevel);
   const { data: profile } = useProfile(selectedGeoLevel, geoid);
@@ -92,7 +101,7 @@ export default function Dashboard() {
   const subcategoryDeleteMutation = useDeleteSubcategory();
   const propetiesMutation = useUpdateProperties();
 
-  const selectedSubcategory = getSubcategoryById(selectedSubcategoryId, tree)
+  const selectedSubcategory = getSubcategoryById(selectedSubcategoryId, tree);
 
   useEffect(() => {
     if (selectedMode == "content" && content) setEditText(content["file"]);
@@ -107,17 +116,17 @@ export default function Dashboard() {
     }
 
     if (selectedTreeLevel != newTreeLevel) {
-      setSelectedTreeLevel(newTreeLevel)
+      setSelectedTreeLevel(newTreeLevel);
 
-      if (newTreeLevel == 'category' || newTreeLevel == 'topic') setSelectedMode('content')
-      if (newTreeLevel == 'subcategory') setSelectedMode('properties')
+      if (newTreeLevel == "category" || newTreeLevel == "topic")
+        setSelectedMode("content");
+      if (newTreeLevel == "subcategory") setSelectedMode("properties");
     }
 
-    if (newTreeLevel == 'subcategory') {
-      setSelectedSubcategoryId(id)
+    if (newTreeLevel == "subcategory") {
+      setSelectedSubcategoryId(id);
     } else {
       setSelectedId(id);
-
     }
   }
 
@@ -137,9 +146,17 @@ export default function Dashboard() {
   }
 
   function handleSaveClick() {
-    const body =
+    const bodyText =
       selectedMode === "content" ? editText : JSON.stringify(editText);
+
+    const user = session?.user.name;
+    if (!user) return;
+    const body = {
+      user: user,
+      text: bodyText,
+    };
     const url = `/${selectedMode}/${selectedId}`;
+
     saveMutation.mutate({ url, body });
     setHasEdits(false);
   }
@@ -201,9 +218,9 @@ export default function Dashboard() {
       subcategoryId,
       subcategory: {
         label: payload.label,
-        sort_weight: payload.sort_weight
-      }
-    })
+        sort_weight: payload.sort_weight,
+      },
+    });
   }
 
   function getPreview() {
@@ -234,8 +251,8 @@ export default function Dashboard() {
       subcategoryId,
       subcategory: {
         name: newSubcat,
-      }
-    })
+      },
+    });
   }
 
   function updateTopic(topicId: number, newTopic: string) {
@@ -254,7 +271,6 @@ export default function Dashboard() {
   function deleteSubcategory(subcatId: number) {
     subcategoryDeleteMutation.mutate(subcatId);
   }
-
 
   return (
     <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
@@ -333,27 +349,34 @@ export default function Dashboard() {
       )}
       {selectedMode == "properties" && (
         <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
-          {selectedTreeLevel == 'topic' && content && viz && <TopicPropertiesForm
-            id={content.id}
-            topic_id={content.topic_id}
-            initialData={{
-              label: content.label,
-              sort_weight: content.sort_weight,
-              content_sources: content.source_ids,
-              viz_sources: viz.source_ids,
-              related_products: content.product_ids,
-              is_visible: content.is_visible,
-              catalog_link: content.catalog_link ? content.catalog_link : "",
-              census_link: content.census_link ? content.census_link : "",
-            }}
-            handleSave={handleTopicPropertiesSave}
-          />}
-          {(selectedTreeLevel == 'subcategory' && selectedSubcategory) &&
-            <SubcategoryPropertiesForm id={selectedSubcategoryId} initialData={{
-              label: selectedSubcategory?.label,
-              sort_weight: selectedSubcategory?.sort_weight
-            }}
-              handleSave={handleSubcategoryPropertiesSave} />}
+          {selectedTreeLevel == "topic" && content && viz && (
+            <TopicPropertiesForm
+              id={content.id}
+              topic_id={content.topic_id}
+              initialData={{
+                label: content.label,
+                sort_weight: content.sort_weight,
+                content_sources: content.source_ids,
+                viz_sources: viz.source_ids,
+                related_products: content.product_ids,
+                is_visible: content.is_visible,
+                catalog_links: content.catalog_link_ids,
+                census_links: content.census_link_ids,
+                other_links: content.other_link_ids,
+              }}
+              handleSave={handleTopicPropertiesSave}
+            />
+          )}
+          {selectedTreeLevel == "subcategory" && selectedSubcategory && (
+            <SubcategoryPropertiesForm
+              id={selectedSubcategoryId}
+              initialData={{
+                label: selectedSubcategory?.label,
+                sort_weight: selectedSubcategory?.sort_weight,
+              }}
+              handleSave={handleSubcategoryPropertiesSave}
+            />
+          )}
         </div>
       )}
       <UnsavedChangesModal
