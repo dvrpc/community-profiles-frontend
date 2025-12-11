@@ -1,6 +1,6 @@
 import { CategoryKeys, GeoLevel, TopicContent } from "@/types/types";
 import Topic from "./Topic";
-import { displaySubcategoryTopicTitle } from "@/utils";
+import { displaySubcategoryTopicTitle, isValidUrl } from "@/utils";
 import Title from "./Title";
 
 interface Props {
@@ -12,6 +12,22 @@ interface Props {
   buffer_bbox: string;
   geoLevel: GeoLevel;
 }
+
+function getUrls(urlString: string) {
+  if (urlString === "") return undefined
+
+  let validUrls: string[] = []
+  const urls = urlString.split(",")
+  urls.forEach(u => {
+    if (isValidUrl(u)) {
+      console.log(u + ' is valid')
+      validUrls.push(u)
+    }
+  })
+  if (validUrls.length == 0) return undefined
+  return validUrls
+}
+
 export default function Subcategory(props: Props) {
   const { subcategory, label, topics, category, geoid, buffer_bbox, geoLevel } =
     props;
@@ -37,8 +53,9 @@ export default function Subcategory(props: Props) {
           buffer_bbox={buffer_bbox}
           geoLevel={geoLevel}
           relatedProducts={t.related_products}
-          censusLinks={[]}
-          catalogLinks={[]}
+          censusLinks={getUrls(t.catalog_link)}
+          catalogLinks={getUrls(t.census_link)}
+          otherLinks={getUrls(t.other_link)}
         />
       ))}
     </div>

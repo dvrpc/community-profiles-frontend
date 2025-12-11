@@ -72,32 +72,32 @@ export default function TopicPropertiesForm(props: Props) {
 
   const [selectedContentSources, setSelectedContentSources] = useState<
     SelectOption[]
-  >(selectedContentSourcesOptions);
+  >(selectedContentSourcesOptions ?? []);
   const [selectedVizSources, setSelectedVizSources] = useState<SelectOption[]>(
-    selectedVizSourcesOptions
+    selectedVizSourcesOptions ?? []
   );
   const [selectedProducts, setSelectedProducts] = useState<SelectOption[]>(
-    selectedProductsOptions
+    selectedProductsOptions ?? []
   );
 
-  const [isVisible, setIsVisible] = useState(initialData.is_visible);
+  const [isVisible, setIsVisible] = useState(initialData.is_visible ?? true);
 
-  const [label, setLabel] = useState(initialData.label);
-  const [catalogLinks, setCatalogLinks] = useState(initialData.catalog_links);
-  const [censusLinks, setCensusLinks] = useState(initialData.census_links);
-  const [otherLinks, setOtherLinks] = useState(initialData.other_links);
-  const [sortWeight, setSortWeight] = useState(initialData.sort_weight);
+  const [label, setLabel] = useState(initialData.label ?? "");
+  const [catalogLinks, setCatalogLinks] = useState(initialData.catalog_link ?? "");
+  const [censusLinks, setCensusLinks] = useState(initialData.census_link ?? "");
+  const [otherLinks, setOtherLinks] = useState(initialData.other_link ?? "");
+  const [sortWeight, setSortWeight] = useState(initialData.sort_weight ?? 0);
 
   useEffect(() => {
-    setLabel(initialData.label);
-    setSelectedContentSources(selectedContentSourcesOptions);
-    setSelectedVizSources(selectedVizSourcesOptions);
-    setSelectedProducts(selectedProductsOptions);
-    setIsVisible(initialData.is_visible);
-    setCatalogLinks(initialData.catalog_links);
-    setCensusLinks(initialData.census_links);
-    setOtherLinks(initialData.other_links);
-    setSortWeight(initialData.sort_weight);
+    setLabel(initialData.label ?? "");
+    setSelectedContentSources(selectedContentSourcesOptions ?? []);
+    setSelectedVizSources(selectedVizSourcesOptions ?? []);
+    setSelectedProducts(selectedProductsOptions ?? []);
+    setIsVisible(initialData.is_visible ?? true);
+    setCatalogLinks(initialData.catalog_link ?? "");
+    setCensusLinks(initialData.census_link ?? "");
+    setOtherLinks(initialData.other_link ?? "");
+    setSortWeight(initialData.sort_weight ?? 0);
   }, [
     id,
     selectedContentSourcesOptions,
@@ -121,9 +121,9 @@ export default function TopicPropertiesForm(props: Props) {
       viz_sources: selectedVizSources.map((v) => Number(v.value)),
       related_products: selectedProducts.map((p) => String(p.value)),
       is_visible: isVisible,
-      catalog_links: catalogLinks,
-      census_links: censusLinks,
-      other_links: otherLinks,
+      catalog_link: catalogLinks,
+      census_link: censusLinks,
+      other_link: otherLinks,
     };
 
     const changedPayload = diff(initialData, current);
@@ -135,29 +135,40 @@ export default function TopicPropertiesForm(props: Props) {
 
     handleSave(id, topic_id, changedPayload);
   };
-
   return (
     <form className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
-        <div className="w-100 flex flex-col gap-1">
+      <div
+        className="
+        grid 
+        grid-cols-1 
+        md:grid-cols-2 
+        gap-6
+      "
+      >
+        {/* Topic Label */}
+        <div className="flex flex-col gap-1">
           <label className="font-medium">Topic Label</label>
           <input
             type="text"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            className="border border-dvrpc-gray-5  p-2 rounded"
+            className="border border-dvrpc-gray-5 p-2 rounded"
           />
         </div>
-        <div className="w-100 flex flex-col gap-1">
+
+        {/* Sort Weight */}
+        <div className="flex flex-col gap-1">
           <label className="font-medium">Sort Weight</label>
           <input
             type="number"
             value={sortWeight}
             onChange={(e) => setSortWeight(parseInt(e.target.value))}
-            className="border border-dvrpc-gray-5  p-2 rounded"
+            className="border border-dvrpc-gray-5 p-2 rounded"
           />
         </div>
-        <div className="w-100">
+
+        {/* Content Sources */}
+        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
           <label className="font-medium">Sources</label>
           <MultiSelect
             value={selectedContentSources}
@@ -169,7 +180,8 @@ export default function TopicPropertiesForm(props: Props) {
           </span>
         </div>
 
-        <div className="w-100">
+        {/* Viz Sources */}
+        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
           <label className="font-medium">Viz Sources</label>
           <MultiSelect
             value={selectedVizSources}
@@ -181,7 +193,8 @@ export default function TopicPropertiesForm(props: Props) {
           </span>
         </div>
 
-        <div className="w-100">
+        {/* Related Products */}
+        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
           <label className="font-medium">Related Products</label>
           <MultiSelect
             value={selectedProducts}
@@ -190,6 +203,7 @@ export default function TopicPropertiesForm(props: Props) {
           />
         </div>
 
+        {/* Visible Checkbox */}
         <div className="flex items-center gap-2">
           <label className="font-medium">Visible</label>
           <input
@@ -199,30 +213,46 @@ export default function TopicPropertiesForm(props: Props) {
             className="h-5 w-5"
           />
         </div>
-        <div className="w-100">
-          <label className="font-medium">Catalog Links</label>
+
+        <div className="col-span-1 md:col-span-2 text-sm text-gray-600">
+          To have multiple links, they should be comma separated with no spaces
         </div>
-        {/* <div className="w-100 flex flex-col gap-1">
-          <label className="font-medium">Data Catalog Link</label>
+
+        {/* Catalog Links */}
+        <div className="flex flex-col gap-1">
+          <label className="font-medium">Catalog Links</label>
           <input
             type="text"
-            value={dataCatalogLink}
-            onChange={(e) => setDataCatalogLink(e.target.value)}
-            className="border border-dvrpc-gray-5  p-2 rounded"
+            value={catalogLinks}
+            onChange={(e) => setCatalogLinks(e.target.value)}
+            className="border border-dvrpc-gray-5 p-2 rounded"
             placeholder="https://..."
           />
         </div>
 
-        <div className="w-100 flex flex-col gap-1">
-          <label className="font-medium">Census Link</label>
+        {/* Census Links */}
+        <div className="flex flex-col gap-1">
+          <label className="font-medium">Census Links</label>
           <input
             type="text"
-            value={censusLink}
-            onChange={(e) => setCensusLink(e.target.value)}
+            value={censusLinks}
+            onChange={(e) => setCensusLinks(e.target.value)}
             className="border border-dvrpc-gray-5 p-2 rounded"
             placeholder="https://..."
           />
-        </div> */}
+        </div>
+
+        {/* Other Links */}
+        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
+          <label className="font-medium">Other Links</label>
+          <input
+            type="text"
+            value={otherLinks}
+            onChange={(e) => setOtherLinks(e.target.value)}
+            className="border border-dvrpc-gray-5 p-2 rounded"
+            placeholder="https://..."
+          />
+        </div>
       </div>
 
       <div className="mt-4">

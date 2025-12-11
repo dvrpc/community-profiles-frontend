@@ -4,6 +4,7 @@ import { displaySubcategoryTopicTitle } from "@/utils";
 import RelatedProducts from "./RelatedProducts";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Share2, ShoppingCart, Sheet } from "lucide-react";
+import LinkButton from "../Buttons/LinkButton";
 
 interface Props {
   id: number;
@@ -17,9 +18,11 @@ interface Props {
   buffer_bbox: string;
   geoLevel: GeoLevel;
   relatedProducts: string[];
-  censusLinks: string[];
-  catalogLinks: string[];
+  censusLinks?: string[];
+  catalogLinks?: string[];
+  otherLinks?: string[];
 }
+
 
 export default function Topic(props: Props) {
   const {
@@ -36,7 +39,10 @@ export default function Topic(props: Props) {
     relatedProducts,
     censusLinks,
     catalogLinks,
+    otherLinks
   } = props;
+
+
   return (
     <div className="py-6">
       <div className="flex justify-between mb-2">
@@ -48,18 +54,25 @@ export default function Topic(props: Props) {
             <ShoppingCart size={20} />
             Add Data to Cart
           </button>
-          {censusLinks && (
-            <button className="flex gap-2 items-center hover:cursor-pointer hover:text-dvrpc-blue-1">
-              <Sheet size={20} />
-              View Census Table
-            </button>
-          )}
-          {catalogLinks && (
-            <button className="flex gap-2 items-center hover:cursor-pointer hover:text-dvrpc-blue-1">
-              <Sheet size={20} />
-              View in Data Catalog
-            </button>
-          )}
+
+          <LinkButton
+            label="View Census Table"
+            links={censusLinks}
+            icon={<Sheet size={20} />}
+          />
+
+          <LinkButton
+            label="View in Data Catalog"
+            links={catalogLinks}
+            icon={<Sheet size={20} />}
+          />
+
+          <LinkButton
+            label="Other Links"
+            links={otherLinks}
+            icon={<Sheet size={20} />}
+          />
+
           <button className="flex gap-2 items-center hover:cursor-pointer hover:text-dvrpc-blue-1">
             <Share2 size={20} />
             Share

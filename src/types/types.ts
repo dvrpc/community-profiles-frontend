@@ -67,9 +67,9 @@ export interface Content {
   last_edited_by?: string;
   source_ids: number[];
   product_ids: string[];
-  catalog_links: string;
-  census_links: string;
-  other_links: string;
+  catalog_link: string;
+  census_link: string;
+  other_link: string;
 }
 
 export interface Viz {
@@ -92,9 +92,9 @@ export interface TopicPropertyForm {
   content_sources: number[];
   viz_sources: number[];
   related_products: string[];
-  catalog_links: string;
-  census_links: string;
-  other_links: string;
+  catalog_link: string;
+  census_link: string;
+  other_link: string;
   is_visible: boolean;
 }
 
@@ -172,8 +172,9 @@ export interface TopicContent {
   content: string;
   citations: string[];
   related_products: string[];
-  censusLinks: string[];
-  catalogLinks: string[];
+  census_link: string;
+  catalog_link: string;
+  other_link: string;
 }
 
 export type Visualization = (MapVisualization | ChartVisualization) & {

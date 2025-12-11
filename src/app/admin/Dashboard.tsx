@@ -348,7 +348,7 @@ export default function Dashboard() {
         </div>
       )}
       {selectedMode == "properties" && (
-        <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md">
+        <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md overflow-auto">
           {selectedTreeLevel == "topic" && content && viz && (
             <TopicPropertiesForm
               id={content.id}
@@ -360,9 +360,9 @@ export default function Dashboard() {
                 viz_sources: viz.source_ids,
                 related_products: content.product_ids,
                 is_visible: content.is_visible,
-                catalog_links: content.catalog_links,
-                census_links: content.census_links,
-                other_links: content.other_links,
+                catalog_link: content.catalog_link,
+                census_link: content.census_link,
+                other_link: content.other_link,
               }}
               handleSave={handleTopicPropertiesSave}
             />
