@@ -20,7 +20,6 @@ function getUrls(urlString: string) {
   const urls = urlString.split(",")
   urls.forEach(u => {
     if (isValidUrl(u)) {
-      console.log(u + ' is valid')
       validUrls.push(u)
     }
   })
