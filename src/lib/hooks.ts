@@ -25,6 +25,7 @@ import {
   Visualization,
   Viz,
   SubcategoryRequest,
+  Link,
 } from "@/types/types";
 import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 
@@ -167,7 +168,8 @@ export function useUpdateSubcategory() {
       subcategory: SubcategoryRequest;
     }) =>
       apiPutAuthorized<number>(
-        `/tree/subcategory/${subcategoryId}`, subcategory
+        `/tree/subcategory/${subcategoryId}`,
+        subcategory
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -194,18 +196,6 @@ export function useUpdateTopic() {
 }
 
 export function useUpdateSource() {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, source }: { id: number; source: SourceBase }) =>
-      apiPutAuthorized<Source>(`/source/${id}`, source),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["source"] });
-    },
-  });
-}
-
-export function usePropertiesForm() {
   const qc = useQueryClient();
 
   return useMutation({
@@ -261,7 +251,8 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${
+          geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template
       ),
@@ -283,6 +274,7 @@ export function useUpdateProperties() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["content"] });
       qc.invalidateQueries({ queryKey: ["viz"] });
+      qc.invalidateQueries({ queryKey: ["tree"] });
     },
   });
 }
@@ -290,8 +282,13 @@ export function useUpdateProperties() {
 export function useSave() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ url, body }: { url: string; body: string }) =>
-      apiPutAuthorized(url, body),
+    mutationFn: ({
+      url,
+      body,
+    }: {
+      url: string;
+      body: { user: string; text: string };
+    }) => apiPutAuthorized(url, body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["history"] });
       qc.invalidateQueries({ queryKey: ["preview"] });

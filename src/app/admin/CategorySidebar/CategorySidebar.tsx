@@ -282,7 +282,7 @@ export default function CategorySidebar(props: Props) {
                                 className="flex justify-between items-center"
                               >
                                 <div
-                                  className={`px-2 py-1 rounded cursor-pointer flex-1 ${selected?.category === category &&
+                                  className={`${!topic.is_visible && 'text-dvrpc-gray-4'} px-2 py-1 rounded cursor-pointer flex-1 ${selected?.category === category &&
                                     selected?.subcategory === subcat.name &&
                                     selected?.topic === topic.name
                                     ? "bg-dvrpc-blue-1 text-white"

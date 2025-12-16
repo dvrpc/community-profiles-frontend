@@ -64,10 +64,12 @@ export interface Content {
   file: string;
   create_date: Date;
   is_visible: boolean;
-  census_link?: string;
-  catalog_link?: string;
+  last_edited_by?: string;
   source_ids: number[];
   product_ids: string[];
+  catalog_link: string;
+  census_link: string;
+  other_link: string;
 }
 
 export interface Viz {
@@ -90,9 +92,10 @@ export interface TopicPropertyForm {
   content_sources: number[];
   viz_sources: number[];
   related_products: string[];
-  is_visible: boolean;
   catalog_link: string;
   census_link: string;
+  other_link: string;
+  is_visible: boolean;
 }
 
 export interface SubcategoryPropertyForm {
@@ -113,7 +116,7 @@ export type SubcategoryContent = {
   id: number;
   name: string;
   label: string;
-  topics: TopicContent[]
+  topics: TopicContent[];
 };
 
 export type CategoryKeyMap = Record<CategoryKeys, CategoryTree>;
@@ -129,6 +132,7 @@ export type TreeTopic = {
   name: string;
   id: number;
   label: string;
+  is_visible: boolean;
   content_id: number;
 };
 export type SubcategoryTree = {
@@ -168,6 +172,9 @@ export interface TopicContent {
   content: string;
   citations: string[];
   related_products: string[];
+  census_link: string;
+  catalog_link: string;
+  other_link: string;
 }
 
 export type Visualization = (MapVisualization | ChartVisualization) & {
@@ -181,6 +188,7 @@ export interface MapVisualization {
   type: "map";
   features: Feature[];
   legendOverride?: LegendOverrideItem[];
+  alt?: string;
 }
 
 export interface ChartVisualization {
@@ -203,6 +211,12 @@ export type Source = SourceBase & {
 export type SourceForm = SourceBase & {
   id?: number;
 };
+
+export interface Link {
+  id: number;
+  link: string;
+  type: "catalog" | "census" | "other";
+}
 
 export type ProductResponse = {
   items: Product[];
