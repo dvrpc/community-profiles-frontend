@@ -11,6 +11,20 @@ export default function LinkButton(props: Props) {
     const { label, links = [], icon } = props
     const [open, setOpen] = useState(false);
     const popupRef = useRef<HTMLDivElement>(null)
+
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+                setOpen(false)
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
     if (links.length === 0) return null;
 
     if (links.length === 1) {
@@ -26,18 +40,6 @@ export default function LinkButton(props: Props) {
             </a>
         );
     }
-
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
-                setOpen(false)
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
 
     return (
         <div className="relative flex">

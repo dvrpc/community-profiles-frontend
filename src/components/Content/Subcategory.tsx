@@ -16,7 +16,7 @@ interface Props {
 function getUrls(urlString: string) {
   if (urlString === "") return undefined
 
-  let validUrls: string[] = []
+  const validUrls: string[] = []
   const urls = urlString.split(",")
   urls.forEach(u => {
     if (isValidUrl(u)) {
