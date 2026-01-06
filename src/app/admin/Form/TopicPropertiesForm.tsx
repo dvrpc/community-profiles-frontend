@@ -145,7 +145,6 @@ export default function TopicPropertiesForm(props: Props) {
         gap-6
       "
       >
-        {/* Topic Label */}
         <div className="flex flex-col gap-1">
           <label className="font-medium">Topic Label</label>
           <input
@@ -156,7 +155,6 @@ export default function TopicPropertiesForm(props: Props) {
           />
         </div>
 
-        {/* Sort Weight */}
         <div className="flex flex-col gap-1">
           <label className="font-medium">Sort Weight</label>
           <input
@@ -167,7 +165,6 @@ export default function TopicPropertiesForm(props: Props) {
           />
         </div>
 
-        {/* Content Sources */}
         <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
           <label className="font-medium">Sources</label>
           <MultiSelect
@@ -180,7 +177,6 @@ export default function TopicPropertiesForm(props: Props) {
           </span>
         </div>
 
-        {/* Viz Sources */}
         <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
           <label className="font-medium">Viz Sources</label>
           <MultiSelect
@@ -193,7 +189,6 @@ export default function TopicPropertiesForm(props: Props) {
           </span>
         </div>
 
-        {/* Related Products */}
         <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
           <label className="font-medium">Related Products</label>
           <MultiSelect
@@ -203,7 +198,6 @@ export default function TopicPropertiesForm(props: Props) {
           />
         </div>
 
-        {/* Visible Checkbox */}
         <div className="flex items-center gap-2">
           <label className="font-medium">Visible</label>
           <input
@@ -218,7 +212,6 @@ export default function TopicPropertiesForm(props: Props) {
           To have multiple links, they should be comma separated with no spaces
         </div>
 
-        {/* Catalog Links */}
         <div className="flex flex-col gap-1">
           <label className="font-medium">Catalog Links</label>
           <input
@@ -230,7 +223,6 @@ export default function TopicPropertiesForm(props: Props) {
           />
         </div>
 
-        {/* Census Links */}
         <div className="flex flex-col gap-1">
           <label className="font-medium">Census Links</label>
           <input
@@ -242,7 +234,6 @@ export default function TopicPropertiesForm(props: Props) {
           />
         </div>
 
-        {/* Other Links */}
         <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
           <label className="font-medium">Other Links</label>
           <input

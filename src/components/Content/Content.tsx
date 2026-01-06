@@ -9,6 +9,8 @@ import Category from "./Category";
 import CategoryNav from "../CategoryNav/CategoryNav";
 import ScrollProvider from "@/context/ScrollProvider";
 import { API_BASE_URL } from "@/consts";
+import { CartProvider } from "../DataCart/CartProvider";
+import DataCartModal from "../DataCart/DataCartModal";
 
 interface Props {
   content: ProfileContent;
@@ -25,20 +27,24 @@ export default async function Content(props: Props) {
   return (
     <ScrollProvider>
       <CategoryNav categoryKeyMap={categoryKeyMap} />
-      <div>
-        {Object.entries(content).map(([key, value]) => {
-          const category = key as CategoryKeys;
-          return (
-            <Category
-              key={category}
-              category={category}
-              categoryContent={value}
-              profileData={data}
-              geoLevel={geoLevel}
-            />
-          );
-        })}
-      </div>
+      <CartProvider>
+        <div>
+          {Object.entries(content).map(([key, value]) => {
+            const category = key as CategoryKeys;
+            return (
+              <Category
+                key={category}
+                category={category}
+                categoryContent={value}
+                profileData={data}
+                geoLevel={geoLevel}
+              />
+            );
+          })}
+          <DataCartModal />
+
+        </div>
+      </CartProvider>
     </ScrollProvider>
   );
 }

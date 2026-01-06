@@ -175,6 +175,7 @@ export interface TopicContent {
   census_link: string;
   catalog_link: string;
   other_link: string;
+  variables: string[];
 }
 
 export type Visualization = (MapVisualization | ChartVisualization) & {
@@ -194,6 +195,7 @@ export interface MapVisualization {
 export interface ChartVisualization {
   type: "chart";
   schema: TopLevelSpec;
+  variables: string[];
 }
 
 export interface SourceBase {

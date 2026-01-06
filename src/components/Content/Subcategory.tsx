@@ -55,6 +55,7 @@ export default function Subcategory(props: Props) {
           censusLinks={getUrls(t.catalog_link)}
           catalogLinks={getUrls(t.census_link)}
           otherLinks={getUrls(t.other_link)}
+          topicVars={t.variables}
         />
       ))}
     </div>
