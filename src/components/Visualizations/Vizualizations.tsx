@@ -6,6 +6,7 @@ import VegaChart from "./Chart/VegaChart";
 import { useInView } from "react-intersection-observer";
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "@/consts";
+import { useCartVizVars } from "../DataCart/CartProvider";
 
 interface Props {
   id: number;
@@ -21,8 +22,8 @@ export default function Visualizations(props: Props) {
   const [visualizations, setVisualizations] = useState<Visualization[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const { id, category, subcategory, topic, geoLevel, geoid, buffer_bbox } = props;
+  const { setVizVars } = useCartVizVars();
   const { ref, inView } = useInView({
-    /* Optional options */
     threshold: 0,
   });
 
@@ -37,6 +38,15 @@ export default function Visualizations(props: Props) {
       }
       const vizResponse = await fetch(url);
       const data = (await vizResponse.json()) as Visualization[];
+
+      const variables: string[] = []
+      data.forEach(viz => {
+        if (viz.type == 'chart') {
+          variables.push(...viz.variables)
+          viz.variables
+        }
+      })
+      setVizVars(id, variables)
       setVisualizations(data);
       setIsLoaded(true);
     };

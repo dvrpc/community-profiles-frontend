@@ -1,7 +1,7 @@
 "use client";
 import Select, { OnChangeValue } from "react-select";
 
-import { CSSProperties } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import { countyInfoMap, municipalityInfoMap } from "@/consts";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -89,6 +89,7 @@ function getMunicipalityOptions(county: string) {
 export default function SearchInput() {
   const router = useRouter();
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
 
   function handleSelect(e: OnChangeValue<SelectOption, false>) {
     if (!e) return;
@@ -99,6 +100,8 @@ export default function SearchInput() {
       router.push(`/${e.county}/${e.value}`);
     }
   }
+  useEffect(() => { setIsMounted(true); }, []);
+  if (!isMounted) return null;
 
   if (pathname == "/") {
     return (
