@@ -26,6 +26,8 @@ import {
   Viz,
   SubcategoryRequest,
   Link,
+  Variable,
+  VariableBase,
 } from "@/types/types";
 import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 
@@ -66,6 +68,13 @@ export function useHistory(mode: string, id: number) {
     queryKey: ["history", mode, id],
     queryFn: () => apiGet<Content[]>(`/${mode}/${id}/history`),
     enabled: id != 0 && (mode == "content" || mode == "viz"),
+  });
+}
+
+export function useVariable() {
+  return useQuery({
+    queryKey: ["variable"],
+    queryFn: () => apiGet<Variable[]>(`/variable`),
   });
 }
 
@@ -112,6 +121,18 @@ export function useCreateSource() {
       apiPostAuthorized<Source>("/source", source),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["source"] });
+    },
+  });
+}
+
+export function useCreateVariable() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (variable: VariableBase) =>
+      apiPostAuthorized<Variable>("/variable", variable),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["variable"] });
     },
   });
 }
@@ -206,6 +227,31 @@ export function useUpdateSource() {
     },
   });
 }
+
+export function useUpdateVariable() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, variable }: { id: number; variable: VariableBase }) =>
+      apiPutAuthorized<Variable>(`/variable/${id}`, variable),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["variable"] });
+    },
+  });
+}
+
+export function useDeleteVariable() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/variable/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["variable"] });
+    },
+  });
+}
+
+
 
 export function useDeleteSource() {
   const qc = useQueryClient();

@@ -37,6 +37,8 @@ import SourceEditor from "./Source/SourceEditor";
 import TopicPropertiesForm from "./Form/TopicPropertiesForm";
 import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
 import { useSession } from "next-auth/react";
+import VariableManager from "./Variables/VariableEditor";
+import VariableEditor from "./Variables/VariableEditor";
 
 const defaultGeoid = {
   region: "",
@@ -343,7 +345,7 @@ export default function Dashboard() {
       )}
       {selectedMode == "variables" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
-          <SourceEditor />
+          <VariableEditor />
         </div>
       )}
       {selectedMode == "properties" && (

@@ -11,7 +11,7 @@ import {
   useUpdateSource,
 } from "@/lib/hooks";
 
-export default function SourceManager() {
+export default function SourceEditor() {
   const { data: sources, isLoading } = useSource();
   const { mutate: createMutation, status: createStatus } = useCreateSource();
   const { mutate: updateMutation, status: updateStatus } = useUpdateSource();

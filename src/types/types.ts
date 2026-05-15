@@ -214,6 +214,28 @@ export type SourceForm = SourceBase & {
   id?: number;
 };
 
+export interface VariableBase {
+  name: string;
+  category: string;
+  data_source: 'acs' | 'catalog' | 'gis';
+  geo_level?: string;
+  acs_variable?: string;
+  gis_table?: string;
+  resource_ids?: string;
+  data_year?: number;
+  catalog_table?: string;
+  description?: string;
+  acs_concept?: string;
+}
+
+export type Variable = VariableBase & {
+  id: number;
+};
+
+export type VariableForm = VariableBase & {
+  id?: number;
+};
+
 export interface Link {
   id: number;
   link: string;
@@ -1164,3 +1186,4 @@ export type MunicipalitySlug =
   | "woolwich-township"
   | "colwyn-borough"
   | "north-hanover-township";
+
