@@ -15,63 +15,90 @@ export default function Header(props: Props) {
   const { currentTab, setCurrentTab, treeLevel } = props;
   const { data: session } = useSession();
 
-  const contentTab = () => <li className="me-2">
-    <a
-      onClick={() => setCurrentTab("content")}
-      className={`inline-block ${currentTab == "content"
-        ? highlightTab
-        : "border-b-2 border-transparent"
+  const contentTab = () => (
+    <li className="me-2">
+      <a
+        onClick={() => setCurrentTab("content")}
+        className={`inline-block ${
+          currentTab == "content"
+            ? highlightTab
+            : "border-b-2 border-transparent"
         } p-4  rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
-    >
-      Content
-    </a>
-  </li>
+      >
+        Content
+      </a>
+    </li>
+  );
 
-  const vizTab = () => <li className="me-2">
-    <a
-      onClick={() => setCurrentTab("viz")}
-      className={`inline-block ${currentTab == "viz"
-        ? highlightTab
-        : "border-b-2 border-transparent"} p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
-    >
-      Visualizations
-    </a>
-  </li>
-
-
-  const propertiesTab = () => <li className="me-2">
-    <a
-      onClick={() => setCurrentTab("properties")}
-      className={`inline-block ${currentTab == "properties"
-        ? highlightTab
-        : "border-b-2 border-transparent"} p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
-    >
-      Properties
-    </a>
-  </li>
-
-  const sourceTab = () => <li className="me-2">
-    <a
-      onClick={() => setCurrentTab("sources")}
-      className={`inline-block ${currentTab == "sources"
-        ? highlightTab
-        : "border-b-2 border-transparent"
+  const vizTab = () => (
+    <li className="me-2">
+      <a
+        onClick={() => setCurrentTab("viz")}
+        className={`inline-block ${
+          currentTab == "viz" ? highlightTab : "border-b-2 border-transparent"
         } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
-    >
-      Source Editor
-    </a>
-  </li>
+      >
+        Visualizations
+      </a>
+    </li>
+  );
+
+  const propertiesTab = () => (
+    <li className="me-2">
+      <a
+        onClick={() => setCurrentTab("properties")}
+        className={`inline-block ${
+          currentTab == "properties"
+            ? highlightTab
+            : "border-b-2 border-transparent"
+        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+      >
+        Properties
+      </a>
+    </li>
+  );
+
+  const sourceTab = () => (
+    <li className="me-2">
+      <a
+        onClick={() => setCurrentTab("sources")}
+        className={`inline-block ${
+          currentTab == "sources"
+            ? highlightTab
+            : "border-b-2 border-transparent"
+        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+      >
+        Source Editor
+      </a>
+    </li>
+  );
+
+  const variablesTab = () => (
+    <li className="me-2">
+      <a
+        onClick={() => setCurrentTab("variables")}
+        className={`inline-block ${
+          currentTab == "variables"
+            ? highlightTab
+            : "border-b-2 border-transparent"
+        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+      >
+        Variables
+      </a>
+    </li>
+  );
 
   if (!session) return <></>;
   return (
     <>
       <div className="text-sm font-medium text-center text-dvrpc-gray-2 pt-4">
         <ul className="flex flex-wrap -mb-px">
-          {treeLevel != 'subcategory' && contentTab()}
-          {treeLevel == 'topic' && vizTab()}
-          {(treeLevel == 'topic' || treeLevel == 'subcategory') && propertiesTab()}
+          {treeLevel != "subcategory" && contentTab()}
+          {treeLevel == "topic" && vizTab()}
+          {(treeLevel == "topic" || treeLevel == "subcategory") &&
+            propertiesTab()}
           {sourceTab()}
-
+          {variablesTab()}
         </ul>
       </div>
 

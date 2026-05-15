@@ -37,7 +37,6 @@ import SourceEditor from "./Source/SourceEditor";
 import TopicPropertiesForm from "./Form/TopicPropertiesForm";
 import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
 import { useSession } from "next-auth/react";
-import { json } from "stream/consumers";
 
 const defaultGeoid = {
   region: "",
@@ -45,14 +44,14 @@ const defaultGeoid = {
   municipality: "4201704976",
 };
 
-export type Mode = "content" | "viz" | "properties" | "sources";
+export type Mode = "content" | "viz" | "properties" | "sources" | "variables";
 export type TreeLevel = "category" | "subcategory" | "topic" | "";
 
 function getSubcategoryById(subcategoryId: number, tree?: CategoryKeyMap) {
   if (tree) {
     for (const category of Object.values(tree)) {
       const subcat = category.subcategories.find(
-        (sub) => sub.id === subcategoryId
+        (sub) => sub.id === subcategoryId,
       );
       if (subcat) return subcat;
     }
@@ -75,21 +74,16 @@ export default function Dashboard() {
 
   const geoid = defaultGeoid[selectedGeoLevel];
   const { data: session } = useSession();
-
   const { data: tree } = useTree(selectedGeoLevel);
   const { data: profile } = useProfile(selectedGeoLevel, geoid);
-
   const { data: content } = useContent(selectedId);
-
   const { data: viz } = useViz(selectedId);
-
   const { data: history } = useHistory(selectedMode, selectedId);
-
   const { data: preview } = usePreview(
     editText,
     selectedMode,
     selectedGeoLevel,
-    geoid
+    geoid,
   );
 
   const saveMutation = useSave();
@@ -194,7 +188,7 @@ export default function Dashboard() {
   function handleTopicPropertiesSave(
     id: number,
     topicId: number,
-    payload: Partial<TopicPropertyForm>
+    payload: Partial<TopicPropertyForm>,
   ) {
     if (payload.label || payload.sort_weight) {
       topicUpdateMutation.mutate({
@@ -212,7 +206,7 @@ export default function Dashboard() {
 
   function handleSubcategoryPropertiesSave(
     subcategoryId: number,
-    payload: Partial<SubcategoryPropertyForm>
+    payload: Partial<SubcategoryPropertyForm>,
   ) {
     subcategoryUpdateMutation.mutate({
       subcategoryId,
@@ -343,6 +337,11 @@ export default function Dashboard() {
         </>
       )}
       {selectedMode == "sources" && (
+        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+          <SourceEditor />
+        </div>
+      )}
+      {selectedMode == "variables" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
           <SourceEditor />
         </div>
