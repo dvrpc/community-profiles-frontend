@@ -28,6 +28,8 @@ import {
   Link,
   Variable,
   VariableBase,
+  ACSVariableMetadata,
+  BuildStatus,
 } from "@/types/types";
 import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 
@@ -91,7 +93,7 @@ export function useAllProducts() {
     queryFn: async () => {
       const productResponse = await apiGet<ProductResponse>(
         "/product?limit=999",
-        PRODUCT_BASE_URL
+        PRODUCT_BASE_URL,
       );
       return productResponse.items;
     },
@@ -104,7 +106,7 @@ export function useProducts(productIds: string[]) {
     queryFn: async () => {
       const productResponse = await apiGet<ProductResponse>(
         `/product?id=${id}`,
-        PRODUCT_BASE_URL
+        PRODUCT_BASE_URL,
       );
       return productResponse.items[0];
     },
@@ -149,7 +151,7 @@ export function useCreateSubcategory() {
       newSubcat: string;
     }) =>
       apiPostAuthorized<number>(
-        `/tree/subcategory?category_id=${categoryId}&name=${newSubcat}`
+        `/tree/subcategory?category_id=${categoryId}&name=${newSubcat}`,
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -169,7 +171,7 @@ export function useCreateTopic() {
       newTopic: string;
     }) =>
       apiPostAuthorized<number>(
-        `/tree/topic?subcategory_id=${subcatId}&name=${newTopic}`
+        `/tree/topic?subcategory_id=${subcatId}&name=${newTopic}`,
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -190,7 +192,7 @@ export function useUpdateSubcategory() {
     }) =>
       apiPutAuthorized<number>(
         `/tree/subcategory/${subcategoryId}`,
-        subcategory
+        subcategory,
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -251,8 +253,6 @@ export function useDeleteVariable() {
   });
 }
 
-
-
 export function useDeleteSource() {
   const qc = useQueryClient();
 
@@ -291,15 +291,16 @@ export function usePreview(
   template: string,
   mode: string,
   geoLevel: GeoLevel,
-  geoid: string
+  geoid: string,
 ) {
   return useQuery({
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${
+          geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
-        mode === "viz" ? JSON.stringify(template) : template
+        mode === "viz" ? JSON.stringify(template) : template,
       ),
     enabled: template !== "" && template !== "[]",
     staleTime: 0,
@@ -337,6 +338,46 @@ export function useSave() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["history"] });
       qc.invalidateQueries({ queryKey: ["preview"] });
+    },
+  });
+}
+
+export function useACSMetadata(
+  acsVariable: string,
+  dataYear: number | undefined,
+) {
+  return useQuery({
+    queryKey: ["acs-metadata", acsVariable, dataYear],
+    queryFn: async () => {
+      const data = await apiGet<ACSVariableMetadata>(
+        `/acs/${dataYear}/${acsVariable}`,
+      );
+      return {
+        acs_concept: data.concept ?? "",
+        description: data.label ?? "",
+      };
+    },
+    enabled: !!acsVariable.trim() && !!dataYear,
+    staleTime: Infinity,
+    retry: false,
+  });
+}
+
+export function useBuildStatus() {
+  return useQuery({
+    queryKey: ["build-status"],
+    queryFn: () => apiGet<BuildStatus>(`/build/status`),
+    refetchInterval: 3000,
+  });
+}
+
+export function useTriggerBuild() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (category: "acs" | "gis" | "ckan" | "all") =>
+      apiPostAuthorized(`/build/${category}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["build-status"] });
     },
   });
 }

@@ -20,7 +20,7 @@ type ObjectEntries<OBJ_T> = // From https://stackoverflow.com/a/60142095
   }[keyof OBJ_T][];
 
 export function getTypedObjectEntries<OBJ_T extends ObjectType>(
-  obj: OBJ_T
+  obj: OBJ_T,
 ): ObjectEntries<OBJ_T> {
   return Object.entries(obj) as ObjectEntries<OBJ_T>;
 }
@@ -53,6 +53,13 @@ export interface LayerMap {
 export interface SourceMap {
   [key: string]: SourceSpecification;
 }
+
+export type BuildStatus = {
+  is_building: boolean;
+  category: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+};
 
 export interface Content {
   id: number;
@@ -217,7 +224,8 @@ export type SourceForm = SourceBase & {
 export interface VariableBase {
   name: string;
   category: string;
-  data_source: 'acs' | 'catalog' | 'gis';
+  data_source: "acs" | "catalog" | "gis";
+  aggregateable?: boolean;
   geo_level?: string;
   acs_variable?: string;
   gis_table?: string;
@@ -226,6 +234,7 @@ export interface VariableBase {
   catalog_table?: string;
   description?: string;
   acs_concept?: string;
+  last_updated?: Date;
 }
 
 export type Variable = VariableBase & {
@@ -235,6 +244,16 @@ export type Variable = VariableBase & {
 export type VariableForm = VariableBase & {
   id?: number;
 };
+
+export interface ACSVariableMetadata {
+  name: string;
+  label: string;
+  concept: string;
+  predicateType: string;
+  group: string;
+  limit: number;
+  attributes: string;
+}
 
 export interface Link {
   id: number;
@@ -1186,4 +1205,3 @@ export type MunicipalitySlug =
   | "woolwich-township"
   | "colwyn-borough"
   | "north-hanover-township";
-

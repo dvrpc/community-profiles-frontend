@@ -11,7 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import DeleteModal from "./DeleteModal";
+import DeleteModal from "../Components/DeleteModal";
 import { TreeLevel } from "../Dashboard";
 
 interface Props {
@@ -68,10 +68,10 @@ export default function CategorySidebar(props: Props) {
     category: CategoryKeys,
     subcategory: string,
     topic: string,
-    id: number
+    id: number,
   ) => {
     setSelected({ category, subcategory, topic });
-    handleClick(id, 'topic');
+    handleClick(id, "topic");
   };
 
   // NEW: Select subcategory
@@ -81,7 +81,7 @@ export default function CategorySidebar(props: Props) {
     subcategory: string,
   ) => {
     setSelected({ category, subcategory, topic: "" });
-    handleClick(subcatId, 'subcategory')
+    handleClick(subcatId, "subcategory");
   };
 
   const handleAddTopic = (subcatId: number, subcatName: string) => {
@@ -138,17 +138,17 @@ export default function CategorySidebar(props: Props) {
       if (pendingGeoLevelChange && selected && tree) {
         if (selected.topic === "") {
           const content_id = tree[selected.category].content_id;
-          handleClick(content_id, 'topic');
+          handleClick(content_id, "topic");
         } else {
           const subcategory = tree[selected.category].subcategories.find(
-            (s) => s.name === selected.subcategory
+            (s) => s.name === selected.subcategory,
           );
           if (!subcategory) return;
           const topic = subcategory.topics.find(
-            (t) => t.name === selected.topic
+            (t) => t.name === selected.topic,
           );
           if (!topic) return;
-          handleClick(topic.content_id, 'category');
+          handleClick(topic.content_id, "category");
         }
         setPendingGeoLevelChange(false);
       }
@@ -184,27 +184,30 @@ export default function CategorySidebar(props: Props) {
         return (
           <div key={category} className="my-4">
             <div
-              className={`flex items-center justify-between w-full font-bold rounded`}>
-              <button className={`flex items-center justify-between w-full text-left p-2 rounded cursor-pointer
-                          ${selected?.category === category &&
-                  selected?.subcategory === "" &&
-                  selected?.topic === ""
-                  ? "bg-dvrpc-blue-1 text-white"
-                  : "hover:bg-gray-300"
-                }`} onClick={(e) => {
+              className={`flex items-center justify-between w-full font-bold rounded`}
+            >
+              <button
+                className={`flex items-center justify-between w-full text-left p-2 rounded cursor-pointer
+                          ${
+                            selected?.category === category &&
+                            selected?.subcategory === "" &&
+                            selected?.topic === ""
+                              ? "bg-dvrpc-blue-1 text-white"
+                              : "hover:bg-gray-300"
+                          }`}
+                onClick={(e) => {
                   e.stopPropagation();
                   setSelected({ category, subcategory: "", topic: "" });
-                  handleClick(categoryTree.content_id, 'category');
-                }}>
-                <span
-
-                >
-                  {category}
-                </span>
+                  handleClick(categoryTree.content_id, "category");
+                }}
+              >
+                <span>{category}</span>
               </button>
 
-
-              <button className="p-2 ml-1 rounded-sm cursor-pointer hover:bg-gray-200" onClick={() => toggleSection(categoryKey)}>
+              <button
+                className="p-2 ml-1 rounded-sm cursor-pointer hover:bg-gray-200"
+                onClick={() => toggleSection(categoryKey)}
+              >
                 {isCategoryOpen ? (
                   <ChevronDownIcon className="w-4 h-4" />
                 ) : (
@@ -214,156 +217,159 @@ export default function CategorySidebar(props: Props) {
             </div>
 
             {/* SUBCATEGORIES */}
-            {
-              isCategoryOpen && (
-                <div className="ml-4 mt-2">
-                  {subcats.map((subcat) => {
-                    const subcatKey = `${categoryKey}-${subcat.id}`;
-                    const isSubcatOpen = !!openSections[subcatKey];
+            {isCategoryOpen && (
+              <div className="ml-4 mt-2">
+                {subcats.map((subcat) => {
+                  const subcatKey = `${categoryKey}-${subcat.id}`;
+                  const isSubcatOpen = !!openSections[subcatKey];
 
-                    return (
-                      <div key={subcat.id} className="mb-2">
-                        <div className="flex items-center">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSubcategoryClick(
-                                category,
-                                subcat.id,
-                                subcat.name
-                              );
-                            }}
-                            className={`flex items-center justify-between w-full text-left px-2 py-1 rounded cursor-pointer
-                          ${selected?.category === category &&
-                                selected?.subcategory === subcat.name &&
-                                selected?.topic === ""
-                                ? "bg-dvrpc-blue-1 text-white"
-                                : "hover:bg-gray-200"
-                              }`}
-                          >
-                            <span>{subcat.name}</span>
-                          </button>
+                  return (
+                    <div key={subcat.id} className="mb-2">
+                      <div className="flex items-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSubcategoryClick(
+                              category,
+                              subcat.id,
+                              subcat.name,
+                            );
+                          }}
+                          className={`flex items-center justify-between w-full text-left px-2 py-1 rounded cursor-pointer
+                          ${
+                            selected?.category === category &&
+                            selected?.subcategory === subcat.name &&
+                            selected?.topic === ""
+                              ? "bg-dvrpc-blue-1 text-white"
+                              : "hover:bg-gray-200"
+                          }`}
+                        >
+                          <span>{subcat.name}</span>
+                        </button>
 
-                          <button
-                            onClick={() => toggleSection(subcatKey)}
-                            className="cursor-pointer p-2 ml-1 rounded-sm hover:bg-gray-200"
-                          >
-                            {isSubcatOpen ? (
-                              <ChevronDownIcon className="w-4 h-4" />
-                            ) : (
-                              <ChevronRightIcon className="w-4 h-4" />
-                            )}
-                          </button>
+                        <button
+                          onClick={() => toggleSection(subcatKey)}
+                          className="cursor-pointer p-2 ml-1 rounded-sm hover:bg-gray-200"
+                        >
+                          {isSubcatOpen ? (
+                            <ChevronDownIcon className="w-4 h-4" />
+                          ) : (
+                            <ChevronRightIcon className="w-4 h-4" />
+                          )}
+                        </button>
 
-                          <button
-                            onClick={() =>
-                              handleEditSubcategory(subcat.id, subcat.name)
-                            }
-                            className="p-2 rounded-sm hover:bg-gray-200 "
-                          >
-                            <Pencil size={16} />
-                          </button>
+                        <button
+                          onClick={() =>
+                            handleEditSubcategory(subcat.id, subcat.name)
+                          }
+                          className="p-2 rounded-sm hover:bg-gray-200 "
+                        >
+                          <Pencil size={16} />
+                        </button>
 
-                          <button
-                            onClick={() =>
-                              handleDeleteSubcategory(subcat.id, subcat.name)
-                            }
-                            className="p-2 rounded-sm hover:bg-gray-200"
-                          >
-                            <Trash2 size={16} color="red" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={() =>
+                            handleDeleteSubcategory(subcat.id, subcat.name)
+                          }
+                          className="p-2 rounded-sm hover:bg-gray-200"
+                        >
+                          <Trash2 size={16} color="red" />
+                        </button>
+                      </div>
 
-                        {isSubcatOpen && (
-                          <ul className="ml-4 mt-1">
-                            {subcat.topics.map((topic) => (
-                              <li
-                                key={topic.id}
-                                className="flex justify-between items-center"
-                              >
-                                <div
-                                  className={`${!topic.is_visible && 'text-dvrpc-gray-4'} px-2 py-1 rounded cursor-pointer flex-1 ${selected?.category === category &&
-                                    selected?.subcategory === subcat.name &&
-                                    selected?.topic === topic.name
+                      {isSubcatOpen && (
+                        <ul className="ml-4 mt-1">
+                          {subcat.topics.map((topic) => (
+                            <li
+                              key={topic.id}
+                              className="flex justify-between items-center"
+                            >
+                              <div
+                                className={`${!topic.is_visible && "text-dvrpc-gray-4"} px-2 py-1 rounded cursor-pointer flex-1 ${
+                                  selected?.category === category &&
+                                  selected?.subcategory === subcat.name &&
+                                  selected?.topic === topic.name
                                     ? "bg-dvrpc-blue-1 text-white"
                                     : "hover:bg-gray-300"
-                                    }`}
-                                  onClick={() =>
-                                    handleItemClick(
-                                      category,
-                                      subcat.name,
-                                      topic.name,
-                                      topic.content_id
-                                    )
-                                  }
-                                >
-                                  {topic.name}
-                                </div>
-                                <button
-                                  onClick={() =>
-                                    handleEditTopic(topic.name, topic.id)
-                                  }
-                                  className="p-2 rounded-sm hover:bg-gray-200 cursor-pointer"
-                                >
-                                  <Pencil size={16} />
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleDeleteTopic(topic.id, topic.name)
-                                  }
-                                  disabled={subcat.topics.length === 1}
-                                  className="p-2 rounded-sm hover:bg-gray-200 cursor-pointer"
-                                >
-                                  <Trash2
-                                    size={16}
-                                    color={
-                                      subcat.topics.length !== 1
-                                        ? "red"
-                                        : "black"
-                                    }
-                                  />
-                                </button>
-                              </li>
-                            ))}
-
-                            <li className="mt-2">
+                                }`}
+                                onClick={() =>
+                                  handleItemClick(
+                                    category,
+                                    subcat.name,
+                                    topic.name,
+                                    topic.content_id,
+                                  )
+                                }
+                              >
+                                {topic.name}
+                              </div>
                               <button
                                 onClick={() =>
-                                  handleAddTopic(subcat.id, subcat.name)
+                                  handleEditTopic(topic.name, topic.id)
                                 }
-                                className="text-sm text-dvrpc-blue-3 hover:underline cursor-pointer"
+                                className="p-2 rounded-sm hover:bg-gray-200 cursor-pointer"
                               >
-                                + Add Topic
+                                <Pencil size={16} />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleDeleteTopic(topic.id, topic.name)
+                                }
+                                disabled={subcat.topics.length === 1}
+                                className="p-2 rounded-sm hover:bg-gray-200 cursor-pointer"
+                              >
+                                <Trash2
+                                  size={16}
+                                  color={
+                                    subcat.topics.length !== 1 ? "red" : "black"
+                                  }
+                                />
                               </button>
                             </li>
-                          </ul>
-                        )}
-                      </div>
-                    );
-                  })}
+                          ))}
 
-                  <button
-                    onClick={() =>
-                      handleAddSubcategory(categoryTree.id, category)
-                    }
-                    className="text-sm text-dvrpc-blue-3 hover:underline mt-3 ml-4 cursor-pointer"
-                  >
-                    + Add Subcategory
-                  </button>
-                </div>
-              )
-            }
+                          <li className="mt-2">
+                            <button
+                              onClick={() =>
+                                handleAddTopic(subcat.id, subcat.name)
+                              }
+                              className="text-sm text-dvrpc-blue-3 hover:underline cursor-pointer"
+                            >
+                              + Add Topic
+                            </button>
+                          </li>
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+
+                <button
+                  onClick={() =>
+                    handleAddSubcategory(categoryTree.id, category)
+                  }
+                  className="text-sm text-dvrpc-blue-3 hover:underline mt-3 ml-4 cursor-pointer"
+                >
+                  + Add Subcategory
+                </button>
+              </div>
+            )}
           </div>
         );
       })}
 
       <DeleteModal
         open={deleteModalOpen}
-        type={pendingDelete?.type}
-        name={pendingDelete?.name}
+        paragraphs={[
+          `Are you sure you want to delete this ${pendingDelete?.type}: "${pendingDelete?.name}"?`,
+          ...(pendingDelete?.type === "subcategory"
+            ? ["Deleting a subcategory will delete all child topics."]
+            : []),
+          "Content & visualizations for deleted items is preserved in database but not visible on admin page.",
+        ]}
         onConfirm={confirmDeletion}
         onCancel={handleCloseDeleteModal}
       />
-    </div >
+    </div>
   );
 }
