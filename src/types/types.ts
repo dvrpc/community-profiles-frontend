@@ -234,7 +234,7 @@ export interface VariableBase {
   catalog_table?: string;
   description?: string;
   acs_concept?: string;
-  last_updated?: Date;
+  last_updated?: string;
 }
 
 export type Variable = VariableBase & {

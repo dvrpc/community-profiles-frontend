@@ -32,10 +32,12 @@ export default function VariableModal(props: Props) {
     initialData?.acs_variable ?? form.acs_variable ?? "",
   );
 
+  console.log("initialData", initialData);
+
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    setForm(emptyForm);
+    setForm(initialData ? initialData : emptyForm);
     setLookupVariable(initialData?.acs_variable ?? "");
   }, [initialData]);
 

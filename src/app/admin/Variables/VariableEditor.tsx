@@ -155,13 +155,19 @@ export default function VariableManager() {
                 <th className="py-2 px-3">GIS Table</th>
                 <th className="py-2 px-3">Catalog Table</th>
                 <th className="py-2 px-3">Year</th>
+                <th className="py-2 px-3">Aggregateable</th>
                 <th className="py-2 px-3">Last Updated</th>
+
                 <th className="py-2 px-3 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sortedVariables.map((variable) => {
                 const isEditable = variable.data_source === "acs";
+                const lastUpdated = variable.last_updated
+                  ? new Date(variable.last_updated).toLocaleDateString()
+                  : "—";
+                console.log(variable);
                 return (
                   <tr
                     key={variable.id}
@@ -182,8 +188,13 @@ export default function VariableManager() {
 
                     <td className="py-2 px-3">{variable.data_year ?? "—"}</td>
                     <td className="py-2 px-3">
-                      {variable.last_updated?.toDateString() ?? "—"}
+                      {variable.aggregateable !== undefined
+                        ? variable.aggregateable
+                          ? "Yes"
+                          : "No"
+                        : "—"}
                     </td>
+                    <td className="py-2 px-3">{lastUpdated}</td>
                     <td className="py-2 px-3 text-center">
                       {isEditable ? (
                         <div className="flex items-center justify-center gap-2">
