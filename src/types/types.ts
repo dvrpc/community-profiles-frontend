@@ -20,7 +20,7 @@ type ObjectEntries<OBJ_T> = // From https://stackoverflow.com/a/60142095
   }[keyof OBJ_T][];
 
 export function getTypedObjectEntries<OBJ_T extends ObjectType>(
-  obj: OBJ_T
+  obj: OBJ_T,
 ): ObjectEntries<OBJ_T> {
   return Object.entries(obj) as ObjectEntries<OBJ_T>;
 }
@@ -53,6 +53,13 @@ export interface LayerMap {
 export interface SourceMap {
   [key: string]: SourceSpecification;
 }
+
+export type BuildStatus = {
+  is_building: boolean;
+  category: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+};
 
 export interface Content {
   id: number;
@@ -175,6 +182,7 @@ export interface TopicContent {
   census_link: string;
   catalog_link: string;
   other_link: string;
+  variables: string[];
 }
 
 export type Visualization = (MapVisualization | ChartVisualization) & {
@@ -194,6 +202,7 @@ export interface MapVisualization {
 export interface ChartVisualization {
   type: "chart";
   schema: TopLevelSpec;
+  variables: string[];
 }
 
 export interface SourceBase {
@@ -211,6 +220,40 @@ export type Source = SourceBase & {
 export type SourceForm = SourceBase & {
   id?: number;
 };
+
+export interface VariableBase {
+  name: string;
+  category: string;
+  data_source: "acs" | "catalog" | "gis";
+  aggregateable?: boolean;
+  geo_level?: string;
+  acs_variable?: string;
+  gis_table?: string;
+  resource_ids?: string;
+  data_year?: number;
+  catalog_table?: string;
+  description?: string;
+  acs_concept?: string;
+  last_updated?: string;
+}
+
+export type Variable = VariableBase & {
+  id: number;
+};
+
+export type VariableForm = VariableBase & {
+  id?: number;
+};
+
+export interface ACSVariableMetadata {
+  name: string;
+  label: string;
+  concept: string;
+  predicateType: string;
+  group: string;
+  limit: number;
+  attributes: string;
+}
 
 export interface Link {
   id: number;

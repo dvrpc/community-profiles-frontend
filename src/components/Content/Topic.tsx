@@ -1,10 +1,9 @@
 import { CategoryKeys, GeoLevel } from "@/types/types";
 import Visualizations from "../Visualizations/Vizualizations";
-import { displaySubcategoryTopicTitle } from "@/utils";
 import RelatedProducts from "./RelatedProducts";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { Share2, ShoppingCart, Sheet } from "lucide-react";
 import LinkButton from "../Buttons/LinkButton";
+import AddDataToCartButton from "../DataCart/AddDataToCartButton";
 
 interface Props {
   id: number;
@@ -21,6 +20,7 @@ interface Props {
   censusLinks?: string[];
   catalogLinks?: string[];
   otherLinks?: string[];
+  topicVars: string[];
 }
 
 
@@ -39,7 +39,8 @@ export default function Topic(props: Props) {
     relatedProducts,
     censusLinks,
     catalogLinks,
-    otherLinks
+    otherLinks,
+    topicVars
   } = props;
 
 
@@ -50,10 +51,8 @@ export default function Topic(props: Props) {
           {label}
         </h4>
         <div className="flex gap-4 text-dvrpc-gray-3 text-sm">
-          <button className="flex gap-2 items-center hover:cursor-pointer hover:text-dvrpc-blue-1">
-            <ShoppingCart size={20} />
-            Add Data to Cart
-          </button>
+          <AddDataToCartButton topicId={id} topicVars={topicVars} />
+
 
           <LinkButton
             label="View Census Table"
