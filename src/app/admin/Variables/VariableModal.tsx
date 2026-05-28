@@ -32,8 +32,6 @@ export default function VariableModal(props: Props) {
     initialData?.acs_variable ?? form.acs_variable ?? "",
   );
 
-  console.log("initialData", initialData);
-
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
@@ -80,8 +78,6 @@ export default function VariableModal(props: Props) {
   };
 
   const handleSaveClick = () => {
-    console.log(form);
-
     if (!form.name.trim()) {
       setError("Name is required.");
       return;

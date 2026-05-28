@@ -167,7 +167,6 @@ export default function VariableManager() {
                 const lastUpdated = variable.last_updated
                   ? new Date(variable.last_updated).toLocaleDateString()
                   : "—";
-                console.log(variable);
                 return (
                   <tr
                     key={variable.id}
