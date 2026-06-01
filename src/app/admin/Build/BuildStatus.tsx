@@ -10,7 +10,7 @@ export default function BuildStatus() {
   const isBuilding = status?.is_building ?? false;
 
   return (
-    <div className="mb-6 p-4 rounded-lg border border-gray-200 bg-dvrpc-gray-7 flex items-center justify-between gap-4">
+    <div className=" p-4 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-between gap-4">
       <div className="flex items-center gap-3 text-sm">
         {isBuilding ? (
           <>

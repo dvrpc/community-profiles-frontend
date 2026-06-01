@@ -213,20 +213,21 @@ export default function SqlModal(props: Props) {
           </div>
         </div>
         <div>
-          <div className="flex gap-2 mt-2">
-            <input
-              name="aggregateable"
-              type="checkbox"
-              checked={detailed}
-              onChange={(e) => setDetailed(e.target.checked)}
-              required
-              className=""
-            />
-            <label className="font-medium">
-              Enable Detailed Testing (longer queries){" "}
-              <span className="text-red-600">*</span>
-            </label>
-          </div>
+          {form.data_source !== 'ckan' && (
+            <div className="flex gap-2 mt-2">
+              <input
+                name="aggregateable"
+                type="checkbox"
+                checked={detailed}
+                onChange={(e) => setDetailed(e.target.checked)}
+                required
+                className=""
+              />
+              <label className="font-medium">
+                Enable Detailed Testing (longer queries){" "}
+                <span className="text-red-600">*</span>
+              </label>
+            </div>)}
           <div className="mt-4">{renderTestStatus()}</div>
         </div>
         <div className="flex justify-between mt-6">

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import VariableModal from "./VariableModal";
 import DeleteModal from "../Components/DeleteModal";
-import BuildStatus from "./BuildStatus";
+import BuildStatus from "../Build/BuildStatus";
 import { Variable, VariableForm } from "@/types/types";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
@@ -113,7 +113,6 @@ export default function VariableManager() {
           </Button>
         </div>
 
-        <BuildStatus />
 
         <div className="overflow-x-auto max-w-full">
           <table className="min-w-[960px] w-full border-collapse text-sm">

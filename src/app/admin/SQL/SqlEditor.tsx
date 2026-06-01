@@ -14,7 +14,7 @@ import {
   useDeleteSql,
   useSql,
 } from "@/lib/hooks";
-import BuildStatus from "../Variables/BuildStatus";
+import BuildStatus from "../Build/BuildStatus";
 import SqlModal from "./SqlModal";
 
 export default function SqlEditor() {
@@ -70,7 +70,7 @@ export default function SqlEditor() {
 
   return (
     <>
-      <div className="p-4 overflow-auto h-full">
+      <div className="p-4 flex flex-col flex-1 overflow-hidden">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-4">
             <h1 className="text-2xl font-semibold text-gray-800">
@@ -93,11 +93,10 @@ export default function SqlEditor() {
           </Button>
         </div>
 
-        <BuildStatus />
 
-        <div className="overflow-x-auto max-w-full">
+        <div className="overflow-y-auto flex-1 min-h-0">
           <table className="min-w-[960px] w-full border-collapse text-sm">
-            <thead>
+            <thead className="sticyk top-0 z-10">
               <tr className="bg-dvrpc-gray-7 text-left text-xs uppercase tracking-wide">
                 <th className="py-2 px-3">Name</th>
                 <th className="py-2 px-3">Data Source</th>
