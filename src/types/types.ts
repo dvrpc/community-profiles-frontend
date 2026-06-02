@@ -236,17 +236,12 @@ export type SqlForm = SqlBase & { id?: number };
 
 export interface VariableBase {
   name: string;
-  category: string;
   data_source: "acs" | "ckan" | "gis";
   aggregateable?: boolean;
-  geo_level?: string;
   acs_variable?: string;
-  gis_table?: string;
-  resource_ids?: string;
   data_year?: number;
-  catalog_table?: string;
   description?: string;
-  acs_concept?: string;
+  concept?: string;
   last_updated?: string;
 }
 

@@ -31,7 +31,7 @@ export default function VariableManager() {
 
   const [editing, setEditing] = useState<Variable | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [sortBy, setSortBy] = useState<"name" | "category" | "data_source">(
+  const [sortBy, setSortBy] = useState<"name" | "concept" | "data_source">(
     "name",
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -49,7 +49,7 @@ export default function VariableManager() {
     return 0;
   });
 
-  const handleSort = (key: "name" | "category" | "data_source") => {
+  const handleSort = (key: "name" | "concept" | "data_source") => {
     if (sortBy === key) {
       setSortDirection((direction) => (direction === "asc" ? "desc" : "asc"));
     } else {
@@ -113,7 +113,6 @@ export default function VariableManager() {
           </Button>
         </div>
 
-
         <div className="overflow-x-auto max-w-full">
           <table className="min-w-[960px] w-full border-collapse text-sm">
             <thead>
@@ -132,10 +131,10 @@ export default function VariableManager() {
                   <button
                     type="button"
                     className="flex items-center gap-1"
-                    onClick={() => handleSort("category")}
+                    onClick={() => handleSort("concept")}
                   >
-                    Category
-                    {sortBy === "category" &&
+                    Concept
+                    {sortBy === "concept" &&
                       (sortDirection === "asc" ? "▲" : "▼")}
                   </button>
                 </th>
@@ -151,8 +150,6 @@ export default function VariableManager() {
                   </button>
                 </th>
                 <th className="py-2 px-3">ACS Variable</th>
-                <th className="py-2 px-3">GIS Table</th>
-                <th className="py-2 px-3">Catalog Table</th>
                 <th className="py-2 px-3">Year</th>
                 <th className="py-2 px-3">Aggregateable</th>
                 <th className="py-2 px-3">Last Updated</th>
@@ -172,16 +169,12 @@ export default function VariableManager() {
                     className="border-b hover:bg-gray-50 transition"
                   >
                     <td className="py-2 px-3">{variable.name}</td>
-                    <td className="py-2 px-3">{variable.category}</td>
+                    <td className="py-2 px-3">{variable.concept}</td>
                     <td className="py-2 px-3 uppercase">
                       {variable.data_source}
                     </td>
                     <td className="py-2 px-3">
                       {variable.acs_variable ?? "—"}
-                    </td>
-                    <td className="py-2 px-3">{variable.gis_table ?? "—"}</td>
-                    <td className="py-2 px-3">
-                      {variable.catalog_table ?? "—"}
                     </td>
 
                     <td className="py-2 px-3">{variable.data_year ?? "—"}</td>

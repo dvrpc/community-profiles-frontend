@@ -408,7 +408,7 @@ export function useACSMetadata(
         `/acs/${dataYear}/${acsVariable}`,
       );
       return {
-        acs_concept: data.concept ?? "",
+        concept: data.concept ?? "",
         description: data.label ?? "",
       };
     },
