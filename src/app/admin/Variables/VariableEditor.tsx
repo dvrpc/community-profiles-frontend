@@ -3,7 +3,7 @@ import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import VariableModal from "./VariableModal";
 import DeleteModal from "../Components/DeleteModal";
 import BuildStatus from "../Build/BuildStatus";
-import { Variable, VariableForm } from "@/types/types";
+import { Variable, VariableForm, GeoLevel } from "@/types/types";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/lib/hooks";
 
 export default function VariableManager() {
+  const [geoLevel, setGeoLevel] = useState<GeoLevel | "all">("all");
   const { data: variables, isLoading } = useVariable();
   const { mutate: createMutation, status: createStatus } = useCreateVariable();
   const { mutate: updateMutation, status: updateStatus } = useUpdateVariable();
@@ -36,7 +37,11 @@ export default function VariableManager() {
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const sortedVariables = [...(variables ?? [])].sort((a, b) => {
+  const filteredVariables = (variables ?? []).filter((variable) =>
+    geoLevel === "all" || variable.geo_levels?.includes(geoLevel),
+  );
+
+  const sortedVariables = [...filteredVariables].sort((a, b) => {
     const aValue = a[sortBy]?.toString().toLowerCase() ?? "";
     const bValue = b[sortBy]?.toString().toLowerCase() ?? "";
 
@@ -94,12 +99,17 @@ export default function VariableManager() {
     <>
       <div className="p-4 overflow-auto h-full">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <h1 className="text-2xl font-semibold text-gray-800">Variables</h1>
             {(isLoading || changePending) && (
               <div>
                 <Loader2 className="animate-spin text-dvrpc-blue-3" size={32} />
               </div>
+            )}
+            {variables && (
+              <span>
+                {filteredVariables.length} of {variables.length} variables
+              </span>
             )}
           </div>
           <Button
@@ -139,6 +149,24 @@ export default function VariableManager() {
                   </button>
                 </th>
                 <th className="py-2 px-3">
+                  <div className="flex flex-col gap-2">
+                    <span>Geography</span>
+                    <select
+                      value={geoLevel}
+                      onChange={(e) =>
+                        setGeoLevel(e.target.value as GeoLevel | "all")
+                      }
+                      className="max-w-[160px] rounded border border-dvrpc-gray-5 bg-white px-2 py-1 text-sm"
+                      aria-label="Filter by geography"
+                    >
+                      <option value="all">All</option>
+                      <option value="region">Region</option>
+                      <option value="county">County</option>
+                      <option value="municipality">Municipality</option>
+                    </select>
+                  </div>
+                </th>
+                <th className="py-2 px-3">
                   <button
                     type="button"
                     className="flex items-center gap-1"
@@ -170,6 +198,7 @@ export default function VariableManager() {
                   >
                     <td className="py-2 px-3">{variable.name}</td>
                     <td className="py-2 px-3">{variable.concept}</td>
+                    <td className="py-2 px-3">{variable.geo_levels?.length == 3 ? 'all' : variable.geo_levels?.join(", ") ?? "—"}</td>
                     <td className="py-2 px-3 uppercase">
                       {variable.data_source}
                     </td>
@@ -227,6 +256,7 @@ export default function VariableManager() {
         open={deleteOpen}
         paragraphs={[
           `Are you sure you want to delete this variable: "${deleteTarget?.name}"?`,
+          'Deleting an ACS variable will delete for all geographies and remove it from any profiles that use it.',
         ]}
         onCancel={() => {
           setDeleteOpen(false);

@@ -242,6 +242,7 @@ export interface VariableBase {
   data_year?: number;
   description?: string;
   concept?: string;
+  geo_levels?: GeoLevel[];
   last_updated?: string;
 }
 
