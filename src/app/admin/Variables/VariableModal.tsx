@@ -12,16 +12,11 @@ interface Props {
 
 const emptyForm: VariableForm = {
   name: "",
-  category: "",
   data_source: "acs",
-  geo_level: "all",
   acs_variable: "",
-  gis_table: "",
-  resource_ids: "",
   data_year: undefined,
-  catalog_table: "",
   description: "",
-  acs_concept: "",
+  concept: "",
   aggregateable: true,
 };
 
@@ -64,11 +59,15 @@ export default function VariableModal(props: Props) {
           ? target.checked
           : value;
 
+    console.log("Updating form field", name, "to value", newValue);
     setForm({
       ...form,
       [name]: newValue,
       ...(name === "acs_variable" || name === "data_year"
-        ? { acs_concept: "", description: "" }
+        ? { concept: "", description: "" }
+        : {}),
+      ...(name === "aggregateable" && !newValue
+        ? { geo_level: ["municipality", "county"] }
         : {}),
     });
 
@@ -91,16 +90,13 @@ export default function VariableModal(props: Props) {
       setError("Data year is required");
       return;
     }
-    if (!form.category.trim()) {
-      setError("Category is required.");
-      return;
-    }
+
     if (form.data_source !== "acs") {
       setError("Only ACS variables can be managed here.");
       return;
     }
 
-    if (!form.acs_concept) {
+    if (!form.concept) {
       setError(
         "Invalid year and acs variable combination. Concept and description should auto populate",
       );
@@ -115,7 +111,7 @@ export default function VariableModal(props: Props) {
     if (acsMetadata) {
       setForm((prev) => ({
         ...prev,
-        acs_concept: acsMetadata.acs_concept,
+        concept: acsMetadata.concept,
         description: acsMetadata.description,
       }));
     }
@@ -141,27 +137,27 @@ export default function VariableModal(props: Props) {
               className="w-full border rounded-lg p-2"
             />
           </div>
-          <div>
-            <label className="block font-medium mb-1">
-              ACS Variable <span className="text-red-600">*</span>
-            </label>
-            <input
-              name="acs_variable"
-              value={form.acs_variable ?? ""}
-              onChange={handleChange}
-              className="w-full border rounded-lg p-2"
-            />
-            {form.acs_variable &&
-              form.data_year &&
-              !fetchingACS &&
-              acsError && (
-                <p className="text-red-600 text-sm mt-1">
-                  Invalid ACS variable for the selected year.
-                </p>
-              )}
-          </div>
 
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block font-medium mb-1">
+                ACS Variable <span className="text-red-600">*</span>
+              </label>
+              <input
+                name="acs_variable"
+                value={form.acs_variable ?? ""}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2"
+              />
+              {form.acs_variable &&
+                form.data_year &&
+                !fetchingACS &&
+                acsError && (
+                  <p className="text-red-600 text-sm mt-1">
+                    Invalid ACS variable for the selected year.
+                  </p>
+                )}
+            </div>
             <div>
               <label className="block font-medium mb-1">
                 Data Year <span className="text-red-600">*</span>
@@ -174,25 +170,6 @@ export default function VariableModal(props: Props) {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2"
               />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">
-                Category <span className="text-red-600">*</span>
-              </label>
-              <select
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                required
-                className="w-full border rounded-lg p-2"
-              >
-                <option value="">Select a category</option>
-                {CATEGORIES.map((categoryKey) => (
-                  <option key={categoryKey} value={categoryKey}>
-                    {categoryTitleMap[categoryKey]}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
           <div>
@@ -220,10 +197,10 @@ export default function VariableModal(props: Props) {
               ACS Concept <span className="text-red-600">*</span>
             </label>
             <input
-              name="acs_concept"
+              name="concept"
               required
               disabled
-              value={form.acs_concept ?? ""}
+              value={form.concept ?? ""}
               onChange={handleChange}
               className="w-full border rounded-lg p-2  bg-dvrpc-gray-7"
             />

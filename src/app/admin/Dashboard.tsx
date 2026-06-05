@@ -39,6 +39,8 @@ import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
 import { useSession } from "next-auth/react";
 import VariableManager from "./Variables/VariableEditor";
 import VariableEditor from "./Variables/VariableEditor";
+import SqlEditor from "./SQL/SqlEditor";
+import BuildStatus from "./Build/BuildStatus";
 
 const defaultGeoid = {
   region: "",
@@ -46,7 +48,13 @@ const defaultGeoid = {
   municipality: "4201704976",
 };
 
-export type Mode = "content" | "viz" | "properties" | "sources" | "variables";
+export type Mode =
+  | "content"
+  | "viz"
+  | "properties"
+  | "sources"
+  | "variables"
+  | "sql";
 export type TreeLevel = "category" | "subcategory" | "topic" | "";
 
 function getSubcategoryById(subcategoryId: number, tree?: CategoryKeyMap) {
@@ -340,12 +348,22 @@ export default function Dashboard() {
       )}
       {selectedMode == "sources" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+
           <SourceEditor />
         </div>
       )}
       {selectedMode == "variables" && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md flex-col flex">
+          <BuildStatus />
+
           <VariableEditor />
+        </div>
+      )}
+      {selectedMode == "sql" && (
+        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md flex-col flex">
+          <BuildStatus />
+
+          <SqlEditor />
         </div>
       )}
       {selectedMode == "properties" && (

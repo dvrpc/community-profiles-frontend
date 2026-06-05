@@ -221,19 +221,28 @@ export type SourceForm = SourceBase & {
   id?: number;
 };
 
+export interface SqlBase {
+  name: string;
+  data_source: "gis" | "ckan" | "";
+  geo_level: "region" | "county" | "municipality" | "";
+  body: string;
+}
+
+export type Sql = SqlBase & {
+  id: number;
+};
+
+export type SqlForm = SqlBase & { id?: number };
+
 export interface VariableBase {
   name: string;
-  category: string;
-  data_source: "acs" | "catalog" | "gis";
+  data_source: "acs" | "ckan" | "gis";
   aggregateable?: boolean;
-  geo_level?: string;
   acs_variable?: string;
-  gis_table?: string;
-  resource_ids?: string;
   data_year?: number;
-  catalog_table?: string;
   description?: string;
-  acs_concept?: string;
+  concept?: string;
+  geo_levels?: GeoLevel[];
   last_updated?: string;
 }
 

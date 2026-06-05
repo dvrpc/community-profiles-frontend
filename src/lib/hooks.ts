@@ -30,6 +30,8 @@ import {
   VariableBase,
   ACSVariableMetadata,
   BuildStatus,
+  SqlBase,
+  Sql,
 } from "@/types/types";
 import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 
@@ -77,6 +79,20 @@ export function useVariable() {
   return useQuery({
     queryKey: ["variable"],
     queryFn: () => apiGet<Variable[]>(`/variable`),
+  });
+}
+
+export function useGeoVariable(geoLevel: GeoLevel) {
+  return useQuery({
+    queryKey: ["geo-variable", geoLevel],
+    queryFn: () => apiGet<Variable[]>(`/variable/${geoLevel}`),
+  });
+}
+
+export function useSql() {
+  return useQuery({
+    queryKey: ["sql"],
+    queryFn: () => apiGet<Sql[]>(`/sql`),
   });
 }
 
@@ -135,6 +151,29 @@ export function useCreateVariable() {
       apiPostAuthorized<Variable>("/variable", variable),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["variable"] });
+    },
+  });
+}
+
+export function useCreateSql() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sql: SqlBase) => apiPostAuthorized<Sql>("/sql", sql),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sql"] });
+    },
+  });
+}
+
+export function useTestSql(isDetailed: boolean = false) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sql: SqlBase) =>
+      apiPostAuthorized<Sql>(`/sql/test?detailed=${isDetailed}`, sql),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sql"] });
     },
   });
 }
@@ -242,6 +281,18 @@ export function useUpdateVariable() {
   });
 }
 
+export function useUpdateSql() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, sql }: { id: number; sql: SqlBase }) =>
+      apiPutAuthorized<Sql>(`/sql/${id}`, sql),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sql"] });
+    },
+  });
+}
+
 export function useDeleteVariable() {
   const qc = useQueryClient();
 
@@ -249,6 +300,17 @@ export function useDeleteVariable() {
     mutationFn: (id: number) => apiDeleteAuthorized<void>(`/variable/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["variable"] });
+    },
+  });
+}
+
+export function useDeleteSql() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/sql/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sql"] });
     },
   });
 }
@@ -297,8 +359,7 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPost<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${
-          geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
         mode === "viz" ? JSON.stringify(template) : template,
       ),
@@ -353,7 +414,7 @@ export function useACSMetadata(
         `/acs/${dataYear}/${acsVariable}`,
       );
       return {
-        acs_concept: data.concept ?? "",
+        concept: data.concept ?? "",
         description: data.label ?? "",
       };
     },

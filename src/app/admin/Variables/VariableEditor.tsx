@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import VariableModal from "./VariableModal";
 import DeleteModal from "../Components/DeleteModal";
-import BuildStatus from "./BuildStatus";
-import { Variable, VariableForm } from "@/types/types";
+import BuildStatus from "../Build/BuildStatus";
+import { GeoLevel, Variable, VariableForm } from "@/types/types";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/lib/hooks";
 
 export default function VariableManager() {
+  const [geoLevel, setGeoLevel] = useState<GeoLevel | "all">("all");
   const { data: variables, isLoading } = useVariable();
   const { mutate: createMutation, status: createStatus } = useCreateVariable();
   const { mutate: updateMutation, status: updateStatus } = useUpdateVariable();
@@ -31,25 +32,31 @@ export default function VariableManager() {
 
   const [editing, setEditing] = useState<Variable | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [sortBy, setSortBy] = useState<"name" | "category" | "data_source">(
+  const [sortBy, setSortBy] = useState<"name" | "concept" | "data_source">(
     "name",
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [geoFilter, setGeoFilter] = useState<GeoLevel | "all">("all");
 
-  const sortedVariables = [...(variables ?? [])].sort((a, b) => {
-    const aValue = a[sortBy]?.toString().toLowerCase() ?? "";
-    const bValue = b[sortBy]?.toString().toLowerCase() ?? "";
+  const sortedVariables = [...(variables ?? [])]
+    .filter((variable) => {
+      if (geoFilter === "all") return true;
+      return variable.geo_levels?.includes(geoFilter) ?? false;
+    })
+    .sort((a, b) => {
+      const aValue = a[sortBy]?.toString().toLowerCase() ?? "";
+      const bValue = b[sortBy]?.toString().toLowerCase() ?? "";
 
-    if (aValue < bValue) {
-      return sortDirection === "asc" ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return sortDirection === "asc" ? 1 : -1;
-    }
-    return 0;
-  });
+      if (aValue < bValue) {
+        return sortDirection === "asc" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
 
-  const handleSort = (key: "name" | "category" | "data_source") => {
+  const handleSort = (key: "name" | "concept" | "data_source") => {
     if (sortBy === key) {
       setSortDirection((direction) => (direction === "asc" ? "desc" : "asc"));
     } else {
@@ -93,13 +100,18 @@ export default function VariableManager() {
   return (
     <>
       <div className="p-4 overflow-auto h-full">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-4">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex gap-4 items-baseline">
             <h1 className="text-2xl font-semibold text-gray-800">Variables</h1>
             {(isLoading || changePending) && (
               <div>
                 <Loader2 className="animate-spin text-dvrpc-blue-3" size={32} />
               </div>
+            )}
+            {variables && (
+              <span>
+                {sortedVariables.length} of {variables.length} variables
+              </span>
             )}
           </div>
           <Button
@@ -112,8 +124,6 @@ export default function VariableManager() {
             <Plus size={18} /> Add ACS Variable
           </Button>
         </div>
-
-        <BuildStatus />
 
         <div className="overflow-x-auto max-w-full">
           <table className="min-w-[960px] w-full border-collapse text-sm">
@@ -133,13 +143,29 @@ export default function VariableManager() {
                   <button
                     type="button"
                     className="flex items-center gap-1"
-                    onClick={() => handleSort("category")}
+                    onClick={() => handleSort("concept")}
                   >
-                    Category
-                    {sortBy === "category" &&
+                    Concept
+                    {sortBy === "concept" &&
                       (sortDirection === "asc" ? "▲" : "▼")}
                   </button>
                 </th>
+                <th className="py-2 px-3">
+                  Geography
+                  <select
+                    className="p-1 border rounded bg-gray-50"
+                    value={geoFilter}
+                    onChange={(e) =>
+                      setGeoFilter(e.target.value as GeoLevel | "all")
+                    }
+                  >
+                    <option value="all">All</option>
+                    <option value="municipality">Municipality</option>
+                    <option value="county">County</option>
+                    <option value="region">Region</option>
+                  </select>
+                </th>
+
                 <th className="py-2 px-3">
                   <button
                     type="button"
@@ -152,8 +178,6 @@ export default function VariableManager() {
                   </button>
                 </th>
                 <th className="py-2 px-3">ACS Variable</th>
-                <th className="py-2 px-3">GIS Table</th>
-                <th className="py-2 px-3">Catalog Table</th>
                 <th className="py-2 px-3">Year</th>
                 <th className="py-2 px-3">Aggregateable</th>
                 <th className="py-2 px-3">Last Updated</th>
@@ -173,16 +197,17 @@ export default function VariableManager() {
                     className="border-b hover:bg-gray-50 transition"
                   >
                     <td className="py-2 px-3">{variable.name}</td>
-                    <td className="py-2 px-3">{variable.category}</td>
+                    <td className="py-2 px-3">{variable.concept}</td>
+                    <td className="py-2 px-3">
+                      {variable.geo_levels?.length == 3
+                        ? "all"
+                        : (variable.geo_levels?.join(", ") ?? "—")}
+                    </td>
                     <td className="py-2 px-3 uppercase">
                       {variable.data_source}
                     </td>
                     <td className="py-2 px-3">
                       {variable.acs_variable ?? "—"}
-                    </td>
-                    <td className="py-2 px-3">{variable.gis_table ?? "—"}</td>
-                    <td className="py-2 px-3">
-                      {variable.catalog_table ?? "—"}
                     </td>
 
                     <td className="py-2 px-3">{variable.data_year ?? "—"}</td>
@@ -235,6 +260,7 @@ export default function VariableManager() {
         open={deleteOpen}
         paragraphs={[
           `Are you sure you want to delete this variable: "${deleteTarget?.name}"?`,
+          'Deleting an ACS variable will delete for all geographies and remove it from any profiles that use it.',
         ]}
         onCancel={() => {
           setDeleteOpen(false);

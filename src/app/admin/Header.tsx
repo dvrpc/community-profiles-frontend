@@ -88,6 +88,19 @@ export default function Header(props: Props) {
     </li>
   );
 
+  const sqlTab = () => (
+    <li className="me-2">
+      <a
+        onClick={() => setCurrentTab("sql")}
+        className={`inline-block ${
+          currentTab == "sql" ? highlightTab : "border-b-2 border-transparent"
+        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+      >
+        SQL Editor
+      </a>
+    </li>
+  );
+
   if (!session) return <></>;
   return (
     <>
@@ -99,6 +112,7 @@ export default function Header(props: Props) {
             propertiesTab()}
           {sourceTab()}
           {variablesTab()}
+          {sqlTab()}
         </ul>
       </div>
 
