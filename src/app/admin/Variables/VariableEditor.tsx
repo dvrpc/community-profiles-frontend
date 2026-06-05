@@ -3,7 +3,7 @@ import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import VariableModal from "./VariableModal";
 import DeleteModal from "../Components/DeleteModal";
 import BuildStatus from "../Build/BuildStatus";
-import { Variable, VariableForm, GeoLevel } from "@/types/types";
+import { GeoLevel, Variable, VariableForm } from "@/types/types";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
 import {
@@ -36,23 +36,25 @@ export default function VariableManager() {
     "name",
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [geoFilter, setGeoFilter] = useState<GeoLevel | "all">("all");
 
-  const filteredVariables = (variables ?? []).filter((variable) =>
-    geoLevel === "all" || variable.geo_levels?.includes(geoLevel),
-  );
+  const sortedVariables = [...(variables ?? [])]
+    .filter((variable) => {
+      if (geoFilter === "all") return true;
+      return variable.geo_levels?.includes(geoFilter) ?? false;
+    })
+    .sort((a, b) => {
+      const aValue = a[sortBy]?.toString().toLowerCase() ?? "";
+      const bValue = b[sortBy]?.toString().toLowerCase() ?? "";
 
-  const sortedVariables = [...filteredVariables].sort((a, b) => {
-    const aValue = a[sortBy]?.toString().toLowerCase() ?? "";
-    const bValue = b[sortBy]?.toString().toLowerCase() ?? "";
-
-    if (aValue < bValue) {
-      return sortDirection === "asc" ? -1 : 1;
-    }
-    if (aValue > bValue) {
-      return sortDirection === "asc" ? 1 : -1;
-    }
-    return 0;
-  });
+      if (aValue < bValue) {
+        return sortDirection === "asc" ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
 
   const handleSort = (key: "name" | "concept" | "data_source") => {
     if (sortBy === key) {
@@ -98,8 +100,8 @@ export default function VariableManager() {
   return (
     <>
       <div className="p-4 overflow-auto h-full">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-4 items-center">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex gap-4 items-baseline">
             <h1 className="text-2xl font-semibold text-gray-800">Variables</h1>
             {(isLoading || changePending) && (
               <div>
@@ -108,7 +110,7 @@ export default function VariableManager() {
             )}
             {variables && (
               <span>
-                {filteredVariables.length} of {variables.length} variables
+                {sortedVariables.length} of {variables.length} variables
               </span>
             )}
           </div>
@@ -149,23 +151,21 @@ export default function VariableManager() {
                   </button>
                 </th>
                 <th className="py-2 px-3">
-                  <div className="flex flex-col gap-2">
-                    <span>Geography</span>
-                    <select
-                      value={geoLevel}
-                      onChange={(e) =>
-                        setGeoLevel(e.target.value as GeoLevel | "all")
-                      }
-                      className="max-w-[160px] rounded border border-dvrpc-gray-5 bg-white px-2 py-1 text-sm"
-                      aria-label="Filter by geography"
-                    >
-                      <option value="all">All</option>
-                      <option value="region">Region</option>
-                      <option value="county">County</option>
-                      <option value="municipality">Municipality</option>
-                    </select>
-                  </div>
+                  Geography
+                  <select
+                    className="p-1 border rounded bg-gray-50"
+                    value={geoFilter}
+                    onChange={(e) =>
+                      setGeoFilter(e.target.value as GeoLevel | "all")
+                    }
+                  >
+                    <option value="all">All</option>
+                    <option value="municipality">Municipality</option>
+                    <option value="county">County</option>
+                    <option value="region">Region</option>
+                  </select>
                 </th>
+
                 <th className="py-2 px-3">
                   <button
                     type="button"
@@ -198,7 +198,11 @@ export default function VariableManager() {
                   >
                     <td className="py-2 px-3">{variable.name}</td>
                     <td className="py-2 px-3">{variable.concept}</td>
-                    <td className="py-2 px-3">{variable.geo_levels?.length == 3 ? 'all' : variable.geo_levels?.join(", ") ?? "—"}</td>
+                    <td className="py-2 px-3">
+                      {variable.geo_levels?.length == 3
+                        ? "all"
+                        : (variable.geo_levels?.join(", ") ?? "—")}
+                    </td>
                     <td className="py-2 px-3 uppercase">
                       {variable.data_source}
                     </td>
