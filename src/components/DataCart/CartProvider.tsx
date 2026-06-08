@@ -3,14 +3,14 @@
 
 import React, { createContext, useContext, useState } from "react";
 
-type VarsByTopic = Record<number, any[]>;
+type VarsByTopic = Record<number, string[]>;
 
 const CartContext = createContext<{
   vizVars: VarsByTopic;
   cartVars: VarsByTopic;
-  setVizVars: (topicId: number, vars: any[]) => void;
-  getVizVars: (topicId: number) => any[];
-  addCartVars: (topicId: number, vars: any[]) => void;
+  setVizVars: (topicId: number, vars: string[]) => void;
+  getVizVars: (topicId: number) => string[];
+  addCartVars: (topicId: number, vars: string[]) => void;
   removeCartVars: (topicId: number) => void;
 } | null>(null);
 
@@ -23,7 +23,7 @@ export function CartProvider(props: Props) {
   const [vizVars, setVizVarsState] = useState<VarsByTopic>({});
   const [cartVars, setCartVars] = useState<VarsByTopic>({});
 
-  function setVizVars(topicId: number, vars: any[]) {
+  function setVizVars(topicId: number, vars: string[]) {
     setVizVarsState((v) => ({ ...v, [topicId]: vars }));
   }
 

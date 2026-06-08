@@ -59,7 +59,6 @@ export default function VariableModal(props: Props) {
           ? target.checked
           : value;
 
-    console.log("Updating form field", name, "to value", newValue);
     setForm({
       ...form,
       [name]: newValue,
