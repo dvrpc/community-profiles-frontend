@@ -351,7 +351,7 @@ export function usePreview(
   return useQuery({
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
-      apiPost<string | Visualization[]>(
+      apiPostAuthorized<string | Visualization[]>(
         `/${mode}/preview/${geoLevel}${
           geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
