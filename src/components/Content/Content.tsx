@@ -1,9 +1,8 @@
 import {
   CategoryKeyMap,
   CategoryKeys,
-  GeoLevel,
+  ProfileBundle,
   ProfileContent,
-  ProfileData,
 } from "@/types/types";
 import Category from "./Category";
 import CategoryNav from "../CategoryNav/CategoryNav";
@@ -14,14 +13,14 @@ import DataCartModal from "../DataCart/DataCartModal";
 
 interface Props {
   content: ProfileContent;
-  data: ProfileData;
-  geoLevel: GeoLevel;
 }
 
-export default async function Content(props: Props) {
-  const { content, data, geoLevel } = props;
+export default async function Content(props: Props & ProfileBundle) {
+  const { content, ...profileBundle } = props;
 
-  const treeResponse = await fetch(`${API_BASE_URL}/content/tree/${geoLevel}`);
+  const treeResponse = await fetch(
+    `${API_BASE_URL}/content/tree/${profileBundle.geoLevel}`,
+  );
   const categoryKeyMap = (await treeResponse.json()) as CategoryKeyMap;
 
   return (
@@ -36,13 +35,11 @@ export default async function Content(props: Props) {
                 key={category}
                 category={category}
                 categoryContent={value}
-                profileData={data}
-                geoLevel={geoLevel}
+                {...profileBundle}
               />
             );
           })}
           <DataCartModal />
-
         </div>
       </CartProvider>
     </ScrollProvider>

@@ -7,7 +7,6 @@ import {
 import {
   apiDeleteAuthorized,
   apiGet,
-  apiPost,
   apiPostAuthorized,
   apiPutAuthorized,
 } from "@/lib/api";
@@ -19,12 +18,10 @@ import {
   TopicPropertyForm,
   Source,
   SourceBase,
-  TopicBase,
   TopicRequest,
   Visualization,
   Viz,
   SubcategoryRequest,
-  Link,
   Variable,
   VariableBase,
   ACSVariableMetadata,
@@ -42,16 +39,11 @@ export function useTree(geoLevel: GeoLevel) {
   });
 }
 
-export function useProfile<T extends GeoLevel>(
-  geoLevel: T,
-  geoid?: string
-) {
+export function useProfile<T extends GeoLevel>(geoLevel: T, geoid?: string) {
   return useQuery<ProfileMap[T]>({
     queryKey: ["profile", geoLevel, geoid],
     queryFn: () =>
-      apiGet<ProfileMap[T]>(
-        `/profile/${geoLevel}${geoid ? `/${geoid}` : ""}`
-      ),
+      apiGet<ProfileMap[T]>(`/profile/${geoLevel}${geoid ? `/${geoid}` : ""}`),
     enabled: geoLevel === "region" || !!geoid,
   });
 }
@@ -364,12 +356,8 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPostAuthorized<string | Visualization[]>(
-<<<<<<< HEAD
         `/${mode}/preview/${geoLevel}${
           geoLevel !== "region" ? `?geoid=${geoid}` : ""
-=======
-        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
->>>>>>> 7674df1ecb49f2d1e0019d912942d60e9261df62
         }`,
         mode === "viz" ? JSON.stringify(template) : template,
       ),

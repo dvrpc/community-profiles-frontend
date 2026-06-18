@@ -11,12 +11,13 @@ export const ACCESS_TOKEN = process.env
   .NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL as string;
-export const PRODUCT_BASE_URL = 'https://apis.dvrpc.org/internal/dvrpc_products/products'
-export const PRODUCT_IMAGE_BASE_URL = 'https://www.dvrpc.org/asp/pubs/201px'
+export const PRODUCT_BASE_URL =
+  "https://apis.dvrpc.org/internal/dvrpc_products/products";
+export const PRODUCT_IMAGE_BASE_URL = "https://www.dvrpc.org/asp/pubs/201px";
 
 export const regionBounds = new LngLatBounds(
   { lng: -76.09405517578125, lat: 39.49211914385648 },
-  { lng: -74.32525634765625, lat: 40.614734298694216 }
+  { lng: -74.32525634765625, lat: 40.614734298694216 },
 );
 
 export const categoryTitleMap: Record<CategoryKeys, string> = {
@@ -1192,8 +1193,5 @@ export const municipalityInfoMap: MunicipalityInfoMap = {
       geoid: "4209184624",
       label: "Whitemarsh Township",
     },
-  },
-  philadelphia: {
-    "philadelphia-city": { geoid: "4210160000", label: "Philadelphia City" },
   },
 };

@@ -313,34 +313,28 @@ type Geography = {
 };
 
 type Profile<
-  HasGeography extends boolean = false,
   Parent = null,
-  Metrics extends Record<string, Metric> = Record<string, Metric>
+  Metrics extends Record<string, Metric> = Record<string, Metric>,
 > = Metrics & {
   parent?: Parent;
-} & (
-    HasGeography extends true
-    ? { geography: Geography }
-    : {}
-  );
+  geography: Geography;
+};
 
-export type RegionProfile = Profile<false>;
+export type RegionProfile = Profile<null>;
 
-export type CountyProfile = Profile<
-  true,
-  RegionProfile
->;
+export type CountyProfile = Profile<RegionProfile>;
 
-export type MunicipalityProfile = Profile<
-  true,
-  CountyProfile
->;
+export type MunicipalityProfile = Profile<CountyProfile>;
 
 export type ProfileMap = {
   region: RegionProfile;
   county: CountyProfile;
   municipality: MunicipalityProfile;
 };
+
+export type ProfileBundle = {
+  [K in GeoLevel]: { geoLevel: K; profileData: ProfileMap[K] };
+}[GeoLevel];
 
 export type GeoLevel = keyof ProfileMap;
 
