@@ -28,8 +28,8 @@ export default function Hero(props: Props) {
       <FadeMask viewPort={viewPort} />
       {geoLevel == 'region' ? <HeroMap viewPort={viewPort} /> : <HeroMap
         viewPort={viewPort}
-        buffer_box={profileData.buffer_bbox}
-        geoid={profileData.geoid}
+        buffer_box={profileData.geography.buffer_bbox}
+        geoid={profileData.geography.geoid}
         geoLevel={geoLevel}
       />}
     </div>
