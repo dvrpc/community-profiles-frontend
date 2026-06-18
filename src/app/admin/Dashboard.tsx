@@ -235,9 +235,9 @@ export default function Dashboard() {
       return (
         <VizPreview
           visualizations={preview as Visualization[]}
-          buffer_bbox={profile.buffer_bbox}
+          buffer_bbox={profile.geography.buffer_bbox}
           geoLevel={selectedGeoLevel}
-          geoid={profile.geoid}
+          geoid={profile.geography.geoid}
         />
       );
   }
@@ -348,7 +348,6 @@ export default function Dashboard() {
       )}
       {selectedMode == "sources" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
-
           <SourceEditor />
         </div>
       )}

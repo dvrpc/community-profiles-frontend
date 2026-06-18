@@ -1,4 +1,3 @@
-import { GeoLevel, ProfileData } from "@/types/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import EconomyIcon from "../Icons/EconomyIcon";
@@ -10,29 +9,27 @@ import TransitIcon from "../Icons/TransitIcon";
 import { displayNumber } from "@/utils";
 import SearchInput from "./SearchInput";
 import BackLink from "./BackLink";
+import { HeroProps } from "./Hero";
 
-type Props = {
-  title: string;
-  profileData: ProfileData;
-  geoLevel: GeoLevel;
-};
-
-export default function HeroLeftContent(props: Props) {
+export default function HeroLeftContent(props: HeroProps) {
   const { title, profileData, geoLevel } = props;
 
   return (
     <div className="w-1/3 z-10 pl-16 pt-8 flex flex-col">
       {geoLevel != "region" && (
         <BackLink
-          parentCounty={geoLevel == "municipality" ? profileData.county : ""}
+          parentCounty={
+            geoLevel == "municipality" ? profileData.geography.name : ""
+          }
         />
       )}
       <h1 className="text-5xl text-dvrpc-blue-1 font-bold mb-4 mt-4">
         {title}
       </h1>
-      {geoLevel != "municipality" && profileData.geoid != "42101" && (
-        <SearchInput />
-      )}
+      {geoLevel != "municipality" &&
+        !(geoLevel == "county" && profileData.geography.geoid == "42101") && (
+          <SearchInput />
+        )}
       {profileData && (
         <div className="grid grid-cols-2 auto-rows-fr flex-1 mt-8">
           <div className="flex">
@@ -43,7 +40,7 @@ export default function HeroLeftContent(props: Props) {
             <div>
               <span className="font-bold">Population</span>
               <br />
-              <span>{displayNumber(profileData.total_pop)}</span>
+              <span>{displayNumber(profileData.total_pop?.value)}</span>
             </div>
           </div>
           <div className="flex">
@@ -51,9 +48,10 @@ export default function HeroLeftContent(props: Props) {
             <div>
               <span className="font-bold">Median Household Income</span>
               <br />
-              <span>${displayNumber(profileData.median_hh_inc)}</span>
+              <span>${displayNumber(profileData.median_hh_inc?.value)}</span>
               <span className="text-dvrpc-gray-3 text-sm">
-                &nbsp;&plusmn;{displayNumber(profileData.median_hh_inc_moe)}
+                &nbsp;&plusmn;
+                {displayNumber(profileData.median_hh_inc?.moe)}
               </span>
             </div>
           </div>
@@ -65,7 +63,7 @@ export default function HeroLeftContent(props: Props) {
             <div>
               <span className="font-bold">Miles of Trails</span>
               <br />
-              <span>{displayNumber(profileData.existing_trail_mi)}</span>
+              <span>{displayNumber(profileData.existing_trail_mi?.value)}</span>
             </div>
           </div>
           <div className="flex">
@@ -81,7 +79,9 @@ export default function HeroLeftContent(props: Props) {
             <div>
               <span className="font-bold">Freight Centers</span>
               <br />
-              <span>{displayNumber(profileData.unique_freight_centers)}</span>
+              <span>
+                {displayNumber(profileData.unique_freight_centers?.value)}
+              </span>
             </div>
           </div>
           <div className="flex">
@@ -97,7 +97,9 @@ export default function HeroLeftContent(props: Props) {
             <div>
               <span className="font-bold">Rail Stations</span>
               <br />
-              <span>{displayNumber(profileData.passenger_rail_stations)}</span>
+              <span>
+                {displayNumber(profileData.passenger_rail_stations?.value)}
+              </span>
             </div>
           </div>
           <div className="flex">

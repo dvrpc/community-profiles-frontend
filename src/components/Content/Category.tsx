@@ -1,23 +1,18 @@
 import { categoryTitleMap } from "@/consts";
-import {
-  CategoryContent,
-  CategoryKeys,
-  GeoLevel,
-  ProfileData,
-} from "@/types/types";
+import { CategoryContent, CategoryKeys, ProfileBundle } from "@/types/types";
 import Subcategory from "./Subcategory";
 import Title from "./Title";
 
 interface Props {
   category: CategoryKeys;
   categoryContent: CategoryContent;
-  profileData: ProfileData;
-  geoLevel: GeoLevel;
 }
 
-export default function Category(props: Props) {
-  const { category, categoryContent, profileData, geoLevel } = props;
+export default function Category(props: Props & ProfileBundle) {
+  const { category, categoryContent, ...profileBundle } = props;
 
+  const geoLevel = profileBundle.geoLevel;
+  const profileData = profileBundle.profileData;
   return (
     <div className="p-16">
       <Title
@@ -32,15 +27,15 @@ export default function Category(props: Props) {
       ></div>
 
       <div>
-        {categoryContent.subcategories.map(subcat => (
+        {categoryContent.subcategories.map((subcat) => (
           <Subcategory
             key={subcat.id}
             subcategory={subcat.name}
             label={subcat.label}
             topics={subcat.topics}
             category={category}
-            geoid={profileData.geoid}
-            buffer_bbox={profileData.buffer_bbox}
+            geoid={profileData.geography.geoid}
+            buffer_bbox={profileData.geography.geoid}
             geoLevel={geoLevel}
           />
         ))}

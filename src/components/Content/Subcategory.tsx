@@ -1,6 +1,6 @@
 import { CategoryKeys, GeoLevel, TopicContent } from "@/types/types";
 import Topic from "./Topic";
-import { displaySubcategoryTopicTitle, isValidUrl } from "@/utils";
+import { isValidUrl } from "@/utils";
 import Title from "./Title";
 
 interface Props {
@@ -14,17 +14,17 @@ interface Props {
 }
 
 function getUrls(urlString: string) {
-  if (urlString === "") return undefined
+  if (urlString === "") return undefined;
 
-  const validUrls: string[] = []
-  const urls = urlString.split(",")
-  urls.forEach(u => {
+  const validUrls: string[] = [];
+  const urls = urlString.split(",");
+  urls.forEach((u) => {
     if (isValidUrl(u)) {
-      validUrls.push(u)
+      validUrls.push(u);
     }
-  })
-  if (validUrls.length == 0) return undefined
-  return validUrls
+  });
+  if (validUrls.length == 0) return undefined;
+  return validUrls;
 }
 
 export default function Subcategory(props: Props) {

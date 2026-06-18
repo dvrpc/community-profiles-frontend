@@ -1,13 +1,12 @@
 import { LngLatBounds } from "mapbox-gl";
 import { countyInfoMap, municipalityInfoMap } from "./consts";
 
-
 export const titleCase = (str: string) =>
   str.replace(/-/g, " ").replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 
 export function getCountyFromGeoid(geoid: string) {
   const county = Object.entries(countyInfoMap).find(
-    (c) => c[1].geoid == parseInt(geoid)
+    (c) => c[1].geoid == parseInt(geoid),
   )?.[0];
 
   if (county) {
@@ -19,13 +18,13 @@ export function getCountyFromGeoid(geoid: string) {
 export function getMunicipalitySlugFromGeoid(county: string, geoid: string) {
   const countyMunicipaliies = municipalityInfoMap[county];
   const municipality = Object.entries(countyMunicipaliies).find(
-    (m) => m[1].geoid == geoid
+    (m) => m[1].geoid == geoid,
   )?.[0];
   return municipality ? municipality : "";
 }
 
-export function displayNumber(num: number) {
-  if (!num) return 0
+export function displayNumber(num: number | null) {
+  if (!num) return "N/A";
   return num.toLocaleString("en-US", {
     maximumFractionDigits: 1,
   });
@@ -72,11 +71,14 @@ export function getAllCountyMunicipalityPairs() {
 }
 
 export function isValidUrl(url: string) {
-  const pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-    '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+  const pattern = new RegExp(
+    "^(https?:\\/\\/)?" + // protocol
+      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
+      "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
+      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
+      "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
+      "(\\#[-a-z\\d_]*)?$",
+    "i",
+  ); // fragment locator
   return pattern.test(url);
 }

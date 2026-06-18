@@ -21,7 +21,7 @@ interface Props {
 export default function Visualizations(props: Props) {
   const [visualizations, setVisualizations] = useState<Visualization[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const { id, category, subcategory, topic, geoLevel, geoid, buffer_bbox } = props;
+  const { id, geoLevel, geoid, buffer_bbox } = props;
   const { setVizVars } = useCartVizVars();
   const { ref, inView } = useInView({
     threshold: 0,
@@ -31,22 +31,22 @@ export default function Visualizations(props: Props) {
     if (isLoaded || !inView) return;
 
     const fetchVisualizations = async () => {
-      let url = `${API_BASE_URL}/viz/${id}/${geoLevel}`
+      let url = `${API_BASE_URL}/viz/${id}/${geoLevel}`;
 
-      if (geoLevel != 'region') {
-        url += `/${geoid}`
+      if (geoLevel != "region") {
+        url += `/${geoid}`;
       }
       const vizResponse = await fetch(url);
       const data = (await vizResponse.json()) as Visualization[];
 
-      const variables: string[] = []
-      data.forEach(viz => {
-        if (viz.type == 'chart') {
-          variables.push(...viz.variables)
-          viz.variables
+      const variables: string[] = [];
+      data.forEach((viz) => {
+        if (viz.type == "chart") {
+          variables.push(...viz.variables);
+          viz.variables;
         }
-      })
-      setVizVars(id, variables)
+      });
+      setVizVars(id, variables);
       setVisualizations(data);
       setIsLoaded(true);
     };
