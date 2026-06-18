@@ -5,10 +5,7 @@ import { Sql, SqlForm, Variable, VariableForm } from "@/types/types";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
 import {
-  useCreateVariable,
-  useUpdateVariable,
-  useDeleteVariable,
-  useVariable,
+
   useCreateSql,
   useUpdateSql,
   useDeleteSql,

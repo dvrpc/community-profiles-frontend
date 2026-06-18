@@ -16,7 +16,6 @@ import {
   Content,
   GeoLevel,
   ProductResponse,
-  ProfileData,
   TopicPropertyForm,
   Source,
   SourceBase,
@@ -32,6 +31,7 @@ import {
   BuildStatus,
   SqlBase,
   Sql,
+  ProfileMap,
 } from "@/types/types";
 import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 
@@ -42,12 +42,17 @@ export function useTree(geoLevel: GeoLevel) {
   });
 }
 
-export function useProfile(geoLevel: GeoLevel, geoid?: string) {
-  return useQuery({
+export function useProfile<T extends GeoLevel>(
+  geoLevel: T,
+  geoid?: string
+) {
+  return useQuery<ProfileMap[T]>({
     queryKey: ["profile", geoLevel, geoid],
     queryFn: () =>
-      apiGet<ProfileData>(`/profile/${geoLevel}${geoid ? `/${geoid}` : ""}`),
-    enabled: !!geoid,
+      apiGet<ProfileMap[T]>(
+        `/profile/${geoLevel}${geoid ? `/${geoid}` : ""}`
+      ),
+    enabled: geoLevel === "region" || !!geoid,
   });
 }
 
@@ -79,6 +84,13 @@ export function useVariable() {
   return useQuery({
     queryKey: ["variable"],
     queryFn: () => apiGet<Variable[]>(`/variable`),
+  });
+}
+
+export function useGeoVariable(geoLevel: GeoLevel) {
+  return useQuery({
+    queryKey: ["geo-variable", geoLevel],
+    queryFn: () => apiGet<Variable[]>(`/variable/${geoLevel}`),
   });
 }
 
@@ -352,8 +364,12 @@ export function usePreview(
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPostAuthorized<string | Visualization[]>(
+<<<<<<< HEAD
         `/${mode}/preview/${geoLevel}${
           geoLevel !== "region" ? `?geoid=${geoid}` : ""
+=======
+        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
+>>>>>>> 7674df1ecb49f2d1e0019d912942d60e9261df62
         }`,
         mode === "viz" ? JSON.stringify(template) : template,
       ),

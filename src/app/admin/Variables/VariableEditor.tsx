@@ -14,6 +14,7 @@ import {
 } from "@/lib/hooks";
 
 export default function VariableManager() {
+  const [geoLevel, setGeoLevel] = useState<GeoLevel | "all">("all");
   const { data: variables, isLoading } = useVariable();
   const { mutate: createMutation, status: createStatus } = useCreateVariable();
   const { mutate: updateMutation, status: updateStatus } = useUpdateVariable();
@@ -259,6 +260,7 @@ export default function VariableManager() {
         open={deleteOpen}
         paragraphs={[
           `Are you sure you want to delete this variable: "${deleteTarget?.name}"?`,
+          'Deleting an ACS variable will delete for all geographies and remove it from any profiles that use it.',
         ]}
         onCancel={() => {
           setDeleteOpen(false);

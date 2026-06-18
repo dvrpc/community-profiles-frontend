@@ -39,8 +39,8 @@ export default function Category(props: Props) {
             label={subcat.label}
             topics={subcat.topics}
             category={category}
-            geoid={profileData.geoid}
-            buffer_bbox={profileData.buffer_bbox}
+            geoid={profileData.geography.geoid}
+            buffer_bbox={profileData.geography.geoid}
             geoLevel={geoLevel}
           />
         ))}
