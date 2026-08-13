@@ -35,7 +35,7 @@ export default function Category(props: Props & ProfileBundle) {
             topics={subcat.topics}
             category={category}
             geoid={profileData.geography.geoid}
-            buffer_bbox={profileData.geography.geoid}
+            buffer_bbox={profileData.geography.buffer_bbox}
             geoLevel={geoLevel}
           />
         ))}
