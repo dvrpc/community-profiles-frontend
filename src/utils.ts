@@ -32,7 +32,6 @@ export function displayNumber(num: number | null) {
 
 export function parseBounds(buffer_box: string) {
   const allCoords = buffer_box.substring(9, buffer_box.length - 1).split(",");
-  console.log(buffer_box);
   const sw = allCoords[0].split(" ").map(Number);
   const ne = allCoords[2].split(" ").map(Number);
 
