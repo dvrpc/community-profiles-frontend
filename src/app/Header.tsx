@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { Search } from "lucide-react";
 
-export default function Header() {
+export default async function Header() {
   return (
     <header className="bg-linear-to-b from-dvrpc-blue-1 to-dvrpc-blue-3 h-43 content-center">
       <div className="flex justify-between max-w px-16">
