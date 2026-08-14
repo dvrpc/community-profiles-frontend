@@ -1,14 +1,15 @@
 import { JsonEditor } from "json-edit-react";
+import { Visualization } from "@/types/types";
 
 interface Props {
-  visualizations: string;
-  handleChange: (value: string) => void;
+  visualizations: Visualization[];
+  handleChange: (value: Visualization[]) => void;
 }
 export default function VizEditor(props: Props) {
   const { visualizations, handleChange } = props;
 
   const onChange = (data: unknown) => {
-    handleChange(data as string);
+    handleChange(data as Visualization[]);
   };
 
   return (
