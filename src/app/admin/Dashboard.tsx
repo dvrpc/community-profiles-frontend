@@ -80,6 +80,7 @@ export default function Dashboard() {
   const [hasEdits, setHasEdits] = useState(false);
 
   const [pendingId, setPendingId] = useState<number | null>(null);
+  const [pendingMode, setPendingMode] = useState<Mode | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   const geoid = defaultGeoid[selectedGeoLevel];
@@ -139,14 +140,24 @@ export default function Dashboard() {
       handleSaveClick();
     }
 
-    if (!pendingId) {
-      throw new Error("No pending topic id...");
+    if (pendingId) {
+      setSelectedId(pendingId);
+      setModalOpen(false);
+      setHasEdits(false);
+      setPendingId(null);
+      return;
     }
 
-    setSelectedId(pendingId);
-    setModalOpen(false);
-    setHasEdits(false);
-    setPendingId(null);
+    if (pendingMode) {
+      setSelectedMode(pendingMode);
+      setModalOpen(false);
+      setHasEdits(false);
+      setPendingMode(null);
+      setEditText("");
+      return;
+    }
+
+    throw new Error("No pending change to continue...");
   }
 
   function handleSaveClick() {
@@ -182,6 +193,13 @@ export default function Dashboard() {
   }
 
   function handleModeChange(mode: Mode) {
+    console.log(hasEdits, mode, selectedMode);
+    if (hasEdits && mode !== selectedMode) {
+      setPendingMode(mode);
+      setModalOpen(true);
+      return;
+    }
+
     setEditText("");
     setSelectedMode(mode);
   }

@@ -17,9 +17,7 @@ export default function Header() {
           <a className="px-4 border-r-2 border-r-dvrpc-blue-4">
             DVRPC Products
           </a>
-
           <a className="px-4 border-r-2 border-r-dvrpc-blue-4">Data Center</a>
-
           <a className="px-4">Long-Range Plan</a>
           <div className="text-dvrpc-blue-3 bg-white w-8 h-8 rounded-2xl flex justify-center items-center text-base">
             <Search />
