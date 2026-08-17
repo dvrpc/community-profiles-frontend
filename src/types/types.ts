@@ -238,7 +238,6 @@ export interface VariableBase {
   data_source: "acs" | "ckan" | "gis";
   aggregateable?: boolean;
   acs_variable?: string;
-  data_year?: number;
   description?: string;
   concept?: string;
   geo_levels?: GeoLevel[];
@@ -267,6 +266,12 @@ export interface Link {
   id: number;
   link: string;
   type: "catalog" | "census" | "other";
+}
+
+export interface AppMetadata {
+  key: string;
+  value: unknown;
+  description?: string;
 }
 
 export type ProductResponse = {

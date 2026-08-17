@@ -11,11 +11,13 @@ import {
   useUpdateVariable,
   useDeleteVariable,
   useVariable,
+  useAppMetadata,
 } from "@/lib/hooks";
 
 export default function VariableManager() {
   const [geoLevel, setGeoLevel] = useState<GeoLevel | "all">("all");
   const { data: variables, isLoading } = useVariable();
+  const { data: appMetadata } = useAppMetadata();
   const { mutate: createMutation, status: createStatus } = useCreateVariable();
   const { mutate: updateMutation, status: updateStatus } = useUpdateVariable();
   const { mutate: deleteMutation, status: deleteStatus } = useDeleteVariable();
@@ -37,6 +39,19 @@ export default function VariableManager() {
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [geoFilter, setGeoFilter] = useState<GeoLevel | "all">("all");
+
+  //TODO: explicit typing for appMetadata values
+  const acsYear = appMetadata?.find((m) => m.key === "acs_year")
+    ?.value as number | undefined;
+  const acsLastUpdated = appMetadata?.find(
+    (m) => m.key === "acs_last_updated",
+  )?.value as string | undefined;
+  const gisLastUpdated = appMetadata?.find(
+    (m) => m.key === "gis_last_updated",
+  )?.value as string | undefined;
+  const ckanLastUpdated = appMetadata?.find(
+    (m) => m.key === "ckan_last_updated",
+  )?.value as string | undefined;
 
   const sortedVariables = [...(variables ?? [])]
     .filter((variable) => {
@@ -125,6 +140,21 @@ export default function VariableManager() {
           </Button>
         </div>
 
+        {appMetadata && (
+          <div className="flex gap-6 text-sm text-dvrpc-gray-2 mb-4">
+            {acsYear && <span>ACS Year: <span className="font-medium text-gray-800">{acsYear}</span></span>}
+            {acsLastUpdated && (
+              <span>ACS Updated: <span className="font-medium text-gray-800">{new Date(acsLastUpdated).toLocaleDateString()}</span></span>
+            )}
+            {gisLastUpdated && (
+              <span>GIS Updated: <span className="font-medium text-gray-800">{new Date(gisLastUpdated).toLocaleDateString()}</span></span>
+            )}
+            {ckanLastUpdated && (
+              <span>CKAN Updated: <span className="font-medium text-gray-800">{new Date(ckanLastUpdated).toLocaleDateString()}</span></span>
+            )}
+          </div>
+        )}
+
         <div className="overflow-x-auto max-w-full">
           <table className="min-w-[960px] w-full border-collapse text-sm">
             <thead>
@@ -178,7 +208,6 @@ export default function VariableManager() {
                   </button>
                 </th>
                 <th className="py-2 px-3">ACS Variable</th>
-                <th className="py-2 px-3">Year</th>
                 <th className="py-2 px-3">Aggregateable</th>
                 <th className="py-2 px-3">Last Updated</th>
 
@@ -209,8 +238,6 @@ export default function VariableManager() {
                     <td className="py-2 px-3">
                       {variable.acs_variable ?? "—"}
                     </td>
-
-                    <td className="py-2 px-3">{variable.data_year ?? "—"}</td>
                     <td className="py-2 px-3">
                       {variable.aggregateable !== undefined
                         ? variable.aggregateable

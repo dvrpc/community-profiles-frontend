@@ -2,11 +2,7 @@
 import { useState } from "react";
 import { Loader2, Hammer } from "lucide-react";
 import Button from "@/components/Buttons/Button";
-import {
-  useBuildStatus,
-  useLatestAcsYear,
-  useTriggerBuild,
-} from "@/lib/hooks";
+import { useBuildStatus, useTriggerBuild } from "@/lib/hooks";
 
 const buildCategories = ["acs", "gis", "ckan", "all"] as const;
 type BuildCategory = (typeof buildCategories)[number];
@@ -17,25 +13,15 @@ export default function BuildStatus() {
   const [pendingCategory, setPendingCategory] = useState<BuildCategory | null>(
     null,
   );
-  const needsAcsYear =
-    pendingCategory === "acs" || pendingCategory === "all";
-  const {
-    data: latestAcsYear,
-    isLoading: isLoadingAcsYear,
-    isError: hasAcsYearError,
-  } = useLatestAcsYear(needsAcsYear);
 
   const isBuilding = status?.is_building ?? false;
   const closeConfirmation = () => setPendingCategory(null);
 
   function confirmBuild() {
-    if (!pendingCategory || (needsAcsYear && !latestAcsYear)) return;
+    if (!pendingCategory) return;
 
     triggerBuild(
-      {
-        category: pendingCategory,
-        acsYear: needsAcsYear ? latestAcsYear : undefined,
-      },
+      { category: pendingCategory },
       { onSuccess: closeConfirmation },
     );
   }
@@ -89,20 +75,13 @@ export default function BuildStatus() {
             >
               Start {pendingCategory.toUpperCase()} build?
             </h2>
-            {needsAcsYear && (
-              <p className="mb-6 text-gray-700">
-                {isLoadingAcsYear && "Finding the latest ACS year…"}
-                {latestAcsYear && `Latest ACS year: ${latestAcsYear}`}
-                {hasAcsYearError && "Unable to find the latest ACS year."}
-              </p>
-            )}
 
             <div className="flex justify-end gap-3">
               <Button handleClick={closeConfirmation} type="secondary">
                 Cancel
               </Button>
               <Button
-                disabled={isPending || (needsAcsYear && !latestAcsYear)}
+                disabled={isPending}
                 handleClick={confirmBuild}
                 type="primary"
               >

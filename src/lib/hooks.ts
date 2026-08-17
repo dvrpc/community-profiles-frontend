@@ -7,6 +7,7 @@ import {
 import {
   apiDeleteAuthorized,
   apiGet,
+  apiGetAuthorized,
   apiPostAuthorized,
   apiPutAuthorized,
 } from "@/lib/api";
@@ -25,6 +26,7 @@ import {
   Variable,
   VariableBase,
   ACSVariableMetadata,
+  AppMetadata,
   BuildStatus,
   SqlBase,
   Sql,
@@ -431,12 +433,11 @@ export function useBuildStatus() {
   });
 }
 
-export function useLatestAcsYear(enabled: boolean) {
+export function useAppMetadata() {
   return useQuery({
-    queryKey: ["latest-acs5-year"],
-    enabled,
+    queryKey: ["app-metadata"],
+    queryFn: () => apiGetAuthorized<AppMetadata[]>("/app-metadata"),
     staleTime: Infinity,
-    queryFn: () => apiGet<number>("/acs/latest-year"),
   });
 }
 
@@ -445,17 +446,12 @@ export function useTriggerBuild() {
   return useMutation({
     mutationFn: ({
       category,
-      acsYear,
     }: {
       category: "acs" | "gis" | "ckan" | "all";
-      acsYear?: number;
-    }) =>
-      apiPostAuthorized(
-        `/build/${category}`,
-        acsYear ? { acs_year: acsYear } : undefined,
-      ),
+    }) => apiPostAuthorized(`/build/${category}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["build-status"] });
+      queryClient.invalidateQueries({ queryKey: ["app-metadata"] });
     },
   });
 }

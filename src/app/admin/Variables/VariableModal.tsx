@@ -1,5 +1,5 @@
 import Button from "@/components/Buttons/Button";
-import { useACSMetadata } from "@/lib/hooks";
+import { useACSMetadata, useAppMetadata } from "@/lib/hooks";
 import { categoryTitleMap, CATEGORIES } from "@/consts";
 import { Variable, VariableForm } from "@/types/types";
 import { useEffect, useState } from "react";
@@ -14,7 +14,6 @@ const emptyForm: VariableForm = {
   name: "",
   data_source: "acs",
   acs_variable: "",
-  data_year: undefined,
   description: "",
   concept: "",
   aggregateable: true,
@@ -29,6 +28,10 @@ export default function VariableModal(props: Props) {
 
   const [error, setError] = useState<string>("");
 
+  const { data: appMetadata } = useAppMetadata();
+  const acsYear = appMetadata?.find((m) => m.key === "acs_year")
+    ?.value as number | undefined;
+
   useEffect(() => {
     setForm(initialData ? initialData : emptyForm);
     setLookupVariable(initialData?.acs_variable ?? "");
@@ -38,7 +41,7 @@ export default function VariableModal(props: Props) {
     data: acsMetadata,
     isLoading: fetchingACS,
     isError: acsError,
-  } = useACSMetadata(lookupVariable, form.data_year);
+  } = useACSMetadata(lookupVariable, acsYear);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -51,18 +54,14 @@ export default function VariableModal(props: Props) {
       | HTMLSelectElement;
     const { name, value } = target;
     const newValue =
-      name === "data_year"
-        ? value
-          ? parseInt(value)
-          : undefined
-        : name === "aggregateable" && target instanceof HTMLInputElement
-          ? target.checked
-          : value;
+      name === "aggregateable" && target instanceof HTMLInputElement
+        ? target.checked
+        : value;
 
     setForm({
       ...form,
       [name]: newValue,
-      ...(name === "acs_variable" || name === "data_year"
+      ...(name === "acs_variable"
         ? { concept: "", description: "" }
         : {}),
       ...(name === "aggregateable" && !newValue
@@ -83,10 +82,6 @@ export default function VariableModal(props: Props) {
 
     if (!form.acs_variable) {
       setError("Acs variable is required");
-      return;
-    }
-    if (!form.data_year) {
-      setError("Data year is required");
       return;
     }
 
@@ -137,39 +132,24 @@ export default function VariableModal(props: Props) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block font-medium mb-1">
-                ACS Variable <span className="text-red-600">*</span>
-              </label>
-              <input
-                name="acs_variable"
-                value={form.acs_variable ?? ""}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-2"
-              />
-              {form.acs_variable &&
-                form.data_year &&
-                !fetchingACS &&
-                acsError && (
-                  <p className="text-red-600 text-sm mt-1">
-                    Invalid ACS variable for the selected year.
-                  </p>
-                )}
-            </div>
-            <div>
-              <label className="block font-medium mb-1">
-                Data Year <span className="text-red-600">*</span>
-              </label>
-              <input
-                name="data_year"
-                required
-                type="number"
-                value={form.data_year ?? ""}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-2"
-              />
-            </div>
+          <div>
+            <label className="block font-medium mb-1">
+              ACS Variable <span className="text-red-600">*</span>
+            </label>
+            <input
+              name="acs_variable"
+              value={form.acs_variable ?? ""}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2"
+            />
+            {form.acs_variable &&
+              acsYear &&
+              !fetchingACS &&
+              acsError && (
+                <p className="text-red-600 text-sm mt-1">
+                  Invalid ACS variable for the {acsYear} ACS 5-year dataset.
+                </p>
+              )}
           </div>
           <div>
             <div className="flex gap-2">
