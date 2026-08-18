@@ -19,11 +19,10 @@ export default function Header(props: Props) {
     <li className="me-2">
       <a
         onClick={() => setCurrentTab("content")}
-        className={`inline-block ${
-          currentTab == "content"
-            ? highlightTab
-            : "border-b-2 border-transparent"
-        } p-4  rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+        className={`inline-block ${currentTab == "content"
+          ? highlightTab
+          : "border-b-2 border-transparent"
+          } p-4  rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
       >
         Content
       </a>
@@ -34,9 +33,8 @@ export default function Header(props: Props) {
     <li className="me-2">
       <a
         onClick={() => setCurrentTab("viz")}
-        className={`inline-block ${
-          currentTab == "viz" ? highlightTab : "border-b-2 border-transparent"
-        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+        className={`inline-block ${currentTab == "viz" ? highlightTab : "border-b-2 border-transparent"
+          } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
       >
         Visualizations
       </a>
@@ -47,11 +45,10 @@ export default function Header(props: Props) {
     <li className="me-2">
       <a
         onClick={() => setCurrentTab("properties")}
-        className={`inline-block ${
-          currentTab == "properties"
-            ? highlightTab
-            : "border-b-2 border-transparent"
-        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+        className={`inline-block ${currentTab == "properties"
+          ? highlightTab
+          : "border-b-2 border-transparent"
+          } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
       >
         Properties
       </a>
@@ -62,11 +59,10 @@ export default function Header(props: Props) {
     <li className="me-2">
       <a
         onClick={() => setCurrentTab("sources")}
-        className={`inline-block ${
-          currentTab == "sources"
-            ? highlightTab
-            : "border-b-2 border-transparent"
-        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+        className={`inline-block ${currentTab == "sources"
+          ? highlightTab
+          : "border-b-2 border-transparent"
+          } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
       >
         Source Editor
       </a>
@@ -77,11 +73,10 @@ export default function Header(props: Props) {
     <li className="me-2">
       <a
         onClick={() => setCurrentTab("variables")}
-        className={`inline-block ${
-          currentTab == "variables"
-            ? highlightTab
-            : "border-b-2 border-transparent"
-        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+        className={`inline-block ${currentTab == "variables"
+          ? highlightTab
+          : "border-b-2 border-transparent"
+          } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
       >
         Variables
       </a>
@@ -92,9 +87,8 @@ export default function Header(props: Props) {
     <li className="me-2">
       <a
         onClick={() => setCurrentTab("sql")}
-        className={`inline-block ${
-          currentTab == "sql" ? highlightTab : "border-b-2 border-transparent"
-        } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
+        className={`inline-block ${currentTab == "sql" ? highlightTab : "border-b-2 border-transparent"
+          } p-4 rounded-t-lg hover:text-gray-600 hover:border-dvrpc-gray-6`}
       >
         SQL Editor
       </a>
@@ -117,10 +111,6 @@ export default function Header(props: Props) {
       </div>
 
       <div className="flex items-center gap-2 pr-4">
-        <Button handleClick={() => signOut()} type="primary">
-          Refresh Session
-        </Button>
-
         <img
           src={session.user.image}
           alt="User Avatar"

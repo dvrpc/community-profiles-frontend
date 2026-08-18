@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "@/consts";
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 
 async function authorizedRequest<T>(
   path: string,
@@ -17,6 +17,13 @@ async function authorizedRequest<T>(
     ...options,
     headers,
   });
+
+  if (res.status === 401) {
+    if (typeof window !== "undefined") {
+      await signOut({ callbackUrl: window.location.href });
+    }
+    throw new Error("Unauthorized");
+  }
 
   if (!res.ok) {
     const message = await res.text();
