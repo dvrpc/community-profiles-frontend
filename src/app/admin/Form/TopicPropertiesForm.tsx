@@ -14,7 +14,7 @@ interface Props {
   handleSave: (
     id: number,
     topic_id: number,
-    payload: Partial<TopicPropertyForm>
+    payload: Partial<TopicPropertyForm>,
   ) => void;
 }
 
@@ -24,11 +24,11 @@ const mapIdsToOptions = <
     citation?: string;
     title?: string;
     link?: string;
-  }
+  },
 >(
   ids: number[] | string[],
   list: T[],
-  labelKey: "citation" | "title" | "link"
+  labelKey: "citation" | "title" | "link",
 ): SelectOption[] => {
   return ids
     .map((id) => {
@@ -41,7 +41,7 @@ const mapIdsToOptions = <
 
 const getCitationString = (
   selectedSources: SelectOption[],
-  sources: Source[]
+  sources: Source[],
 ) => {
   const selectedIds = new Set(selectedSources.map((s) => s.value));
   const filtered = sources.filter((s) => selectedIds.has(s.id));
@@ -74,16 +74,18 @@ export default function TopicPropertiesForm(props: Props) {
     SelectOption[]
   >(selectedContentSourcesOptions ?? []);
   const [selectedVizSources, setSelectedVizSources] = useState<SelectOption[]>(
-    selectedVizSourcesOptions ?? []
+    selectedVizSourcesOptions ?? [],
   );
   const [selectedProducts, setSelectedProducts] = useState<SelectOption[]>(
-    selectedProductsOptions ?? []
+    selectedProductsOptions ?? [],
   );
 
   const [isVisible, setIsVisible] = useState(initialData.is_visible ?? true);
 
   const [label, setLabel] = useState(initialData.label ?? "");
-  const [catalogLinks, setCatalogLinks] = useState(initialData.catalog_link ?? "");
+  const [catalogLinks, setCatalogLinks] = useState(
+    initialData.catalog_link ?? "",
+  );
   const [censusLinks, setCensusLinks] = useState(initialData.census_link ?? "");
   const [otherLinks, setOtherLinks] = useState(initialData.other_link ?? "");
   const [sortWeight, setSortWeight] = useState(initialData.sort_weight ?? 0);

@@ -87,9 +87,7 @@ export default function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const geoid =
-    selectedGeoLevel === "region"
-      ? undefined
-      : defaultGeoids[selectedGeoLevel];
+    selectedGeoLevel === "region" ? undefined : defaultGeoids[selectedGeoLevel];
   const { data: session } = useSession();
   const { data: tree } = useTree(selectedGeoLevel);
   const { data: profile } = useProfile(selectedGeoLevel, geoid);
@@ -232,7 +230,6 @@ export default function Dashboard() {
     topicId: number,
     payload: Partial<TopicPropertyForm>,
   ) {
-
     const { label, sort_weight, ...rest } = payload;
 
     if (label !== undefined || sort_weight !== undefined) {
