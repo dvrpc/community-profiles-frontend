@@ -80,6 +80,7 @@ export default function Dashboard() {
   const [selectedTreeLevel, setSelectedTreeLevel] = useState<TreeLevel>("");
   const [contentText, setContentText] = useState<string>("");
   const [vizData, setVizData] = useState<Visualization[] | null>(null);
+  const [vizSourceIds, setVizSourceIds] = useState<number[]>([]);
 
   const [hasEdits, setHasEdits] = useState(false);
 
@@ -115,12 +116,16 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (selectedMode === "content" && content) setContentText(content["file"]);
-    if (selectedMode === "viz" && viz) setVizData(JSON.parse(viz["file"]));
+    if (selectedMode === "viz" && viz) {
+      setVizData(JSON.parse(viz["file"]));
+      setVizSourceIds(viz.source_ids);
+    }
   }, [content, viz, selectedMode]);
 
   function resetEditors() {
     setContentText("");
     setVizData(null);
+    setVizSourceIds([]);
   }
 
   function applySelection(id: number, treeLevel: TreeLevel) {
@@ -193,6 +198,13 @@ export default function Dashboard() {
         },
       },
     );
+
+    if (selectedMode === "viz" && viz) {
+      propertiesMutation.mutate({
+        id: viz.id,
+        payload: { viz_sources: vizSourceIds },
+      });
+    }
   }
 
   function handleContentEdit(value: string) {
@@ -202,6 +214,11 @@ export default function Dashboard() {
 
   function handleVizEdit(value: Visualization[]) {
     setVizData(value);
+    setHasEdits(true);
+  }
+
+  function handleVizSourcesEdit(sourceIds: number[]) {
+    setVizSourceIds(sourceIds);
     setHasEdits(true);
   }
 
@@ -350,6 +367,9 @@ export default function Dashboard() {
               <VizEditor
                 visualizations={vizData ?? []}
                 handleChange={handleVizEdit}
+                sourceIds={viz?.source_ids ?? []}
+                sourceResetKey={`${viz?.id ?? "new"}:${viz?.file ?? ""}`}
+                handleSourcesChange={handleVizSourcesEdit}
               />
             )}
           </div>

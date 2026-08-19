@@ -19,7 +19,7 @@ export default async function Content(props: Props & ProfileBundle) {
   const { content, ...profileBundle } = props;
 
   const treeResponse = await fetch(
-    `${API_BASE_URL}/content/tree/${profileBundle.geoLevel}`,
+    `${API_BASE_URL}/tree/${profileBundle.geoLevel}`,
   );
   const categoryKeyMap = (await treeResponse.json()) as CategoryKeyMap;
 
