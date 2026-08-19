@@ -14,7 +14,7 @@ interface Props {
   handleSave: (
     id: number,
     topic_id: number,
-    payload: Partial<TopicPropertyForm>
+    payload: Partial<TopicPropertyForm>,
   ) => void;
 }
 
@@ -24,11 +24,11 @@ const mapIdsToOptions = <
     citation?: string;
     title?: string;
     link?: string;
-  }
+  },
 >(
   ids: number[] | string[],
   list: T[],
-  labelKey: "citation" | "title" | "link"
+  labelKey: "citation" | "title" | "link",
 ): SelectOption[] => {
   return ids
     .map((id) => {
@@ -41,7 +41,7 @@ const mapIdsToOptions = <
 
 const getCitationString = (
   selectedSources: SelectOption[],
-  sources: Source[]
+  sources: Source[],
 ) => {
   const selectedIds = new Set(selectedSources.map((s) => s.value));
   const filtered = sources.filter((s) => selectedIds.has(s.id));
@@ -60,6 +60,11 @@ export default function TopicPropertiesForm(props: Props) {
     return mapIdsToOptions(initialData.content_sources, sources, "citation");
   }, [initialData.content_sources, sources]);
 
+  const selectedVizSourcesOptions = useMemo(() => {
+    if (!sources) return [];
+    return mapIdsToOptions(initialData.viz_sources, sources, "citation");
+  }, [initialData.viz_sources, sources]);
+
   const selectedProductsOptions = useMemo(() => {
     if (!products) return [];
     return mapIdsToOptions(initialData.related_products, products, "title");
@@ -68,14 +73,19 @@ export default function TopicPropertiesForm(props: Props) {
   const [selectedContentSources, setSelectedContentSources] = useState<
     SelectOption[]
   >(selectedContentSourcesOptions ?? []);
+  const [selectedVizSources, setSelectedVizSources] = useState<SelectOption[]>(
+    selectedVizSourcesOptions ?? [],
+  );
   const [selectedProducts, setSelectedProducts] = useState<SelectOption[]>(
-    selectedProductsOptions ?? []
+    selectedProductsOptions ?? [],
   );
 
   const [isVisible, setIsVisible] = useState(initialData.is_visible ?? true);
 
   const [label, setLabel] = useState(initialData.label ?? "");
-  const [catalogLinks, setCatalogLinks] = useState(initialData.catalog_link ?? "");
+  const [catalogLinks, setCatalogLinks] = useState(
+    initialData.catalog_link ?? "",
+  );
   const [censusLinks, setCensusLinks] = useState(initialData.census_link ?? "");
   const [otherLinks, setOtherLinks] = useState(initialData.other_link ?? "");
   const [sortWeight, setSortWeight] = useState(initialData.sort_weight ?? 0);
@@ -83,6 +93,7 @@ export default function TopicPropertiesForm(props: Props) {
   useEffect(() => {
     setLabel(initialData.label ?? "");
     setSelectedContentSources(selectedContentSourcesOptions ?? []);
+    setSelectedVizSources(selectedVizSourcesOptions ?? []);
     setSelectedProducts(selectedProductsOptions ?? []);
     setIsVisible(initialData.is_visible ?? true);
     setCatalogLinks(initialData.catalog_link ?? "");
@@ -92,6 +103,7 @@ export default function TopicPropertiesForm(props: Props) {
   }, [
     id,
     selectedContentSourcesOptions,
+    selectedVizSourcesOptions,
     selectedProductsOptions,
   ]);
 
@@ -108,9 +120,7 @@ export default function TopicPropertiesForm(props: Props) {
       label: label,
       sort_weight: sortWeight,
       content_sources: selectedContentSources.map((s) => Number(s.value)),
-      // Visualization sources are edited alongside their visualization JSON.
-      // Preserve them here so saving other properties does not clear them.
-      viz_sources: initialData.viz_sources,
+      viz_sources: selectedVizSources.map((v) => Number(v.value)),
       related_products: selectedProducts.map((p) => String(p.value)),
       is_visible: isVisible,
       catalog_link: catalogLinks,
@@ -166,6 +176,18 @@ export default function TopicPropertiesForm(props: Props) {
           />
           <span className="italic text-sm">
             {getCitationString(selectedContentSources, sources)}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
+          <label className="font-medium">Viz Sources</label>
+          <MultiSelect
+            value={selectedVizSources}
+            options={sourceOptions}
+            onChange={(vals) => setSelectedVizSources([...vals])}
+          />
+          <span className="italic text-sm">
+            {getCitationString(selectedVizSources, sources)}
           </span>
         </div>
 
