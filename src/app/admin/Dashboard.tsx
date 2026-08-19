@@ -37,13 +37,11 @@ import SourceEditor from "./Source/SourceEditor";
 import TopicPropertiesForm from "./Form/TopicPropertiesForm";
 import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
 import { useSession } from "next-auth/react";
-import VariableManager from "./Variables/VariableEditor";
 import VariableEditor from "./Variables/VariableEditor";
 import SqlEditor from "./SQL/SqlEditor";
 import BuildStatus from "./Build/BuildStatus";
 
-const defaultGeoid = {
-  region: "",
+const defaultGeoids = {
   county: "42101",
   municipality: "4201704976",
 };
@@ -56,6 +54,11 @@ export type Mode =
   | "variables"
   | "sql";
 export type TreeLevel = "category" | "subcategory" | "topic" | "";
+
+type PendingChange =
+  | { type: "selection"; id: number; treeLevel: TreeLevel }
+  | { type: "mode"; mode: Mode }
+  | null;
 
 function getSubcategoryById(subcategoryId: number, tree?: CategoryKeyMap) {
   if (tree) {
@@ -75,20 +78,25 @@ export default function Dashboard() {
   const [selectedId, setSelectedId] = useState<number>(0);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<number>(0);
   const [selectedTreeLevel, setSelectedTreeLevel] = useState<TreeLevel>("");
+  const [contentText, setContentText] = useState<string>("");
+  const [vizData, setVizData] = useState<Visualization[] | null>(null);
 
-  const [editText, setEditText] = useState("");
   const [hasEdits, setHasEdits] = useState(false);
 
-  const [pendingId, setPendingId] = useState<number | null>(null);
+  const [pendingChange, setPendingChange] = useState<PendingChange>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const geoid = defaultGeoid[selectedGeoLevel];
+  const geoid =
+    selectedGeoLevel === "region"
+      ? undefined
+      : defaultGeoids[selectedGeoLevel];
   const { data: session } = useSession();
   const { data: tree } = useTree(selectedGeoLevel);
   const { data: profile } = useProfile(selectedGeoLevel, geoid);
   const { data: content } = useContent(selectedId);
   const { data: viz } = useViz(selectedId);
   const { data: history } = useHistory(selectedMode, selectedId);
+  const editText = selectedMode === "content" ? contentText : vizData;
   const { data: preview } = usePreview(
     editText,
     selectedMode,
@@ -103,35 +111,43 @@ export default function Dashboard() {
   const topicCreateMutation = useCreateTopic();
   const topicDeleteMutation = useDeleteTopic();
   const subcategoryDeleteMutation = useDeleteSubcategory();
-  const propetiesMutation = useUpdateProperties();
+  const propertiesMutation = useUpdateProperties();
 
   const selectedSubcategory = getSubcategoryById(selectedSubcategoryId, tree);
 
   useEffect(() => {
-    if (selectedMode == "content" && content) setEditText(content["file"]);
-    if (selectedMode == "viz" && viz) setEditText(JSON.parse(viz["file"]));
+    if (selectedMode === "content" && content) setContentText(content["file"]);
+    if (selectedMode === "viz" && viz) setVizData(JSON.parse(viz["file"]));
   }, [content, viz, selectedMode]);
+
+  function resetEditors() {
+    setContentText("");
+    setVizData(null);
+  }
+
+  function applySelection(id: number, treeLevel: TreeLevel) {
+    setSelectedTreeLevel(treeLevel);
+
+    if (treeLevel === "subcategory") {
+      setSelectedSubcategoryId(id);
+      setSelectedMode("properties");
+      return;
+    }
+
+    setSelectedId(id);
+    if (!["content", "viz", "properties"].includes(selectedMode)) {
+      setSelectedMode("content");
+    }
+  }
 
   function handleCategorySidebarSelect(id: number, newTreeLevel: TreeLevel) {
     if (hasEdits) {
-      setPendingId(id);
+      setPendingChange({ type: "selection", id, treeLevel: newTreeLevel });
       setModalOpen(true);
       return;
     }
 
-    if (selectedTreeLevel != newTreeLevel) {
-      setSelectedTreeLevel(newTreeLevel);
-
-      if (newTreeLevel == "category" || newTreeLevel == "topic")
-        setSelectedMode("content");
-      if (newTreeLevel == "subcategory") setSelectedMode("properties");
-    }
-
-    if (newTreeLevel == "subcategory") {
-      setSelectedSubcategoryId(id);
-    } else {
-      setSelectedId(id);
-    }
+    applySelection(id, newTreeLevel);
   }
 
   function handleContinue(save: boolean) {
@@ -139,58 +155,74 @@ export default function Dashboard() {
       handleSaveClick();
     }
 
-    if (!pendingId) {
-      throw new Error("No pending topic id...");
+    if (!pendingChange) {
+      setModalOpen(false);
+      return;
     }
 
-    setSelectedId(pendingId);
+    if (pendingChange.type === "selection") {
+      applySelection(pendingChange.id, pendingChange.treeLevel);
+    } else {
+      setSelectedMode(pendingChange.mode);
+      resetEditors();
+    }
+
     setModalOpen(false);
     setHasEdits(false);
-    setPendingId(null);
+    setPendingChange(null);
   }
 
   function handleSaveClick() {
-    const bodyText =
-      selectedMode === "content" ? editText : JSON.stringify(editText);
-
     const user = session?.user.name;
     if (!user) return;
+
+    const bodyText =
+      selectedMode === "content" ? contentText : JSON.stringify(vizData);
+
     const body = {
       user: user,
       text: bodyText,
     };
     const url = `/${selectedMode}/${selectedId}`;
 
-    saveMutation.mutate({ url, body });
-    setHasEdits(false);
+    saveMutation.mutate(
+      { url, body },
+      {
+        onSuccess: () => setHasEdits(false),
+        onError: (err) => {
+          console.error("Failed to save changes", err);
+          // TODO: toast notification for error
+        },
+      },
+    );
   }
 
   function handleContentEdit(value: string) {
-    setEditText(value);
-
-    if (!hasEdits) {
-      setHasEdits(true);
-    }
+    setContentText(value);
+    setHasEdits(true);
   }
 
-  function handleVizEdit(value: string) {
-    setEditText(value);
-
-    if (!hasEdits) {
-      setHasEdits(true);
-    }
+  function handleVizEdit(value: Visualization[]) {
+    setVizData(value);
+    setHasEdits(true);
   }
 
   function handleModeChange(mode: Mode) {
-    setEditText("");
+    if (hasEdits && mode !== selectedMode) {
+      setPendingChange({ type: "mode", mode });
+      setModalOpen(true);
+      return;
+    }
+
+    resetEditors();
     setSelectedMode(mode);
   }
 
   function handleVersionChange(file: string, index: number) {
-    if (selectedMode == "content") {
-      setEditText(file);
+    if (selectedMode === "content") {
+      setContentText(file);
     } else {
-      setEditText(JSON.parse(file));
+      setVizData(JSON.parse(file));
     }
     setHasEdits(index > 0);
   }
@@ -200,18 +232,16 @@ export default function Dashboard() {
     topicId: number,
     payload: Partial<TopicPropertyForm>,
   ) {
-    if (payload.label || payload.sort_weight) {
+
+    const { label, sort_weight, ...rest } = payload;
+
+    if (label !== undefined || sort_weight !== undefined) {
       topicUpdateMutation.mutate({
         topicId,
-        topic: {
-          label: payload.label,
-          sort_weight: payload.sort_weight,
-        },
+        topic: { label, sort_weight },
       });
-      delete payload.label;
-      delete payload.sort_weight;
     }
-    propetiesMutation.mutate({ id, payload });
+    propertiesMutation.mutate({ id, payload: rest });
   }
 
   function handleSubcategoryPropertiesSave(
@@ -228,10 +258,12 @@ export default function Dashboard() {
   }
 
   function getPreview() {
-    if (!preview) return <></>;
-    if (selectedMode == "content")
+    if (!preview) return null;
+
+    if (selectedMode === "content")
       return <MarkdownPreview content={preview as string} />;
-    if (profile)
+
+    if (profile) {
       return (
         <VizPreview
           visualizations={preview as Visualization[]}
@@ -240,6 +272,9 @@ export default function Dashboard() {
           geoid={profile.geography.geoid}
         />
       );
+    }
+
+    return <p className="text-gray-400 italic">Loading preview…</p>;
   }
 
   function addSubcategory(categoryId: number, newSubcat: string) {
@@ -253,31 +288,32 @@ export default function Dashboard() {
   function updateSubcategory(subcategoryId: number, newSubcat: string) {
     subcategoryUpdateMutation.mutate({
       subcategoryId,
-      subcategory: {
-        name: newSubcat,
-      },
+      subcategory: { name: newSubcat },
     });
   }
 
   function updateTopic(topicId: number, newTopic: string) {
     topicUpdateMutation.mutate({
       topicId,
-      topic: {
-        name: newTopic,
-      },
+      topic: { name: newTopic },
     });
   }
 
   function deleteTopic(topicId: number) {
+    if (!window.confirm("Delete this topic? This cannot be undone.")) return;
     topicDeleteMutation.mutate(topicId);
   }
 
   function deleteSubcategory(subcatId: number) {
+    if (!window.confirm("Delete this subcategory? This cannot be undone."))
+      return;
     subcategoryDeleteMutation.mutate(subcatId);
   }
 
+  const isEditorMode = selectedMode === "content" || selectedMode === "viz";
+
   return (
-    <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] x gap-2 p-2">
+    <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] gap-2 p-2">
       <div className="col-span-3 col-start-2 p-2 bg-white flex justify-between rounded-md">
         <Header
           currentTab={selectedMode}
@@ -287,7 +323,7 @@ export default function Dashboard() {
       </div>
       <div className="p-2 col-start-1 row-start-1">
         <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
-        <span className="">Admin Dasbhoard</span>
+        <span>Admin Dashboard</span>
       </div>
       <div className="row-span-3 p-2 overflow-auto">
         <CategorySidebar
@@ -303,36 +339,32 @@ export default function Dashboard() {
           deleteSubcategory={deleteSubcategory}
         />
       </div>
-      {(selectedMode == "content" || selectedMode == "viz") && (
+      {isEditorMode && (
         <>
-          <div
-            className={`col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
-          >
+          <div className="col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto">
             <h3 className="text-xl p-2 mb-2">Editor</h3>
 
             {selectedMode === "content" ? (
               <MarkdownEditor
-                value={editText}
+                value={contentText}
                 handleChange={handleContentEdit}
               />
             ) : (
               <VizEditor
-                visualizations={editText}
+                visualizations={vizData ?? []}
                 handleChange={handleVizEdit}
               />
             )}
           </div>
-          <div
-            className={`col-start-3 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto`}
-          >
+          <div className="col-start-3 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto">
             <div className="flex justify-between p-2 mb-2">
               <h3 className="text-xl">Preview</h3>
               <Button
-                disabled={!hasEdits}
+                disabled={!hasEdits || saveMutation.isPending}
                 handleClick={handleSaveClick}
                 type={"primary"}
               >
-                Save Changes
+                {saveMutation.isPending ? "Saving…" : "Save Changes"}
               </Button>
             </div>
 
@@ -346,28 +378,26 @@ export default function Dashboard() {
           </div>
         </>
       )}
-      {selectedMode == "sources" && (
+      {selectedMode === "sources" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
           <SourceEditor />
         </div>
       )}
-      {selectedMode == "variables" && (
+      {selectedMode === "variables" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md flex-col flex">
           <BuildStatus />
-
           <VariableEditor />
         </div>
       )}
-      {selectedMode == "sql" && (
+      {selectedMode === "sql" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md flex-col flex">
           <BuildStatus />
-
           <SqlEditor />
         </div>
       )}
-      {selectedMode == "properties" && (
+      {selectedMode === "properties" && (
         <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md overflow-auto">
-          {selectedTreeLevel == "topic" && content && viz && (
+          {selectedTreeLevel === "topic" && content && viz && (
             <TopicPropertiesForm
               id={content.id}
               topic_id={content.topic_id}
@@ -385,7 +415,7 @@ export default function Dashboard() {
               handleSave={handleTopicPropertiesSave}
             />
           )}
-          {selectedTreeLevel == "subcategory" && selectedSubcategory && (
+          {selectedTreeLevel === "subcategory" && selectedSubcategory && (
             <SubcategoryPropertiesForm
               id={selectedSubcategoryId}
               initialData={{

@@ -7,6 +7,7 @@ import {
 import {
   apiDeleteAuthorized,
   apiGet,
+  apiGetAuthorized,
   apiPostAuthorized,
   apiPutAuthorized,
 } from "@/lib/api";
@@ -25,6 +26,7 @@ import {
   Variable,
   VariableBase,
   ACSVariableMetadata,
+  AppMetadata,
   BuildStatus,
   SqlBase,
   Sql,
@@ -347,21 +349,20 @@ export function useDeleteSubcategory() {
 }
 
 export function usePreview(
-  template: string,
+  template: string | Visualization[] | null,
   mode: string,
   geoLevel: GeoLevel,
-  geoid: string,
+  geoid?: string,
 ) {
   return useQuery({
     queryKey: ["preview", mode, geoLevel, template, geoid],
     queryFn: () =>
       apiPostAuthorized<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${
-          geoLevel !== "region" ? `?geoid=${geoid}` : ""
+        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
         }`,
-        mode === "viz" ? JSON.stringify(template) : template,
+        mode === "viz" ? JSON.stringify(template) : template ?? undefined,
       ),
-    enabled: template !== "" && template !== "[]",
+    enabled: template !== "" && template !== "[]" && template !== null,
     staleTime: 0,
   });
 }
@@ -395,6 +396,8 @@ export function useSave() {
       body: { user: string; text: string };
     }) => apiPutAuthorized(url, body),
     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["content"] });
+      qc.invalidateQueries({ queryKey: ["viz"] });
       qc.invalidateQueries({ queryKey: ["history"] });
       qc.invalidateQueries({ queryKey: ["preview"] });
     },
@@ -430,13 +433,25 @@ export function useBuildStatus() {
   });
 }
 
+export function useAppMetadata() {
+  return useQuery({
+    queryKey: ["app-metadata"],
+    queryFn: () => apiGetAuthorized<AppMetadata[]>("/app-metadata"),
+    staleTime: Infinity,
+  });
+}
+
 export function useTriggerBuild() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (category: "acs" | "gis" | "ckan" | "all") =>
-      apiPostAuthorized(`/build/${category}`),
+    mutationFn: ({
+      category,
+    }: {
+      category: "acs" | "gis" | "ckan" | "all";
+    }) => apiPostAuthorized(`/build/${category}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["build-status"] });
+      queryClient.invalidateQueries({ queryKey: ["app-metadata"] });
     },
   });
 }

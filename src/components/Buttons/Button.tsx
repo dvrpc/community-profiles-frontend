@@ -20,7 +20,7 @@ export default function Button(props: Props) {
       type="button"
       onClick={handleClick}
       disabled={disabled}
-      className={`flex gap-2 ${disabled ? "bg-dvrpc-gray-5" : type == "primary" ? primaryColors : secondaryColors} focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5`}
+      className={`flex gap-2 ${disabled ? "bg-dvrpc-gray-5" : type == "primary" ? primaryColors : secondaryColors} focus:ring-4 font-medium rounded-lg text-sm px-5 py-2.5 cursor-pointer transition-all duration-200 ease-in-out`}
     >
       {children}
     </button>
