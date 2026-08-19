@@ -60,11 +60,6 @@ export default function TopicPropertiesForm(props: Props) {
     return mapIdsToOptions(initialData.content_sources, sources, "citation");
   }, [initialData.content_sources, sources]);
 
-  const selectedVizSourcesOptions = useMemo(() => {
-    if (!sources) return [];
-    return mapIdsToOptions(initialData.viz_sources, sources, "citation");
-  }, [initialData.viz_sources, sources]);
-
   const selectedProductsOptions = useMemo(() => {
     if (!products) return [];
     return mapIdsToOptions(initialData.related_products, products, "title");
@@ -73,9 +68,6 @@ export default function TopicPropertiesForm(props: Props) {
   const [selectedContentSources, setSelectedContentSources] = useState<
     SelectOption[]
   >(selectedContentSourcesOptions ?? []);
-  const [selectedVizSources, setSelectedVizSources] = useState<SelectOption[]>(
-    selectedVizSourcesOptions ?? []
-  );
   const [selectedProducts, setSelectedProducts] = useState<SelectOption[]>(
     selectedProductsOptions ?? []
   );
@@ -91,7 +83,6 @@ export default function TopicPropertiesForm(props: Props) {
   useEffect(() => {
     setLabel(initialData.label ?? "");
     setSelectedContentSources(selectedContentSourcesOptions ?? []);
-    setSelectedVizSources(selectedVizSourcesOptions ?? []);
     setSelectedProducts(selectedProductsOptions ?? []);
     setIsVisible(initialData.is_visible ?? true);
     setCatalogLinks(initialData.catalog_link ?? "");
@@ -101,7 +92,6 @@ export default function TopicPropertiesForm(props: Props) {
   }, [
     id,
     selectedContentSourcesOptions,
-    selectedVizSourcesOptions,
     selectedProductsOptions,
   ]);
 
@@ -118,7 +108,9 @@ export default function TopicPropertiesForm(props: Props) {
       label: label,
       sort_weight: sortWeight,
       content_sources: selectedContentSources.map((s) => Number(s.value)),
-      viz_sources: selectedVizSources.map((v) => Number(v.value)),
+      // Visualization sources are edited alongside their visualization JSON.
+      // Preserve them here so saving other properties does not clear them.
+      viz_sources: initialData.viz_sources,
       related_products: selectedProducts.map((p) => String(p.value)),
       is_visible: isVisible,
       catalog_link: catalogLinks,
@@ -174,18 +166,6 @@ export default function TopicPropertiesForm(props: Props) {
           />
           <span className="italic text-sm">
             {getCitationString(selectedContentSources, sources)}
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
-          <label className="font-medium">Viz Sources</label>
-          <MultiSelect
-            value={selectedVizSources}
-            options={sourceOptions}
-            onChange={(vals) => setSelectedVizSources([...vals])}
-          />
-          <span className="italic text-sm">
-            {getCitationString(selectedVizSources, sources)}
           </span>
         </div>
 
