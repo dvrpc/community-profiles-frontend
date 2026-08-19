@@ -14,4 +14,4 @@ Requires [community-profiles-api](https://github.com/dvrpc/community-profiles-ap
 5. To build, `npm run build:<NODE ENV>`. There are build configs for local, staging, and production.
 6. `npm start`
 
-Note: NextJS only supports development, test, and production out of the box. The development ENV refers to the local setup and staging is for the staging server at cloud.dvprc.org.
+Note: NextJS only supports development, test, and production out of the box. The development ENV refers to the local setup and staging is for the staging server at cloud.dvprc.org
