@@ -4,21 +4,17 @@ import DeleteModal from "../Components/DeleteModal";
 import { Sql, SqlForm, Variable, VariableForm } from "@/types/types";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
-import {
-
-  useCreateSql,
-  useUpdateSql,
-  useDeleteSql,
-  useSql,
-} from "@/lib/hooks";
+import { useCreateSql, useUpdateSql, useDeleteSql, useSql } from "@/lib/hooks";
 import BuildStatus from "../Build/BuildStatus";
 import SqlModal from "./SqlModal";
+import { useAdminToast } from "../Toast/AdminToast";
 
 export default function SqlEditor() {
   const { data: sqlQueries, isLoading } = useSql();
   const { mutate: createMutation, status: createStatus } = useCreateSql();
   const { mutate: updateMutation, status: updateStatus } = useUpdateSql();
   const { mutate: deleteMutation, status: deleteStatus } = useDeleteSql();
+  const { showToast, showError } = useAdminToast();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
@@ -38,10 +34,27 @@ export default function SqlEditor() {
 
   const handleSave = (sql: SqlForm) => {
     if (!sql.id) {
-      createMutation(sql);
+      createMutation(sql, {
+        onSuccess: (id) =>
+          showToast(
+            `SQL query "${sql.name}" created successfully (ID: ${id}).`,
+          ),
+        onError: (error) =>
+          showError(error, `Failed to create SQL query "${sql.name}"`),
+      });
     } else {
       const { id, ...sqlApiBody } = sql;
-      updateMutation({ id: sql.id, sql: sqlApiBody });
+      updateMutation(
+        { id: sql.id, sql: sqlApiBody },
+        {
+          onSuccess: () =>
+            showToast(
+              `SQL query "${sql.name}" saved successfully (ID: ${id}).`,
+            ),
+          onError: (error) =>
+            showError(error, `Failed to save SQL query "${sql.name}"`),
+        },
+      );
     }
 
     setEditing(null);
@@ -89,7 +102,6 @@ export default function SqlEditor() {
             <Plus size={18} /> Add SQL Query
           </Button>
         </div>
-
 
         <div className="overflow-y-auto flex-1 min-h-0">
           <table className="min-w-[960px] w-full border-collapse text-sm">

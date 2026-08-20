@@ -1,51 +1,44 @@
-import {
-  CategoryKeyMap,
-  CategoryKeys,
-  GeoLevel,
-  getTypedObjectEntries,
-} from "@/types/types";
+import { GeoLevel } from "@/types/types";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
   Pencil,
   Trash2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import DeleteModal from "../Components/DeleteModal";
+import { useState } from "react";
 import { TreeLevel } from "../Dashboard";
+import CreateModal from "./CreateModal";
+import DeleteModal from "./DeleteModal";
+import { useAdminToast } from "../Toast/AdminToast";
+import {
+  useTree,
+  useCreateSubcategory,
+  useCreateTopic,
+  useDeleteTopic,
+  useDeleteSubcategory,
+} from "@/lib/hooks";
 
 interface Props {
-  tree?: CategoryKeyMap;
   handleClick: (id: number, newTreeLevel: TreeLevel) => void;
   geoLevel: GeoLevel;
   setGeoLevel: (geoLevel: GeoLevel) => void;
-  addSubcategory: (category_id: number, newSubcat: string) => void;
-  addTopic: (subcatId: number, newTopic: string) => void;
-  updateSubcategory: (subcatId: number, newSubcat: string) => void;
-  updateTopic: (topicId: number, newTopic: string) => void;
-  deleteTopic: (topicId: number) => void;
-  deleteSubcategory: (subcatId: number) => void;
 }
 
 export default function CategorySidebar(props: Props) {
-  const {
-    tree,
-    handleClick,
-    geoLevel,
-    setGeoLevel,
-    addSubcategory,
-    addTopic,
-    updateSubcategory,
-    updateTopic,
-    deleteTopic,
-    deleteSubcategory,
-  } = props;
+  const { handleClick, geoLevel, setGeoLevel } = props;
 
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const { data: tree } = useTree(geoLevel);
+  const { showToast, showError } = useAdminToast();
+
+  const subcategoryCreateMutation = useCreateSubcategory();
+  const topicCreateMutation = useCreateTopic();
+  const topicDeleteMutation = useDeleteTopic();
+  const subcategoryDeleteMutation = useDeleteSubcategory();
+  const [openSections, setOpenSections] = useState<Record<number, boolean>>({});
   const [selected, setSelected] = useState<{
-    category: CategoryKeys;
-    subcategory: string;
-    topic: string;
+    category_id: number | null;
+    subcategory_id: number | null;
+    topic_id: number | null;
   } | null>(null);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -55,62 +48,97 @@ export default function CategorySidebar(props: Props) {
     name: string;
   } | null>(null);
 
-  const [pendingGeoLevelChange, setPendingGeoLevelChange] = useState(false);
+  const [createModal, setCreateModal] = useState<
+    | { type: "subcategory"; parentId: number; parentLabel: string }
+    | { type: "topic"; parentId: number; parentLabel: string }
+    | null
+  >(null);
 
-  const toggleSection = (sectionKey: string) => {
+  const toggleSection = (section_id: number) => {
     setOpenSections((prev) => ({
       ...prev,
-      [sectionKey]: !prev[sectionKey],
+      [section_id]: !prev[section_id],
     }));
   };
 
-  const handleItemClick = (
-    category: CategoryKeys,
-    subcategory: string,
-    topic: string,
-    id: number,
+  const handleTopicClick = (
+    category_id: number,
+    subcategory_id: number,
+    topic_id: number,
   ) => {
-    setSelected({ category, subcategory, topic });
-    handleClick(id, "topic");
+    setSelected({ category_id, subcategory_id, topic_id });
+    handleClick(topic_id, "topic");
   };
 
-  // NEW: Select subcategory
   const handleSubcategoryClick = (
-    category: CategoryKeys,
-    subcatId: number,
-    subcategory: string,
+    category_id: number,
+    subcategory_id: number,
   ) => {
-    setSelected({ category, subcategory, topic: "" });
-    handleClick(subcatId, "subcategory");
+    setSelected({ category_id, subcategory_id, topic_id: null });
+    handleClick(subcategory_id, "subcategory");
   };
 
-  const handleAddTopic = (subcatId: number, subcatName: string) => {
-    const newTopic = prompt(`New topic for "${subcatName}":`);
-    if (newTopic?.trim()) addTopic(subcatId, newTopic.trim());
+  const openCreateModal = (
+    type: "subcategory" | "topic",
+    parentId: number,
+    parentLabel: string,
+  ) => {
+    setCreateModal({
+      type,
+      parentId,
+      parentLabel,
+    });
   };
 
-  const handleAddSubcategory = (category_id: number, category: string) => {
-    const newSubcat = prompt(`New subcategory under "${category}":`);
-    if (newSubcat?.trim()) addSubcategory(category_id, newSubcat.trim());
+  const closeCreateModal = () => {
+    setCreateModal(null);
   };
 
-  const handleEditTopic = (topicName: string, topicId: number) => {
-    const newName = prompt(`Edit topic "${topicName}":`, topicName);
-    if (newName?.trim()) updateTopic(topicId, newName.trim());
+  const handleCreate = (label: string, urlId: string, sortWeight: number) => {
+    if (!createModal) return;
+    if (createModal.type === "topic") {
+      topicCreateMutation.mutate(
+        {
+          subcategory_id: createModal.parentId,
+          label,
+          url_id: urlId,
+          sort_weight: sortWeight,
+        },
+        {
+          onSuccess: (id) =>
+            showToast(`Topic "${label}" created successfully (ID: ${id}).`),
+          onError: (error) =>
+            showError(error, `Failed to create topic "${label}"`),
+        },
+      );
+    } else {
+      subcategoryCreateMutation.mutate(
+        {
+          category_id: createModal.parentId,
+          label,
+          url_id: urlId,
+          geo_level: geoLevel,
+          sort_weight: sortWeight,
+        },
+        {
+          onSuccess: (id) =>
+            showToast(
+              `Subcategory "${label}" created successfully (ID: ${id}).`,
+            ),
+          onError: (error) =>
+            showError(error, `Failed to create subcategory "${label}"`),
+        },
+      );
+    }
+    closeCreateModal();
   };
 
-  const handleEditSubcategory = (subcatId: number, subcatName: string) => {
-    const newName = prompt(`Edit subcategory "${subcatName}":`, subcatName);
-    if (newName?.trim()) updateSubcategory(subcatId, newName.trim());
-  };
-
-  const handleDeleteSubcategory = (subcatId: number, name: string) => {
-    setPendingDelete({ type: "subcategory", id: subcatId, name });
-    setDeleteModalOpen(true);
-  };
-
-  const handleDeleteTopic = (topicId: number, name: string) => {
-    setPendingDelete({ type: "topic", id: topicId, name });
+  const openDeleteModal = (
+    type: "subcategory" | "topic",
+    id: number,
+    name: string,
+  ) => {
+    setPendingDelete({ type, id, name });
     setDeleteModalOpen(true);
   };
 
@@ -122,40 +150,16 @@ export default function CategorySidebar(props: Props) {
   const confirmDeletion = () => {
     if (!pendingDelete) return;
     if (pendingDelete.type === "subcategory")
-      deleteSubcategory(pendingDelete.id);
-    if (pendingDelete.type === "topic") deleteTopic(pendingDelete.id);
+      subcategoryDeleteMutation.mutate(pendingDelete.id);
+    if (pendingDelete.type === "topic")
+      topicDeleteMutation.mutate(pendingDelete.id);
     setDeleteModalOpen(false);
     setPendingDelete(null);
   };
 
   const handleGeoLevelChange = (geoLevel: GeoLevel) => {
     setGeoLevel(geoLevel);
-    setPendingGeoLevelChange(true);
   };
-
-  useEffect(() => {
-    function selectOnGeoLevelChange() {
-      if (pendingGeoLevelChange && selected && tree) {
-        if (selected.topic === "") {
-          const content_id = tree[selected.category].content_id;
-          handleClick(content_id, "topic");
-        } else {
-          const subcategory = tree[selected.category].subcategories.find(
-            (s) => s.name === selected.subcategory,
-          );
-          if (!subcategory) return;
-          const topic = subcategory.topics.find(
-            (t) => t.name === selected.topic,
-          );
-          if (!topic) return;
-          handleClick(topic.content_id, "category");
-        }
-        setPendingGeoLevelChange(false);
-      }
-    }
-
-    selectOnGeoLevelChange();
-  }, [tree]);
 
   if (!tree) return <></>;
 
@@ -176,37 +180,40 @@ export default function CategorySidebar(props: Props) {
         </select>
       </div>
 
-      {getTypedObjectEntries(tree).map(([category, categoryTree]) => {
-        const subcats = categoryTree.subcategories;
-        const categoryKey = `cat-${category}`;
-        const isCategoryOpen = !!openSections[categoryKey];
+      {tree.map((category) => {
+        const subcategories = category.subcategories ?? [];
+        const isCategoryOpen = !!openSections[category.id];
 
         return (
-          <div key={category} className="my-4">
+          <div key={category.id} className="my-4">
             <div
               className={`flex items-center justify-between w-full font-bold rounded`}
             >
               <button
                 className={`flex items-center justify-between w-full text-left p-2 rounded cursor-pointer
                           ${
-                            selected?.category === category &&
-                            selected?.subcategory === "" &&
-                            selected?.topic === ""
+                            selected?.category_id === category.id &&
+                            selected?.subcategory_id === null &&
+                            selected?.topic_id === null
                               ? "bg-dvrpc-blue-1 text-white"
                               : "hover:bg-gray-300"
                           }`}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelected({ category, subcategory: "", topic: "" });
-                  handleClick(categoryTree.content_id, "category");
+                  setSelected({
+                    category_id: category.id,
+                    subcategory_id: null,
+                    topic_id: null,
+                  });
+                  handleClick(category.id, "category");
                 }}
               >
-                <span>{category}</span>
+                <span>{category.label}</span>
               </button>
 
               <button
                 className="p-2 ml-1 rounded-sm cursor-pointer hover:bg-gray-200"
-                onClick={() => toggleSection(categoryKey)}
+                onClick={() => toggleSection(category.id)}
               >
                 {isCategoryOpen ? (
                   <ChevronDownIcon className="w-4 h-4" />
@@ -219,36 +226,31 @@ export default function CategorySidebar(props: Props) {
             {/* SUBCATEGORIES */}
             {isCategoryOpen && (
               <div className="ml-4 mt-2">
-                {subcats.map((subcat) => {
-                  const subcatKey = `${categoryKey}-${subcat.id}`;
-                  const isSubcatOpen = !!openSections[subcatKey];
+                {subcategories.map((subcategory) => {
+                  const isSubcatOpen = !!openSections[subcategory.id];
 
                   return (
-                    <div key={subcat.id} className="mb-2">
+                    <div key={subcategory.id} className="mb-2">
                       <div className="flex items-center">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleSubcategoryClick(
-                              category,
-                              subcat.id,
-                              subcat.name,
-                            );
+                            handleSubcategoryClick(category.id, subcategory.id);
                           }}
                           className={`flex items-center justify-between w-full text-left px-2 py-1 rounded cursor-pointer
                           ${
-                            selected?.category === category &&
-                            selected?.subcategory === subcat.name &&
-                            selected?.topic === ""
+                            selected?.category_id === category.id &&
+                            selected?.subcategory_id === subcategory.id &&
+                            selected?.topic_id === null
                               ? "bg-dvrpc-blue-1 text-white"
                               : "hover:bg-gray-200"
                           }`}
                         >
-                          <span>{subcat.name}</span>
+                          <span>{subcategory.label}</span>
                         </button>
 
                         <button
-                          onClick={() => toggleSection(subcatKey)}
+                          onClick={() => toggleSection(subcategory.id)}
                           className="cursor-pointer p-2 ml-1 rounded-sm hover:bg-gray-200"
                         >
                           {isSubcatOpen ? (
@@ -260,16 +262,11 @@ export default function CategorySidebar(props: Props) {
 
                         <button
                           onClick={() =>
-                            handleEditSubcategory(subcat.id, subcat.name)
-                          }
-                          className="p-2 rounded-sm hover:bg-gray-200 "
-                        >
-                          <Pencil size={16} />
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            handleDeleteSubcategory(subcat.id, subcat.name)
+                            openDeleteModal(
+                              "subcategory",
+                              subcategory.id,
+                              subcategory.label,
+                            )
                           }
                           className="p-2 rounded-sm hover:bg-gray-200"
                         >
@@ -279,49 +276,49 @@ export default function CategorySidebar(props: Props) {
 
                       {isSubcatOpen && (
                         <ul className="ml-4 mt-1">
-                          {subcat.topics.map((topic) => (
+                          {(subcategory.topics ?? []).map((topic) => (
                             <li
                               key={topic.id}
                               className="flex justify-between items-center"
                             >
                               <div
                                 className={`${!topic.is_visible && "text-dvrpc-gray-4"} px-2 py-1 rounded cursor-pointer flex-1 ${
-                                  selected?.category === category &&
-                                  selected?.subcategory === subcat.name &&
-                                  selected?.topic === topic.name
+                                  selected?.category_id === category.id &&
+                                  selected?.subcategory_id === subcategory.id &&
+                                  selected?.topic_id === topic.id
                                     ? "bg-dvrpc-blue-1 text-white"
                                     : "hover:bg-gray-300"
                                 }`}
                                 onClick={() =>
-                                  handleItemClick(
-                                    category,
-                                    subcat.name,
-                                    topic.name,
-                                    topic.content_id,
+                                  handleTopicClick(
+                                    category.id,
+                                    subcategory.id,
+                                    topic.id,
                                   )
                                 }
                               >
-                                {topic.name}
+                                {topic.label} {!topic.is_visible && "(hidden)"}
                               </div>
+
                               <button
                                 onClick={() =>
-                                  handleEditTopic(topic.name, topic.id)
+                                  openDeleteModal(
+                                    "topic",
+                                    topic.id,
+                                    topic.label,
+                                  )
                                 }
-                                className="p-2 rounded-sm hover:bg-gray-200 cursor-pointer"
-                              >
-                                <Pencil size={16} />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleDeleteTopic(topic.id, topic.name)
+                                disabled={
+                                  (subcategory.topics ?? []).length === 1
                                 }
-                                disabled={subcat.topics.length === 1}
                                 className="p-2 rounded-sm hover:bg-gray-200 cursor-pointer"
                               >
                                 <Trash2
                                   size={16}
                                   color={
-                                    subcat.topics.length !== 1 ? "red" : "black"
+                                    (subcategory.topics ?? []).length !== 1
+                                      ? "red"
+                                      : "black"
                                   }
                                 />
                               </button>
@@ -331,7 +328,11 @@ export default function CategorySidebar(props: Props) {
                           <li className="mt-2">
                             <button
                               onClick={() =>
-                                handleAddTopic(subcat.id, subcat.name)
+                                openCreateModal(
+                                  "topic",
+                                  subcategory.id,
+                                  subcategory.label,
+                                )
                               }
                               className="text-sm text-dvrpc-blue-3 hover:underline cursor-pointer"
                             >
@@ -346,7 +347,7 @@ export default function CategorySidebar(props: Props) {
 
                 <button
                   onClick={() =>
-                    handleAddSubcategory(categoryTree.id, category)
+                    openCreateModal("subcategory", category.id, category.label)
                   }
                   className="text-sm text-dvrpc-blue-3 hover:underline mt-3 ml-4 cursor-pointer"
                 >
@@ -358,18 +359,23 @@ export default function CategorySidebar(props: Props) {
         );
       })}
 
-      <DeleteModal
-        open={deleteModalOpen}
-        paragraphs={[
-          `Are you sure you want to delete this ${pendingDelete?.type}: "${pendingDelete?.name}"?`,
-          ...(pendingDelete?.type === "subcategory"
-            ? ["Deleting a subcategory will delete all child topics."]
-            : []),
-          "Content & visualizations for deleted items is preserved in database but not visible on admin page.",
-        ]}
-        onConfirm={confirmDeletion}
-        onCancel={handleCloseDeleteModal}
-      />
+      {pendingDelete && deleteModalOpen && (
+        <DeleteModal
+          type={pendingDelete.type}
+          name={pendingDelete.name}
+          onConfirm={confirmDeletion}
+          onCancel={handleCloseDeleteModal}
+        />
+      )}
+
+      {createModal && (
+        <CreateModal
+          type={createModal.type}
+          parentLabel={createModal.parentLabel}
+          onSave={handleCreate}
+          onCancel={closeCreateModal}
+        />
+      )}
     </div>
   );
 }

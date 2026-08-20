@@ -13,6 +13,7 @@ import {
   useVariable,
   useAppMetadata,
 } from "@/lib/hooks";
+import { useAdminToast } from "../Toast/AdminToast";
 
 export default function VariableManager() {
   const [geoLevel, setGeoLevel] = useState<GeoLevel | "all">("all");
@@ -21,6 +22,7 @@ export default function VariableManager() {
   const { mutate: createMutation, status: createStatus } = useCreateVariable();
   const { mutate: updateMutation, status: updateStatus } = useUpdateVariable();
   const { mutate: deleteMutation, status: deleteStatus } = useDeleteVariable();
+  const { showToast, showError } = useAdminToast();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{
     id: number;
@@ -41,14 +43,13 @@ export default function VariableManager() {
   const [geoFilter, setGeoFilter] = useState<GeoLevel | "all">("all");
 
   //TODO: explicit typing for appMetadata values
-  const acsYear = appMetadata?.find((m) => m.key === "acs_year")
-    ?.value as number | undefined;
-  const acsLastUpdated = appMetadata?.find(
-    (m) => m.key === "acs_last_updated",
-  )?.value as string | undefined;
-  const gisLastUpdated = appMetadata?.find(
-    (m) => m.key === "gis_last_updated",
-  )?.value as string | undefined;
+  const acsYear = appMetadata?.find((m) => m.key === "acs_year")?.value as
+    | number
+    | undefined;
+  const acsLastUpdated = appMetadata?.find((m) => m.key === "acs_last_updated")
+    ?.value as string | undefined;
+  const gisLastUpdated = appMetadata?.find((m) => m.key === "gis_last_updated")
+    ?.value as string | undefined;
   const ckanLastUpdated = appMetadata?.find(
     (m) => m.key === "ckan_last_updated",
   )?.value as string | undefined;
@@ -84,10 +85,27 @@ export default function VariableManager() {
 
   const handleSave = (variable: VariableForm) => {
     if (!variable.id) {
-      createMutation(variable);
+      createMutation(variable, {
+        onSuccess: (id) =>
+          showToast(
+            `Variable "${variable.name}" created successfully (ID: ${id}).`,
+          ),
+        onError: (error) =>
+          showError(error, `Failed to create variable "${variable.name}"`),
+      });
     } else {
       const { id, ...variableBody } = variable;
-      updateMutation({ id: variable.id, variable: variableBody });
+      updateMutation(
+        { id: variable.id, variable: variableBody },
+        {
+          onSuccess: () =>
+            showToast(
+              `Variable "${variable.name}" saved successfully (ID: ${id}).`,
+            ),
+          onError: (error) =>
+            showError(error, `Failed to save variable "${variable.name}"`),
+        },
+      );
     }
 
     setEditing(null);
@@ -142,15 +160,35 @@ export default function VariableManager() {
 
         {appMetadata && (
           <div className="flex gap-6 text-sm text-dvrpc-gray-2 mb-4">
-            {acsYear && <span>ACS Year: <span className="font-medium text-gray-800">{acsYear}</span></span>}
+            {acsYear && (
+              <span>
+                ACS Year:{" "}
+                <span className="font-medium text-gray-800">{acsYear}</span>
+              </span>
+            )}
             {acsLastUpdated && (
-              <span>ACS Updated: <span className="font-medium text-gray-800">{new Date(acsLastUpdated).toLocaleDateString()}</span></span>
+              <span>
+                ACS Updated:{" "}
+                <span className="font-medium text-gray-800">
+                  {new Date(acsLastUpdated).toLocaleDateString()}
+                </span>
+              </span>
             )}
             {gisLastUpdated && (
-              <span>GIS Updated: <span className="font-medium text-gray-800">{new Date(gisLastUpdated).toLocaleDateString()}</span></span>
+              <span>
+                GIS Updated:{" "}
+                <span className="font-medium text-gray-800">
+                  {new Date(gisLastUpdated).toLocaleDateString()}
+                </span>
+              </span>
             )}
             {ckanLastUpdated && (
-              <span>CKAN Updated: <span className="font-medium text-gray-800">{new Date(ckanLastUpdated).toLocaleDateString()}</span></span>
+              <span>
+                CKAN Updated:{" "}
+                <span className="font-medium text-gray-800">
+                  {new Date(ckanLastUpdated).toLocaleDateString()}
+                </span>
+              </span>
             )}
           </div>
         )}
@@ -287,7 +325,7 @@ export default function VariableManager() {
         open={deleteOpen}
         paragraphs={[
           `Are you sure you want to delete this variable: "${deleteTarget?.name}"?`,
-          'Deleting an ACS variable will delete for all geographies and remove it from any profiles that use it.',
+          "Deleting an ACS variable will delete for all geographies and remove it from any profiles that use it.",
         ]}
         onCancel={() => {
           setDeleteOpen(false);

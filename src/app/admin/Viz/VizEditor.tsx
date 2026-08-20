@@ -52,7 +52,9 @@ export default function VizEditor(props: Props) {
     const nextSources = sourcesByVisualization.filter(
       (_, currentIndex) => currentIndex !== index,
     );
-    handleChange(visualizations.filter((_, currentIndex) => currentIndex !== index));
+    handleChange(
+      visualizations.filter((_, currentIndex) => currentIndex !== index),
+    );
     setSourcesByVisualization(nextSources);
     handleSourcesChange([...new Set(nextSources.flat())]);
   };
@@ -65,7 +67,9 @@ export default function VizEditor(props: Props) {
   return (
     <div className="flex flex-col gap-6">
       {visualizations.map((visualization, index) => {
-        const selectedSources: SelectOption[] = (sourcesByVisualization[index] ?? [])
+        const selectedSources: SelectOption[] = (
+          sourcesByVisualization[index] ?? []
+        )
           .map((id) => sourceOptions.find((source) => source.value === id))
           .filter(Boolean) as SelectOption[];
 
@@ -96,7 +100,10 @@ export default function VizEditor(props: Props) {
                 value={selectedSources}
                 options={sourceOptions}
                 onChange={(values) =>
-                  updateSources(index, values.map((source) => Number(source.value)))
+                  updateSources(
+                    index,
+                    values.map((source) => Number(source.value)),
+                  )
                 }
               />
             </div>

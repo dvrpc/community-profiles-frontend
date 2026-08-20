@@ -15,7 +15,7 @@ export default function MarkdownEditor(props: Props) {
 
   const onChange = (
     value?: string,
-    event?: React.ChangeEvent<HTMLTextAreaElement>
+    event?: React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     if (!event?.currentTarget || !value) return;
     handleChange(value);

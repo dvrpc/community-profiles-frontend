@@ -62,20 +62,14 @@ export type BuildStatus = {
 
 export interface Content {
   id: number;
-  topic_id: number;
-  label: string;
-  sort_weight: number;
-  category_id: number;
-  geo_level: string;
   file: string;
-  create_date: Date;
-  is_visible: boolean;
-  last_edited_by?: string;
-  source_ids: number[];
-  product_ids: string[];
-  catalog_link: string;
-  census_link: string;
-  other_link: string;
+  last_edited_by: string;
+  updated_at: Date;
+}
+
+export interface ContentUpdate {
+  file: string;
+  last_edited_by: string;
 }
 
 export interface Viz {
@@ -107,6 +101,55 @@ export interface TopicPropertyForm {
 export interface SubcategoryPropertyForm {
   label: string;
   sort_weight: number;
+}
+
+export interface CategoryBase {
+  id: number;
+  label: string;
+  url_id: string;
+  sort_weight: number;
+}
+export interface Category extends CategoryBase {
+  subcategories?: Subcategory[];
+}
+
+export interface Subcategory extends CategoryBase {
+  category_id: number;
+  geo_level: GeoLevel;
+  topics?: Topic[];
+}
+
+export interface Topic extends CategoryBase {
+  subcategory_id: number;
+  is_visible?: boolean;
+}
+
+export interface SubcategoryCreate {
+  label: string;
+  url_id: string;
+  sort_weight: number;
+  geo_level: GeoLevel;
+  category_id: number;
+}
+
+export interface SubcategoryUpdate {
+  label?: string;
+  url_id?: string;
+  sort_weight?: number;
+}
+
+export interface TopicCreate {
+  label: string;
+  url_id: string;
+  sort_weight: number;
+  subcategory_id: number;
+}
+
+export interface TopicUpdate {
+  label?: string;
+  url_id?: string;
+  sort_weight?: number;
+  is_visible?: boolean;
 }
 
 export type ProfileContent = Record<CategoryKeys, CategoryContent>;
@@ -147,16 +190,6 @@ export type SubcategoryTree = {
   label: string;
   sort_weight: number;
   topics: TreeTopic[];
-};
-
-export type Topic = TopicBase & {
-  id: number;
-};
-
-export type TopicBase = {
-  name: string;
-  label: string;
-  sort_weight: number;
 };
 
 export type TopicRequest = {

@@ -10,12 +10,14 @@ import {
   useSource,
   useUpdateSource,
 } from "@/lib/hooks";
+import { useAdminToast } from "../Toast/AdminToast";
 
 export default function SourceEditor() {
   const { data: sources, isLoading } = useSource();
   const { mutate: createMutation, status: createStatus } = useCreateSource();
   const { mutate: updateMutation, status: updateStatus } = useUpdateSource();
   const { mutate: deleteMutation, status: deleteStatus } = useDeleteSource();
+  const { showToast, showError } = useAdminToast();
 
   const changePending =
     createStatus == "pending" ||
@@ -29,10 +31,27 @@ export default function SourceEditor() {
 
   const handleSave = (source: SourceForm) => {
     if (!source.id) {
-      createMutation(source);
+      createMutation(source, {
+        onSuccess: (id) =>
+          showToast(
+            `Source "${source.citation}" created successfully (ID: ${id}).`,
+          ),
+        onError: (error) =>
+          showError(error, `Failed to create source "${source.citation}"`),
+      });
     } else {
       const { id, ...sourceBody } = source;
-      updateMutation({ id: source.id, source: sourceBody });
+      updateMutation(
+        { id: source.id, source: sourceBody },
+        {
+          onSuccess: () =>
+            showToast(
+              `Source "${source.citation}" saved successfully (ID: ${id}).`,
+            ),
+          onError: (error) =>
+            showError(error, `Failed to save source "${source.citation}"`),
+        },
+      );
     }
 
     setEditing(null);
