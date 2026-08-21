@@ -3,22 +3,17 @@
 import { useEffect, useState } from "react";
 import {
   useTree,
-  useProfile,
-  useHistory,
+
   useSave,
   useContent,
   useViz,
   useUpdateSubcategory,
   useUpdateTopic,
-  useCreateSubcategory,
-  useCreateTopic,
-  useDeleteTopic,
-  useDeleteSubcategory,
   useUpdateProperties,
+  useContentHistory,
 } from "../../lib/hooks";
 import CategorySidebar from "./CategorySidebar/CategorySidebar";
 import ContentWrapper from "./Content/ContentWrapper";
-import VizWrapper from "./Viz/VizWrapper";
 import VersionControl from "./Content/VersionControl";
 import UnsavedChangesModal from "./UnsavedChangesModal";
 import {
@@ -30,8 +25,7 @@ import {
 } from "@/types/types";
 import Header from "./Header";
 import SourceEditor from "./Source/SourceEditor";
-import TopicPropertiesForm from "./Form/TopicPropertiesForm";
-import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
+
 import { useSession } from "next-auth/react";
 import VariableEditor from "./Variables/VariableEditor";
 import SqlEditor from "./SQL/SqlEditor";
@@ -90,7 +84,7 @@ export default function Dashboard() {
   const { data: tree } = useTree(selectedGeoLevel);
   const { data: content } = useContent(selectedId, selectedTreeLevel);
   const { data: viz } = useViz(selectedId);
-  const { data: history } = useHistory(selectedMode, selectedId);
+  const { data: contentHistory } = useContentHistory(content);
 
   const saveMutation = useSave();
   const subcategoryUpdateMutation = useUpdateSubcategory();
@@ -330,7 +324,7 @@ export default function Dashboard() {
           )}
           <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
             <VersionControl
-              contentHistory={history || []}
+              contentHistory={contentHistory || []}
               handleClick={handleVersionChange}
             />
           </div>

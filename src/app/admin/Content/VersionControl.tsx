@@ -7,6 +7,7 @@ interface Props {
 
 export default function VersionControl(props: Props) {
   const { contentHistory, handleClick } = props;
+  console.log(contentHistory);
   return (
     <>
       <h3 className="text-dvrpc-blue-1 text-2xl font-semibold p-4 border-b border-dvrpc-gray-6">
@@ -17,19 +18,20 @@ export default function VersionControl(props: Props) {
         {contentHistory.length === 0 ? (
           <p className="text-sm text-dvrpc-gray-3 p-4">No history available</p>
         ) : (
-          contentHistory.map((item, i) => (
-            <button
-              key={i}
-              onClick={() => handleClick(item.file, i)}
-              className="text-left px-4 py-2 text-sm hover:bg-dvrpc-gray-6 focus:bg-dvrpc-gray-6 transition"
-            >
-              {`${new Date(item.updated_at).toLocaleString()}${
-                i == 0 ? " (Current)" : ""
-              }`}
-              <br />
-              {`Edited by: ${item.last_edited_by}`}
-            </button>
-          ))
+          contentHistory.map((item, i) => {
+            return (
+              <button
+                key={i}
+                onClick={() => handleClick(item.file, i)}
+                className="text-left px-4 py-2 text-sm hover:bg-dvrpc-gray-6 focus:bg-dvrpc-gray-6 transition"
+              >
+                {`${new Date(item.updated_at).toLocaleString()}${i == 0 ? " (Current)" : ""
+                  }`}
+                <br />
+                {`Edited by: ${item.last_edited_by}`}
+              </button>
+            )
+          })
         )}
       </div>
     </>

@@ -90,7 +90,6 @@ export interface TopicPropertyForm {
   label: string;
   sort_weight: number;
   content_sources: number[];
-  viz_sources: number[];
   related_products: string[];
   catalog_link: string;
   census_link: string;

@@ -67,6 +67,7 @@ export default function CategorySidebar(props: Props) {
     topic_id: number,
   ) => {
     setSelected({ category_id, subcategory_id, topic_id });
+    console.log("handleTopicClick", category_id, subcategory_id, topic_id);
     handleClick(topic_id, "topic");
   };
 
@@ -191,13 +192,12 @@ export default function CategorySidebar(props: Props) {
             >
               <button
                 className={`flex items-center justify-between w-full text-left p-2 rounded cursor-pointer
-                          ${
-                            selected?.category_id === category.id &&
-                            selected?.subcategory_id === null &&
-                            selected?.topic_id === null
-                              ? "bg-dvrpc-blue-1 text-white"
-                              : "hover:bg-gray-300"
-                          }`}
+                          ${selected?.category_id === category.id &&
+                    selected?.subcategory_id === null &&
+                    selected?.topic_id === null
+                    ? "bg-dvrpc-blue-1 text-white"
+                    : "hover:bg-gray-300"
+                  }`}
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelected({
@@ -238,13 +238,12 @@ export default function CategorySidebar(props: Props) {
                             handleSubcategoryClick(category.id, subcategory.id);
                           }}
                           className={`flex items-center justify-between w-full text-left px-2 py-1 rounded cursor-pointer
-                          ${
-                            selected?.category_id === category.id &&
-                            selected?.subcategory_id === subcategory.id &&
-                            selected?.topic_id === null
+                          ${selected?.category_id === category.id &&
+                              selected?.subcategory_id === subcategory.id &&
+                              selected?.topic_id === null
                               ? "bg-dvrpc-blue-1 text-white"
                               : "hover:bg-gray-200"
-                          }`}
+                            }`}
                         >
                           <span>{subcategory.label}</span>
                         </button>
@@ -282,13 +281,12 @@ export default function CategorySidebar(props: Props) {
                               className="flex justify-between items-center"
                             >
                               <div
-                                className={`${!topic.is_visible && "text-dvrpc-gray-4"} px-2 py-1 rounded cursor-pointer flex-1 ${
-                                  selected?.category_id === category.id &&
-                                  selected?.subcategory_id === subcategory.id &&
-                                  selected?.topic_id === topic.id
+                                className={`${!topic.is_visible && "text-dvrpc-gray-4"} px-2 py-1 rounded cursor-pointer flex-1 ${selected?.category_id === category.id &&
+                                    selected?.subcategory_id === subcategory.id &&
+                                    selected?.topic_id === topic.id
                                     ? "bg-dvrpc-blue-1 text-white"
                                     : "hover:bg-gray-300"
-                                }`}
+                                  }`}
                                 onClick={() =>
                                   handleTopicClick(
                                     category.id,

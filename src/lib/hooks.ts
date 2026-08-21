@@ -42,7 +42,7 @@ import { TreeLevel } from "@/app/admin/Dashboard";
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({
     queryKey: ["tree", geoLevel],
-    queryFn: () => apiGet<Category[]>(`/tree/${geoLevel}`),
+    queryFn: () => apiGet<Category[]>(`/category/tree/${geoLevel}`),
   });
 }
 
@@ -87,11 +87,14 @@ export function useViz(id: number) {
   });
 }
 
-export function useHistory(mode: string, id: number) {
+export function useContentHistory(content?: Content) {
   return useQuery({
-    queryKey: ["history", mode, id],
-    queryFn: () => apiGet<Content[]>(`/${mode}/${id}/history`),
-    enabled: id != 0 && (mode == "content" || mode == "viz"),
+    queryKey: ["history", content?.id],
+    queryFn: () => {
+      if (!content?.id) throw new Error("Missing content ID");
+      return apiGet<Content[]>(`/content/${content.id}/history`);
+    },
+    enabled: !!content?.id && content.id !== 0,
   });
 }
 
@@ -202,7 +205,7 @@ export function useCreateSubcategory() {
 
   return useMutation({
     mutationFn: (subcategory: SubcategoryCreate) =>
-      apiPostAuthorized<number>(`/tree/subcategory`, subcategory),
+      apiPostAuthorized<number>(`/subcategory`, subcategory),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -214,7 +217,7 @@ export function useCreateTopic() {
 
   return useMutation({
     mutationFn: (topic: TopicCreate) =>
-      apiPostAuthorized<number>(`/tree/topic`, topic),
+      apiPostAuthorized<number>(`/topic`, topic),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -233,7 +236,7 @@ export function useUpdateSubcategory() {
       subcategory: SubcategoryRequest;
     }) =>
       apiPutAuthorized<number>(
-        `/tree/subcategory/${subcategoryId}`,
+        `/subcategory/${subcategoryId}`,
         subcategory,
       ),
     onSuccess: () => {
@@ -252,7 +255,7 @@ export function useUpdateTopic() {
     }: {
       topicId: number;
       topic: TopicRequest;
-    }) => apiPutAuthorized<number>(`/tree/topic/${topicId}`, topic),
+    }) => apiPutAuthorized<number>(`/topic/${topicId}`, topic),
 
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -333,7 +336,7 @@ export function useDeleteTopic() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/tree/topic/${id}`),
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/topic/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -345,7 +348,7 @@ export function useDeleteSubcategory() {
 
   return useMutation({
     mutationFn: (id: number) =>
-      apiDeleteAuthorized<void>(`/tree/subcategory/${id}`),
+      apiDeleteAuthorized<void>(`/subcategory/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
