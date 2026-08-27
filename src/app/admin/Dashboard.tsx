@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react";
 import {
   useTree,
-
   useSave,
   useContent,
   useViz,
   useUpdateSubcategory,
-  useUpdateTopic,
   useUpdateProperties,
   useContentHistory,
 } from "../../lib/hooks";
@@ -20,7 +18,6 @@ import {
   Category,
   GeoLevel,
   SubcategoryPropertyForm,
-  TopicPropertyForm,
   Visualization,
 } from "@/types/types";
 import Header from "./Header";
@@ -31,6 +28,7 @@ import VariableEditor from "./Variables/VariableEditor";
 import SqlEditor from "./SQL/SqlEditor";
 import BuildStatus from "./Build/BuildStatus";
 import { useAdminToast } from "./Toast/AdminToast";
+import TopicPropertiesForm from "./Form/TopicPropertiesForm";
 
 const defaultGeoids = {
   county: "42101",
@@ -88,7 +86,6 @@ export default function Dashboard() {
 
   const saveMutation = useSave();
   const subcategoryUpdateMutation = useUpdateSubcategory();
-  const topicUpdateMutation = useUpdateTopic();
   const propertiesMutation = useUpdateProperties();
   const { showToast, showError } = useAdminToast();
 
@@ -239,35 +236,6 @@ export default function Dashboard() {
     setHasEdits(index > 0);
   }
 
-  function handleTopicPropertiesSave(
-    id: number,
-    topicId: number,
-    payload: Partial<TopicPropertyForm>,
-  ) {
-    const { label, sort_weight, ...rest } = payload;
-
-    if (label !== undefined || sort_weight !== undefined) {
-      topicUpdateMutation.mutate(
-        { topicId, topic: { label, sort_weight } },
-        {
-          onSuccess: () =>
-            showToast(`Topic saved successfully (ID: ${topicId}).`),
-          onError: (error) =>
-            showError(error, `Failed to save topic (ID: ${topicId})`),
-        },
-      );
-    }
-    propertiesMutation.mutate(
-      { id, payload: rest },
-      {
-        onSuccess: () =>
-          showToast(`Topic properties saved successfully (ID: ${id}).`),
-        onError: (error) =>
-          showError(error, `Failed to save topic properties (ID: ${id})`),
-      },
-    );
-  }
-
   function handleSubcategoryPropertiesSave(
     subcategoryId: number,
     payload: Partial<SubcategoryPropertyForm>,
@@ -329,6 +297,13 @@ export default function Dashboard() {
             />
           </div>
         </>
+      )}
+      {selectedMode === "properties" && (
+        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+          {selectedTreeLevel === "topic" && (
+            <TopicPropertiesForm id={selectedId} />
+          )}
+        </div>
       )}
       {selectedMode === "sources" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">

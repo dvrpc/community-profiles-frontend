@@ -1,42 +1,48 @@
 "use client";
 
-import { useAllProducts, useSource } from "@/lib/hooks";
-import { TopicPropertyForm, SelectOption, Source } from "@/types/types";
+import {
+  useAllProducts,
+  useSource,
+  useTopic,
+  useUpdateTopic,
+} from "@/lib/hooks";
+import {
+  Link,
+  TopicLink,
+  TopicPropertyForm,
+  SelectOption,
+  Source,
+} from "@/types/types";
 import MultiSelect from "./MultiSelect";
 import { useState, useMemo, useEffect } from "react";
 import Button from "@/components/Buttons/Button";
 import { diff } from "@/lib/utils";
+import { useAdminToast } from "../Toast/AdminToast";
 
 interface Props {
   id: number;
-  topic_id: number;
-  initialData: TopicPropertyForm;
-  handleSave: (
-    id: number,
-    topic_id: number,
-    payload: Partial<TopicPropertyForm>,
-  ) => void;
 }
 
-const mapIdsToOptions = <
-  T extends {
-    id: string | number;
-    citation?: string;
-    title?: string;
-    link?: string;
-  },
->(
+const emptyTopic: TopicPropertyForm = {
+  content_ids: [],
+  product_ids: [],
+  links: [],
+  label: "",
+  sort_weight: 0,
+  is_visible: true,
+};
+
+type LinkRow = TopicLink;
+
+const mapIdsToOptions = <T extends { id: string | number }>(
   ids: number[] | string[],
   list: T[],
-  labelKey: "citation" | "title" | "link",
+  getLabel: (item: T) => string,
 ): SelectOption[] => {
-  return ids
-    .map((id) => {
-      const item = list.find((x) => x.id === id);
-      if (!item) return null;
-      return { value: id, label: item[labelKey] ?? "" };
-    })
-    .filter(Boolean) as SelectOption[];
+  return ids.flatMap((id) => {
+    const item = list.find((x) => x.id === id);
+    return item ? [{ value: item.id, label: getLabel(item) }] : [];
+  });
 };
 
 const getCitationString = (
@@ -51,67 +57,98 @@ const getCitationString = (
 };
 
 export default function TopicPropertiesForm(props: Props) {
-  const { id, topic_id, initialData, handleSave } = props;
+  const { id } = props;
+  const { data: topic } = useTopic(id);
   const { data: sources } = useSource();
   const { data: products } = useAllProducts();
+  const topicUpdateMutation = useUpdateTopic();
+  const { showToast, showError } = useAdminToast();
+  const initialData = topic ?? emptyTopic;
 
   const selectedContentSourcesOptions = useMemo(() => {
     if (!sources) return [];
-    return mapIdsToOptions(initialData.content_sources, sources, "citation");
-  }, [initialData.content_sources, sources]);
+    return mapIdsToOptions(
+      initialData.content_ids ?? [],
+      sources,
+      (source) => source.citation,
+    );
+  }, [initialData.content_ids, sources]);
 
   const selectedProductsOptions = useMemo(() => {
     if (!products) return [];
-    return mapIdsToOptions(initialData.related_products, products, "title");
-  }, [initialData.related_products, products]);
+    return mapIdsToOptions(
+      initialData.product_ids ?? [],
+      products,
+      (product) => product.title,
+    );
+  }, [initialData.product_ids, products]);
 
   const [selectedContentSources, setSelectedContentSources] = useState<
     SelectOption[]
-  >(selectedContentSourcesOptions ?? []);
+  >(selectedContentSourcesOptions);
   const [selectedProducts, setSelectedProducts] = useState<SelectOption[]>(
-    selectedProductsOptions ?? [],
+    selectedProductsOptions,
+  );
+  const [linkRows, setLinkRows] = useState<LinkRow[]>(
+    (topic?.links ?? []).map((link) => ({ ...link, mutation: "none" })),
   );
 
   const [isVisible, setIsVisible] = useState(initialData.is_visible ?? true);
 
   const [label, setLabel] = useState(initialData.label ?? "");
-  const [catalogLinks, setCatalogLinks] = useState(
-    initialData.catalog_link ?? "",
-  );
-  const [censusLinks, setCensusLinks] = useState(initialData.census_link ?? "");
-  const [otherLinks, setOtherLinks] = useState(initialData.other_link ?? "");
+  const [urlId, setUrlId] = useState(initialData.url_id ?? "");
   const [sortWeight, setSortWeight] = useState(initialData.sort_weight ?? 0);
 
   useEffect(() => {
     setLabel(initialData.label ?? "");
-    setSelectedContentSources(selectedContentSourcesOptions ?? []);
-    setSelectedProducts(selectedProductsOptions ?? []);
+    setUrlId(initialData.url_id ?? "");
+    setSelectedContentSources(selectedContentSourcesOptions);
+    setSelectedProducts(selectedProductsOptions);
+    setLinkRows(
+      (initialData.links ?? []).map((link) => ({ ...link, mutation: "none" })),
+    );
     setIsVisible(initialData.is_visible ?? true);
-    setCatalogLinks(initialData.catalog_link ?? "");
-    setCensusLinks(initialData.census_link ?? "");
-    setOtherLinks(initialData.other_link ?? "");
     setSortWeight(initialData.sort_weight ?? 0);
-  }, [id, selectedContentSourcesOptions, selectedProductsOptions]);
+  }, [id, topic, selectedContentSourcesOptions, selectedProductsOptions]);
 
-  if (!sources || !products) return <div>Loading...</div>;
+  if (!topic || !sources || !products) return <div>Loading...</div>;
 
   const sourceOptions = sources.map((s) => ({
     value: s.id,
     label: s.citation,
   }));
   const productOptions = products.map((p) => ({ value: p.id, label: p.title }));
+  const handleAddLink = () => {
+    setLinkRows((current) => [
+      ...current,
+      { link: "", type: "other", mutation: "create" },
+    ]);
+  };
+
+  const updateLinkRow = (index: number, changes: Partial<LinkRow>) => {
+    setLinkRows((current) =>
+      current.map((row, rowIndex) =>
+        rowIndex === index
+          ? {
+              ...row,
+              ...changes,
+              mutation: row.id === undefined ? "create" : "update",
+            }
+          : row,
+      ),
+    );
+  };
 
   const handleSaveClick = () => {
     const current: TopicPropertyForm = {
+      url_id: urlId,
       label: label,
       sort_weight: sortWeight,
-      content_sources: selectedContentSources.map((s) => Number(s.value)),
-      viz_sources: initialData.viz_sources,
-      related_products: selectedProducts.map((p) => String(p.value)),
+      content_ids: selectedContentSources.map((source) => Number(source.value)),
+      product_ids: selectedProducts.map((product) => String(product.value)),
+      links: linkRows,
+
       is_visible: isVisible,
-      catalog_link: catalogLinks,
-      census_link: censusLinks,
-      other_link: otherLinks,
     };
 
     const changedPayload = diff(initialData, current);
@@ -121,7 +158,14 @@ export default function TopicPropertiesForm(props: Props) {
       return;
     }
 
-    handleSave(id, topic_id, changedPayload);
+    topicUpdateMutation.mutate(
+      { topicId: id, topic: changedPayload },
+      {
+        onSuccess: () => showToast(`Topic saved successfully (ID: ${id}).`),
+        onError: (error) =>
+          showError(error, `Failed to save topic (ID: ${id})`),
+      },
+    );
   };
   return (
     <form className="flex flex-col gap-6">
@@ -139,6 +183,16 @@ export default function TopicPropertiesForm(props: Props) {
             type="text"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
+            className="border border-dvrpc-gray-5 p-2 rounded"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="font-medium">URL ID</label>
+          <input
+            type="text"
+            value={urlId}
+            onChange={(e) => setUrlId(e.target.value)}
             className="border border-dvrpc-gray-5 p-2 rounded"
           />
         </div>
@@ -184,47 +238,67 @@ export default function TopicPropertiesForm(props: Props) {
           />
         </div>
 
-        <div className="col-span-1 md:col-span-2 text-sm text-gray-600">
-          To have multiple links, they should be comma separated with no spaces
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="font-medium">Catalog Links</label>
-          <input
-            type="text"
-            value={catalogLinks}
-            onChange={(e) => setCatalogLinks(e.target.value)}
-            className="border border-dvrpc-gray-5 p-2 rounded"
-            placeholder="https://..."
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="font-medium">Census Links</label>
-          <input
-            type="text"
-            value={censusLinks}
-            onChange={(e) => setCensusLinks(e.target.value)}
-            className="border border-dvrpc-gray-5 p-2 rounded"
-            placeholder="https://..."
-          />
-        </div>
-
-        <div className="flex flex-col gap-1 col-span-1 md:col-span-2">
-          <label className="font-medium">Other Links</label>
-          <input
-            type="text"
-            value={otherLinks}
-            onChange={(e) => setOtherLinks(e.target.value)}
-            className="border border-dvrpc-gray-5 p-2 rounded"
-            placeholder="https://..."
-          />
+        <div className="flex flex-col gap-2 col-span-1 md:col-span-2">
+          <label className="font-medium">Links</label>
+          {linkRows.map((row, index) =>
+            row.mutation === "delete" ? null : (
+              <div
+                className="flex flex-wrap gap-2"
+                key={row.id ?? `new-${index}`}
+              >
+                <input
+                  type="url"
+                  value={row.link}
+                  onChange={(event) =>
+                    updateLinkRow(index, { link: event.target.value })
+                  }
+                  className="border border-dvrpc-gray-5 p-2 rounded flex-1"
+                  placeholder="https://..."
+                />
+                <select
+                  value={row.type}
+                  onChange={(event) =>
+                    updateLinkRow(index, {
+                      type: event.target.value as Link["type"],
+                    })
+                  }
+                  className="border border-dvrpc-gray-5 p-2 rounded"
+                >
+                  <option value="census">Census</option>
+                  <option value="catalog">Catalog</option>
+                  <option value="other">Other</option>
+                </select>
+                <Button
+                  type="secondary"
+                  handleClick={() =>
+                    setLinkRows((current) =>
+                      current.flatMap((currentRow, rowIndex) => {
+                        if (rowIndex !== index) return [currentRow];
+                        return currentRow.id === undefined
+                          ? []
+                          : [{ ...currentRow, mutation: "delete" }];
+                      }),
+                    )
+                  }
+                >
+                  Remove
+                </Button>
+              </div>
+            ),
+          )}
+          <Button type="secondary" handleClick={handleAddLink}>
+            Add Link
+          </Button>
         </div>
       </div>
 
       <div className="mt-4">
-        <Button type="primary" handleClick={handleSaveClick}>
-          Save
+        <Button
+          type="primary"
+          disabled={topicUpdateMutation.isPending}
+          handleClick={handleSaveClick}
+        >
+          {topicUpdateMutation.isPending ? "Saving..." : "Save"}
         </Button>
       </div>
     </form>

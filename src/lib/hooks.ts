@@ -18,7 +18,6 @@ import {
   TopicPropertyForm,
   Source,
   SourceBase,
-  TopicRequest,
   Visualization,
   Viz,
   SubcategoryRequest,
@@ -35,6 +34,8 @@ import {
   TopicCreate,
   SubcategoryCreate,
   ContentUpdate,
+  Link,
+  LinkCreate,
 } from "@/types/types";
 import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 import { TreeLevel } from "@/app/admin/Dashboard";
@@ -42,7 +43,7 @@ import { TreeLevel } from "@/app/admin/Dashboard";
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({
     queryKey: ["tree", geoLevel],
-    queryFn: () => apiGet<Category[]>(`/category/tree/${geoLevel}`),
+    queryFn: () => apiGet<Category[]>(`/category/tree?geo_level=${geoLevel}`),
   });
 }
 
@@ -67,6 +68,14 @@ export function useCategoryContent(id: number) {
   return useQuery({
     queryKey: ["content", id],
     queryFn: () => apiGet<Content>(`/content/category/${id}`),
+    enabled: id != 0,
+  });
+}
+
+export function useTopic(id: number) {
+  return useQuery({
+    queryKey: ["topic", id],
+    queryFn: () => apiGet<TopicPropertyForm>(`/topic/${id}`),
     enabled: id != 0,
   });
 }
@@ -123,6 +132,24 @@ export function useSource() {
   return useQuery({
     queryKey: ["source"],
     queryFn: () => apiGet<Source[]>(`/source`),
+  });
+}
+
+export function useLinks() {
+  return useQuery({
+    queryKey: ["link"],
+    queryFn: () => apiGet<Link[]>("/link"),
+  });
+}
+
+export function useCreateLink() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (link: LinkCreate) => apiPostAuthorized<Link>("/link", link),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["link"] });
+    },
   });
 }
 
@@ -235,10 +262,7 @@ export function useUpdateSubcategory() {
       subcategoryId: number;
       subcategory: SubcategoryRequest;
     }) =>
-      apiPutAuthorized<number>(
-        `/subcategory/${subcategoryId}`,
-        subcategory,
-      ),
+      apiPutAuthorized<number>(`/subcategory/${subcategoryId}`, subcategory),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -254,7 +278,7 @@ export function useUpdateTopic() {
       topic,
     }: {
       topicId: number;
-      topic: TopicRequest;
+      topic: Partial<TopicPropertyForm>;
     }) => apiPutAuthorized<number>(`/topic/${topicId}`, topic),
 
     onSuccess: () => {
@@ -347,8 +371,7 @@ export function useDeleteSubcategory() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) =>
-      apiDeleteAuthorized<void>(`/subcategory/${id}`),
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/subcategory/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -397,7 +420,7 @@ export function useUpdateProperties() {
       payload,
     }: {
       id: number;
-      payload: Partial<TopicPropertyForm>;
+      payload: Partial<TopicPropertyForm> | { viz_sources: number[] };
     }) => apiPutAuthorized(`/content/${id}/properties`, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["content"] });

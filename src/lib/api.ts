@@ -3,7 +3,7 @@ import { getSession, signOut } from "next-auth/react";
 
 async function authorizedRequest<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const session = await getSession();
 
@@ -59,7 +59,7 @@ export async function apiGetAuthorized<T>(path: string) {
 
 export async function apiPostAuthorized<T>(
   path: string,
-  body?: string | object
+  body?: string | object,
 ) {
   const { headers, body: finalBody } = buildBodyOptions(body);
   return authorizedRequest<T>(path, {
@@ -71,7 +71,7 @@ export async function apiPostAuthorized<T>(
 
 export async function apiPutAuthorized<T>(
   path: string,
-  body?: string | object
+  body?: string | object,
 ) {
   const { headers, body: finalBody } = buildBodyOptions(body);
   return authorizedRequest<T>(path, {

@@ -86,15 +86,10 @@ export interface SelectOption {
   label: string;
 }
 
-export interface TopicPropertyForm {
-  label: string;
-  sort_weight: number;
-  content_sources: number[];
-  related_products: string[];
-  catalog_link: string;
-  census_link: string;
-  other_link: string;
-  is_visible: boolean;
+export interface TopicPropertyForm extends TopicUpdate {
+  content_ids: number[];
+  product_ids: string[];
+  links: TopicLink[];
 }
 
 export interface SubcategoryPropertyForm {
@@ -189,12 +184,6 @@ export type SubcategoryTree = {
   label: string;
   sort_weight: number;
   topics: TreeTopic[];
-};
-
-export type TopicRequest = {
-  name?: string;
-  label?: string;
-  sort_weight?: number;
 };
 
 export type SubcategoryRequest = {
@@ -298,7 +287,16 @@ export interface Link {
   id: number;
   link: string;
   type: "catalog" | "census" | "other";
+  mutation?: LinkMutation;
 }
+
+export type TopicLink = Omit<Link, "id" | "mutation"> & {
+  id?: number;
+  mutation: LinkMutation;
+};
+
+export type LinkCreate = Omit<Link, "id">;
+export type LinkMutation = "none" | "create" | "update" | "delete";
 
 export interface AppMetadata {
   key: string;
