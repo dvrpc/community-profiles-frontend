@@ -74,11 +74,23 @@ export interface ContentUpdate {
 
 export interface Viz {
   id: number;
-  topic_id: number;
-  geo_level: string;
   file: string;
-  create_date: Date;
+  created_at: Date;
+  updated_at: Date;
+  last_edited_by: string;
   source_ids: number[];
+}
+
+export type VizMutation = "none" | "create" | "update" | "delete";
+
+export interface EditableViz {
+  id?: number;
+  file: string;
+  source_ids: number[];
+  mutation: VizMutation;
+  created_at?: Date;
+  updated_at?: Date;
+  last_edited_by?: string;
 }
 
 export interface SelectOption {

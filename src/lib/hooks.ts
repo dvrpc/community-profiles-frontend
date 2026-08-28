@@ -88,11 +88,67 @@ export function useTopicContent(id: number) {
   });
 }
 
-export function useViz(id: number) {
+export function useVisualizations(topic_id: number) {
   return useQuery({
-    queryKey: ["viz", id],
-    queryFn: () => apiGet<Viz>(`/viz/${id}`),
-    enabled: id != 0,
+    queryKey: ["viz", topic_id],
+    queryFn: () => apiGet<Viz[]>(`/viz/${topic_id}`),
+    enabled: topic_id != 0,
+  });
+}
+
+export function useCreateVisualization() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      file,
+      last_edited_by,
+    }: {
+      file: string;
+      last_edited_by: string;
+    }) => apiPostAuthorized<number>("/viz", { file, last_edited_by }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["viz"] });
+    },
+  });
+}
+
+export function useUpdateVisualization() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      file,
+      last_edited_by,
+    }: {
+      id: number;
+      file: string;
+      last_edited_by: string;
+    }) => apiPutAuthorized(`/viz/${id}`, { file, last_edited_by }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["viz"] });
+      qc.invalidateQueries({ queryKey: ["viz-history"] });
+    },
+  });
+}
+
+export function useDeleteVisualization() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/viz/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["viz"] });
+    },
+  });
+}
+
+export function useVizHistory(viz?: { id?: number }) {
+  return useQuery({
+    queryKey: ["viz-history", viz?.id],
+    queryFn: () => {
+      if (!viz?.id) throw new Error("Missing viz ID");
+      return apiGet<Viz[]>(`/viz/${viz.id}/history`);
+    },
+    enabled: !!viz?.id && viz.id !== 0,
   });
 }
 

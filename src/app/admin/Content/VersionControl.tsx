@@ -1,13 +1,14 @@
 import { Content } from "@/types/types";
+import { useContentHistory } from "@/lib/hooks";
 
 interface Props {
-  contentHistory: Content[];
+  content: Content;
   handleClick: (file: string, index: number) => void;
 }
 
 export default function VersionControl(props: Props) {
-  const { contentHistory, handleClick } = props;
-  console.log(contentHistory);
+  const { content, handleClick } = props;
+  const { data: contentHistory = [] } = useContentHistory(content);
   return (
     <>
       <h3 className="text-dvrpc-blue-1 text-2xl font-semibold p-4 border-b border-dvrpc-gray-6">
