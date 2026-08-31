@@ -63,15 +63,23 @@ export default function VizTable({ topicId, geoLevel }: Props) {
     setDeleteTarget(null);
   }, [topicId]);
 
+  useEffect(() => {
+    setSelectedId((current) => {
+      if (current !== null && vizItems.some((viz) => viz.id === current)) {
+        return current;
+      }
+      return vizItems[0]?.id ?? null;
+    });
+  }, [vizItems]);
+
   const selectedViz = vizItems?.find((viz) => viz.id === selectedId) ?? null;
 
-  const selectedVisualizations: Visualization[] = useMemo(() => {
-    if (!selectedViz) return [];
+  const selectedVisualization: Visualization | null = useMemo(() => {
+    if (!selectedViz) return null;
     try {
-      const parsed = JSON.parse(selectedViz.file);
-      return Array.isArray(parsed) ? parsed : [];
+      return JSON.parse(selectedViz.file) as Visualization;
     } catch {
-      return [];
+      return null;
     }
   }, [selectedViz]);
 
@@ -81,9 +89,13 @@ export default function VizTable({ topicId, geoLevel }: Props) {
 
   const { data: profile } = useProfile(previewGeoLevel, previewGeoid);
   const { data: preview } = useVizPreview(
-    selectedVisualizations,
+    selectedVisualization,
     previewGeoLevel,
     previewGeoid,
+  );
+  const previewVisualizations: Visualization[] = useMemo(
+    () => (preview ? [preview] : []),
+    [preview],
   );
 
   const handleOpenNew = () => {
@@ -96,7 +108,7 @@ export default function VizTable({ topicId, geoLevel }: Props) {
     setShowModal(true);
   };
 
-  const handleSave = (file: string, id?: number) => {
+  const handleSave = (file: string, sortWeight: number, id?: number) => {
     const user = session?.user.name;
     if (!user) return;
     setShowModal(false);
@@ -104,7 +116,14 @@ export default function VizTable({ topicId, geoLevel }: Props) {
 
     if (!id) {
       createMutation(
-        { file, last_edited_by: user },
+        {
+          viz: {
+            file,
+            topic_id: topicId,
+            last_edited_by: user,
+            sort_weight: sortWeight,
+          },
+        },
         {
           onSuccess: (newId) => {
             setSelectedId(newId);
@@ -115,8 +134,20 @@ export default function VizTable({ topicId, geoLevel }: Props) {
         },
       );
     } else {
+      const nextPayload: { file?: string; sort_weight?: number; last_edited_by: string } = {
+        last_edited_by: user,
+      };
+
+      if (file !== editing?.file) {
+        nextPayload.file = file;
+      }
+
+      if (sortWeight !== editing?.sort_weight) {
+        nextPayload.sort_weight = sortWeight;
+      }
+
       updateMutation(
-        { id, file, last_edited_by: user },
+        { id, viz: nextPayload },
         {
           onSuccess: () => {
             setSelectedId(id);
@@ -204,6 +235,7 @@ export default function VizTable({ topicId, geoLevel }: Props) {
                     key={viz.id}
                     role="button"
                     tabIndex={0}
+                    aria-pressed={isSelected}
                     onClick={() => setSelectedId(viz.id)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
@@ -211,9 +243,18 @@ export default function VizTable({ topicId, geoLevel }: Props) {
                         setSelectedId(viz.id);
                       }
                     }}
-                    className={`border-b hover:bg-gray-50 transition ${isSelected ? "bg-dvrpc-blue-6" : ""}`}
+                    className={`border-b cursor-pointer transition-all ${isSelected ? "bg-dvrpc-blue-6 shadow-inner ring-1 ring-dvrpc-blue-3" : "bg-white hover:bg-gray-50"}`}
                   >
-                    <td className="py-2 px-3 font-medium">Viz {index + 1}</td>
+                    <td className="py-2 px-3 font-medium">
+                      <div className="flex items-center gap-2">
+                        <span>Viz {index + 1}</span>
+                        {isSelected && (
+                          <span className="rounded-full bg-dvrpc-blue-3 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-2 px-3 text-dvrpc-gray-3">
                       {viz.updated_at
                         ? new Date(viz.updated_at).toLocaleString()
@@ -252,9 +293,9 @@ export default function VizTable({ topicId, geoLevel }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-md border border-dvrpc-gray-6 p-3 flex flex-col gap-2">
           <h3 className="text-xl">Preview</h3>
-          {selectedViz && profile && preview && preview.length > 0 ? (
+          {selectedViz && profile && previewVisualizations.length > 0 ? (
             <VizPreview
-              visualizations={preview}
+              visualizations={previewVisualizations}
               buffer_bbox={profile.geography.buffer_bbox}
               geoLevel={previewGeoLevel}
               geoid={profile.geography.geoid}

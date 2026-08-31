@@ -79,6 +79,20 @@ export interface Viz {
   updated_at: Date;
   last_edited_by: string;
   source_ids: number[];
+  sort_weight: number;
+}
+
+export interface VizCreate {
+  file: string;
+  topic_id: number;
+  last_edited_by: string;
+  sort_weight: number;
+}
+
+export interface VizUpdate {
+  file?: string;
+  sort_weight?: number;
+  last_edited_by: string;
 }
 
 export type VizMutation = "none" | "create" | "update" | "delete";
@@ -217,10 +231,8 @@ export interface TopicContent {
   variables: string[];
 }
 
-export type Visualization = (MapVisualization | ChartVisualization) & {
-  subcategory: string;
-  topic?: string;
-};
+export type Visualization = MapVisualization | ChartVisualization
+
 
 export type Geometry = "Point" | "Line" | "Polygon";
 

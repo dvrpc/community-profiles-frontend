@@ -30,7 +30,7 @@ export default function VizPreview(props: Props) {
   }
 
   return (
-    <div className="relative h-60 m-auto">
+    <div className="relative">
       {visualizations && visualizations.map((viz, i) => getViz(viz, i))}
     </div>
   );

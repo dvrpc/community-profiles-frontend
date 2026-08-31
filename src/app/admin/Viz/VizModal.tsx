@@ -6,10 +6,10 @@ import { Viz } from "@/types/types";
 interface Props {
   initialData: Viz | null;
   onCancel: () => void;
-  onSave: (file: string, id?: number) => void;
+  onSave: (file: string, sortWeight: number, id?: number) => void;
 }
 
-const emptyTemplate = [{}];
+const emptyTemplate = {};
 
 export default function VizModal({ initialData, onCancel, onSave }: Props) {
   const [data, setData] = useState<JsonData>(() => {
@@ -22,11 +22,14 @@ export default function VizModal({ initialData, onCancel, onSave }: Props) {
     }
     return emptyTemplate;
   });
+  const [sortWeight, setSortWeight] = useState<number>(
+    initialData?.sort_weight ?? 0,
+  );
   const [error, setError] = useState<string>("");
 
   const handleSave = () => {
     try {
-      onSave(JSON.stringify(data), initialData?.id);
+      onSave(JSON.stringify(data), sortWeight, initialData?.id);
     } catch {
       setError("Unable to save. The visualization JSON is invalid.");
     }
@@ -39,6 +42,15 @@ export default function VizModal({ initialData, onCancel, onSave }: Props) {
           {initialData ? "Edit Visualization" : "New Visualization"}
         </h2>
         {error && <p className="text-red-600 mb-2">{error}</p>}
+        <div className="mb-4 flex flex-col gap-1">
+          <label className="font-medium text-sm text-gray-700">Sort Weight</label>
+          <input
+            type="number"
+            value={sortWeight}
+            onChange={(e) => setSortWeight(Number(e.target.value) || 0)}
+            className="border border-dvrpc-gray-5 p-2 rounded-md"
+          />
+        </div>
         <JsonEditor
           rootFontSize={12}
           maxWidth="100%"

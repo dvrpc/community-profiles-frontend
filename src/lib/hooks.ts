@@ -36,6 +36,8 @@ import {
   ContentUpdate,
   Link,
   LinkCreate,
+  VizCreate,
+  VizUpdate,
 } from "@/types/types";
 import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
 import { TreeLevel } from "@/app/admin/Dashboard";
@@ -100,12 +102,10 @@ export function useCreateVisualization() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({
-      file,
-      last_edited_by,
+      viz
     }: {
-      file: string;
-      last_edited_by: string;
-    }) => apiPostAuthorized<number>("/viz", { file, last_edited_by }),
+      viz: VizCreate
+    }) => apiPostAuthorized<number>("/viz", viz),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["viz"] });
     },
@@ -117,13 +117,11 @@ export function useUpdateVisualization() {
   return useMutation({
     mutationFn: ({
       id,
-      file,
-      last_edited_by,
+      viz
     }: {
       id: number;
-      file: string;
-      last_edited_by: string;
-    }) => apiPutAuthorized(`/viz/${id}`, { file, last_edited_by }),
+      viz: VizUpdate;
+    }) => apiPutAuthorized(`/viz/${id}`, viz),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["viz"] });
       qc.invalidateQueries({ queryKey: ["viz-history"] });
@@ -452,18 +450,18 @@ export function useContentPreview(
 }
 
 export function useVizPreview(
-  template: Visualization[],
+  template: Visualization | null,
   geoLevel: GeoLevel,
   geoid?: string,
 ) {
-  return useQuery<Visualization[]>({
+  return useQuery<Visualization>({
     queryKey: ["preview", "viz", geoLevel, template, geoid],
     queryFn: () =>
-      apiPostAuthorized<Visualization[]>(
+      apiPostAuthorized<Visualization>(
         `/viz/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""}`,
         JSON.stringify(template),
       ),
-    enabled: template.length > 0,
+    enabled: !!template,
     staleTime: 0,
   });
 }
