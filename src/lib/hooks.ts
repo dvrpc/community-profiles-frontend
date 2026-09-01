@@ -16,6 +16,7 @@ import {
   GeoLevel,
   ProductResponse,
   TopicPropertyForm,
+  SubcategoryPropertyForm,
   Source,
   SourceBase,
   Visualization,
@@ -78,6 +79,14 @@ export function useTopic(id: number) {
   return useQuery({
     queryKey: ["topic", id],
     queryFn: () => apiGet<TopicPropertyForm>(`/topic/${id}`),
+    enabled: id != 0,
+  });
+}
+
+export function useSubcategory(id: number) {
+  return useQuery({
+    queryKey: ["subcategory", id],
+    queryFn: () => apiGet<SubcategoryPropertyForm>(`/subcategory/${id}`),
     enabled: id != 0,
   });
 }

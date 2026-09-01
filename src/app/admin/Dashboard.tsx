@@ -6,7 +6,7 @@ import CategorySidebar from "./CategorySidebar/CategorySidebar";
 import ContentWrapper from "./Content/ContentWrapper";
 import VizTable from "./Viz/VizTable";
 import UnsavedChangesModal from "./UnsavedChangesModal";
-import { GeoLevel } from "@/types/types";
+import { GeoLevel, SubcategoryPropertyForm } from "@/types/types";
 import Header from "./Header";
 import SourceEditor from "./Source/SourceEditor";
 
@@ -16,6 +16,7 @@ import SqlEditor from "./SQL/SqlEditor";
 import BuildStatus from "./Build/BuildStatus";
 import { useAdminToast } from "./Toast/AdminToast";
 import TopicPropertiesForm from "./Form/TopicPropertiesForm";
+import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
 
 const defaultGeoids = {
   county: "42101",
@@ -65,12 +66,13 @@ export default function Dashboard() {
 
   function applySelection(id: number, treeLevel: TreeLevel) {
     setSelectedTreeLevel(treeLevel);
+    setSelectedId(id);
+
     if (treeLevel === "subcategory") {
       setSelectedMode("properties");
       return;
     }
 
-    setSelectedId(id);
     if (!["content", "viz", "properties"].includes(selectedMode)) {
       setSelectedMode("content");
     }
@@ -141,6 +143,7 @@ export default function Dashboard() {
   }
 
   function handleVersionChange(file: string, index: number) {
+    console.log(file, index)
     setContentText(file);
     setHasEdits(index > 0);
   }
@@ -190,9 +193,9 @@ export default function Dashboard() {
       )}
       {selectedMode === "properties" && (
         <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
-          {selectedTreeLevel === "topic" && (
-            <TopicPropertiesForm id={selectedId} />
-          )}
+          {selectedTreeLevel === "topic" ?
+            <TopicPropertiesForm id={selectedId} /> : <SubcategoryPropertiesForm id={selectedId} />
+          }
         </div>
       )}
       {selectedMode === "sources" && (

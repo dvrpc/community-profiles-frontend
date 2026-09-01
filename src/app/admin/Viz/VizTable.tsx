@@ -52,6 +52,7 @@ export default function VizTable({ topicId, geoLevel }: Props) {
     deleteStatus === "pending";
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedHistoryFile, setSelectedHistoryFile] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Viz | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Viz | null>(null);
@@ -70,32 +71,31 @@ export default function VizTable({ topicId, geoLevel }: Props) {
       }
       return vizItems[0]?.id ?? null;
     });
+    setSelectedHistoryFile(null);
   }, [vizItems]);
 
   const selectedViz = vizItems?.find((viz) => viz.id === selectedId) ?? null;
 
+  const activePreviewFile = selectedHistoryFile ?? selectedViz?.file ?? null;
+
   const selectedVisualization: Visualization | null = useMemo(() => {
-    if (!selectedViz) return null;
+    if (!activePreviewFile) return null;
     try {
-      return JSON.parse(selectedViz.file) as Visualization;
+      return JSON.parse(activePreviewFile) as Visualization;
     } catch {
       return null;
     }
-  }, [selectedViz]);
+  }, [activePreviewFile]);
 
   const previewGeoLevel = geoLevel;
   const previewGeoid =
-    geoLevel === "region" ? undefined : defaultGeoids[geoLevel];
+    geoLevel === "region" ? undefined : defaultGeoids[geoLevel as "county" | "municipality"];
 
   const { data: profile } = useProfile(previewGeoLevel, previewGeoid);
   const { data: preview } = useVizPreview(
     selectedVisualization,
     previewGeoLevel,
     previewGeoid,
-  );
-  const previewVisualizations: Visualization[] = useMemo(
-    () => (preview ? [preview] : []),
-    [preview],
   );
 
   const handleOpenNew = () => {
@@ -105,7 +105,32 @@ export default function VizTable({ topicId, geoLevel }: Props) {
 
   const handleOpenEdit = (viz: Viz) => {
     setEditing(viz);
+    setSelectedHistoryFile(null);
     setShowModal(true);
+  };
+
+  const handleRevertHistory = (file: string) => {
+    if (!selectedViz) return;
+    const user = session?.user.name;
+    if (!user) return;
+
+    updateMutation(
+      {
+        id: selectedViz.id,
+        viz: {
+          file,
+          last_edited_by: user,
+        },
+      },
+      {
+        onSuccess: () => {
+          setSelectedHistoryFile(null);
+          showToast(`Visualization (ID: ${selectedViz.id}) reverted successfully.`);
+        },
+        onError: (error) =>
+          showError(error, `Failed to revert visualization (ID: ${selectedViz.id})`),
+      },
+    );
   };
 
   const handleSave = (file: string, sortWeight: number, id?: number) => {
@@ -175,7 +200,7 @@ export default function VizTable({ topicId, geoLevel }: Props) {
   };
 
   return (
-    <div className="p-4 h-full overflow-auto flex flex-col gap-4">
+    <div className="p-4 overflow-auto flex flex-col gap-4">
       <div className="flex justify-between items-center mb-2">
         <div className="flex gap-4">
           <h1 className="text-2xl font-semibold text-gray-800">
@@ -218,10 +243,10 @@ export default function VizTable({ topicId, geoLevel }: Props) {
         )
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
+          <table className="w-full min-w-[760px] border-collapse text-sm">
             <thead className="bg-dvrpc-gray-7 text-left text-xs uppercase tracking-wide">
               <tr>
-                <th className="py-2 px-3">Visualization</th>
+                <th className="py-2 px-3">Id</th>
                 <th className="py-2 px-3">Last updated</th>
                 <th className="py-2 px-3">Last edited by</th>
                 <th className="py-2 px-3 text-center">Actions</th>
@@ -236,10 +261,14 @@ export default function VizTable({ topicId, geoLevel }: Props) {
                     role="button"
                     tabIndex={0}
                     aria-pressed={isSelected}
-                    onClick={() => setSelectedId(viz.id)}
+                    onClick={() => {
+                      setSelectedHistoryFile(null);
+                      setSelectedId(viz.id);
+                    }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
+                        setSelectedHistoryFile(null);
                         setSelectedId(viz.id);
                       }
                     }}
@@ -247,12 +276,8 @@ export default function VizTable({ topicId, geoLevel }: Props) {
                   >
                     <td className="py-2 px-3 font-medium">
                       <div className="flex items-center gap-2">
-                        <span>Viz {index + 1}</span>
-                        {isSelected && (
-                          <span className="rounded-full bg-dvrpc-blue-3 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                            Selected
-                          </span>
-                        )}
+                        <span>{viz.id}</span>
+
                       </div>
                     </td>
                     <td className="py-2 px-3 text-dvrpc-gray-3">
@@ -290,12 +315,15 @@ export default function VizTable({ topicId, geoLevel }: Props) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="rounded-md border border-dvrpc-gray-6 p-3 flex flex-col gap-2">
-          <h3 className="text-xl">Preview</h3>
-          {selectedViz && profile && previewVisualizations.length > 0 ? (
+          <h3 className="text-xl">
+            {selectedViz ? `Preview (Viz ${selectedViz.id})` : "Preview"}
+          </h3>
+          {selectedViz && profile && preview ? (
             <VizPreview
-              visualizations={previewVisualizations}
+              id={selectedViz.id}
+              visualization={preview}
               buffer_bbox={profile.geography.buffer_bbox}
               geoLevel={previewGeoLevel}
               geoid={profile.geography.geoid}
@@ -305,13 +333,19 @@ export default function VizTable({ topicId, geoLevel }: Props) {
           )}
         </div>
         <div className="rounded-md border border-dvrpc-gray-6 p-3">
-          <VizVersionControl viz={selectedViz} />
+          <VizVersionControl
+            viz={selectedViz}
+            onSelectHistory={(file) => setSelectedHistoryFile(file)}
+            onRevert={handleRevertHistory}
+          />
         </div>
       </div>
 
       {showModal && (
         <VizModal
           initialData={editing}
+          geoLevel={geoLevel}
+          geoid={geoLevel === "region" ? undefined : defaultGeoids[geoLevel as "county" | "municipality"]}
           onCancel={() => {
             setShowModal(false);
             setEditing(null);

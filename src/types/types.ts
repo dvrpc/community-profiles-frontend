@@ -120,6 +120,7 @@ export interface TopicPropertyForm extends TopicUpdate {
 
 export interface SubcategoryPropertyForm {
   label: string;
+  url_id: string;
   sort_weight: number;
 }
 

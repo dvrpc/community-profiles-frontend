@@ -3,13 +3,15 @@ import VizMap from "@/components/Visualizations/VizMap/VizMap";
 import { GeoLevel, Visualization } from "@/types/types";
 
 interface Props {
-  visualizations: Visualization[];
+  id?: number;
+  visualization: Visualization | null;
   geoLevel: GeoLevel;
   geoid: string;
   buffer_bbox: string;
 }
+
 export default function VizPreview(props: Props) {
-  const { visualizations, buffer_bbox, geoLevel, geoid } = props;
+  const { visualization, buffer_bbox, geoLevel, geoid, id } = props;
 
   function getViz(viz: Visualization, i: number) {
     if (viz.type == "map") {
@@ -29,9 +31,13 @@ export default function VizPreview(props: Props) {
     }
   }
 
+  if (!visualization) {
+    return null;
+  }
+
   return (
     <div className="relative">
-      {visualizations && visualizations.map((viz, i) => getViz(viz, i))}
+      {getViz(visualization, id ?? 0)}
     </div>
   );
 }
