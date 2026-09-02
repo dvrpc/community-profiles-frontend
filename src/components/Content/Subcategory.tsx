@@ -1,61 +1,38 @@
-import { CategoryKeys, GeoLevel, TopicContent } from "@/types/types";
+import {
+  CategoryKeys,
+  GeoLevel,
+  Subcategory as SubcategoryType,
+} from "@/types/types";
 import Topic from "./Topic";
 import { isValidUrl } from "@/utils";
 import Title from "./Title";
 
 interface Props {
-  subcategory: string;
-  label: string;
-  topics: TopicContent[];
-  category: CategoryKeys;
+  subcategory: SubcategoryType;
   geoid: string;
   buffer_bbox: string;
   geoLevel: GeoLevel;
 }
 
-function getUrls(urlString: string) {
-  if (urlString === "") return undefined;
-
-  const validUrls: string[] = [];
-  const urls = urlString.split(",");
-  urls.forEach((u) => {
-    if (isValidUrl(u)) {
-      validUrls.push(u);
-    }
-  });
-  if (validUrls.length == 0) return undefined;
-  return validUrls;
-}
-
 export default function Subcategory(props: Props) {
-  const { subcategory, label, topics, category, geoid, buffer_bbox, geoLevel } =
-    props;
+  const { subcategory, geoid, buffer_bbox, geoLevel } = props;
   return (
     <div>
       <Title
-        title={label}
+        title={subcategory.label}
+        urlId={subcategory.url_id}
         type="h3"
-        category={category}
-        subcategory={subcategory}
+        categoryId={subcategory.category_id}
+        subcategoryId={subcategory.id}
       />
-      {topics.map((t) => (
+      {subcategory.topics.map((t) => (
         <Topic
-          key={`${subcategory}-${t.name}`}
-          id={t.id}
-          label={t.label}
-          name={t.name}
-          content={t.content}
-          category={category}
-          citations={t.citations}
-          subcategory={subcategory}
+          key={`${subcategory.url_id}-${t.url_id}`}
+          topic={t}
+          subcategoryUrlId={subcategory.url_id}
           geoid={geoid}
           buffer_bbox={buffer_bbox}
           geoLevel={geoLevel}
-          relatedProducts={t.related_products}
-          censusLinks={getUrls(t.catalog_link)}
-          catalogLinks={getUrls(t.census_link)}
-          otherLinks={getUrls(t.other_link)}
-          topicVars={t.variables}
         />
       ))}
     </div>

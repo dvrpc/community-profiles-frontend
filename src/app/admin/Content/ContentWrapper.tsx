@@ -47,8 +47,8 @@ export default function ContentWrapper({
 
   return (
     <>
-      <div className="col-start-2 row-start-2 row-span-2 overflow-auto rounded-md bg-white p-2">
-        <h3 className="mb-2 p-2 text-xl">Editor</h3>
+      <div className="col-start-2 row-start-2 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm">
+        <h3 className="mb-3 text-lg font-semibold text-dvrpc-gray-1">Editor</h3>
         <MarkdownEditor
           value={value}
           handleChange={(nextValue) => {
@@ -57,9 +57,9 @@ export default function ContentWrapper({
           }}
         />
       </div>
-      <div className="col-start-3 row-start-2 row-span-2 overflow-auto rounded-md bg-white p-2">
-        <div className="mb-2 flex justify-between p-2">
-          <h3 className="text-xl">Preview</h3>
+      <div className="col-start-3 row-start-2 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-dvrpc-gray-1">Preview</h3>
           <Button
             disabled={!hasEdits || isPending}
             handleClick={handleSave}
@@ -70,7 +70,7 @@ export default function ContentWrapper({
         </div>
         <MarkdownPreview content={preview ? preview : ""} />
       </div>
-      <div className="col-start-4 row-start-2 row-span-2 overflow-auto rounded-md bg-white">
+      <div className="col-start-4 row-start-2 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white shadow-sm">
         <VersionControl
           content={content}
           handleClick={handleVersionChange}

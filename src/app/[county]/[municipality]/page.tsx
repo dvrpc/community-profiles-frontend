@@ -7,6 +7,7 @@ import {
   CountySlug,
   MunicipalitySlug,
   MunicipalityProfile,
+  Category,
 } from "@/types/types";
 import { getAllCountyMunicipalityPairs } from "@/utils";
 import Content from "@/components/Content/Content";
@@ -31,12 +32,14 @@ export default async function Municipality(props: Params) {
   );
   const municipalityData =
     (await profileResponse.json()) as MunicipalityProfile;
-  const contentResponse = await fetch(
-    `${API_BASE_URL}/content/municipality/${geoid}`,
-    { next: { tags: ["municipality"] } },
-  );
-  const content = (await contentResponse.json()) as ProfileContent;
 
+  const contentTreeResponse = await fetch(
+    `${API_BASE_URL}/content/county/${geoid}`,
+    {
+      next: { tags: ["region"] },
+    },
+  );
+  const contentTree = (await contentTreeResponse.json()) as Category[];
   return (
     <>
       <SmallHeader />
@@ -47,7 +50,7 @@ export default async function Municipality(props: Params) {
           geoLevel="municipality"
         />
         <Content
-          content={content}
+          contentTree={contentTree}
           profileData={municipalityData}
           geoLevel="municipality"
         />

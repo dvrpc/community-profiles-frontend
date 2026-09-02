@@ -1,5 +1,11 @@
 "use client";
-import { CategoryKeyMap, CategoryKeys, getTypedObjectEntries } from "@/types/types";
+import {
+  Category,
+  CategoryKeyMap,
+  CategoryKeys,
+  GeoLevel,
+  getTypedObjectEntries,
+} from "@/types/types";
 import ActiveTransportationIcon from "../Icons/ActiveTransportationIcon";
 import DemographicHousingIcon from "../Icons/DemographicHousingIcon";
 import EconomyIcon from "../Icons/EconomyIcon";
@@ -9,37 +15,34 @@ import RoadwaysIcon from "../Icons/RoadwaysIcon";
 import SafetyHealthIcon from "../Icons/SafetyHealthIcon";
 import TransitIcon from "../Icons/TransitIcon";
 import CategoryButton from "./CategoryButton";
-import { JSX, useEffect, useRef, useState } from "react";
+import { JSX, useEffect, useMemo, useRef, useState } from "react";
 import { categoryTitleMap } from "@/consts";
 import { useScrollContext } from "@/context/ScrollProvider";
 import SubcategoryNav from "./SubcategoryNav";
+import { useTree } from "@/lib/hooks";
 
 interface Props {
-  categoryKeyMap: CategoryKeyMap;
+  geoLevel: GeoLevel;
 }
 export default function CategoryNav(props: Props) {
-  const { activeCategory, activeSubcategory } = useScrollContext();
+  const { activeCategoryId, activeSubcategoryId } = useScrollContext();
   const stickyRef = useRef(null);
   const [isPinned, setIsPinned] = useState(false);
-  const { categoryKeyMap } = props;
+  const { geoLevel } = props;
+
+  const { data: tree = [] } = useTree(geoLevel);
 
   const iconHeight = "h-10";
-  const iconMap: Record<CategoryKeys, JSX.Element> = {
-    "demographics-housing": (
-      <DemographicHousingIcon fill="white" className={iconHeight} />
-    ),
-    economy: <EconomyIcon fill="white" className={iconHeight} />,
-    "active-transportation": (
-      <ActiveTransportationIcon fill="white" className={iconHeight} />
-    ),
-    "safety-health": <SafetyHealthIcon fill="white" className={iconHeight} />,
-    freight: <FreightIcon fill="white" className={iconHeight} />,
-    environment: <EnvironmnentIcon fill="white" className={iconHeight} />,
-    transit: <TransitIcon fill="white" className={iconHeight} />,
-    roadways: <RoadwaysIcon fill="white" className={iconHeight} />,
+  const iconMap: Record<number, JSX.Element> = {
+    1: <DemographicHousingIcon fill="white" className={iconHeight} />,
+    2: <EconomyIcon fill="white" className={iconHeight} />,
+    3: <ActiveTransportationIcon fill="white" className={iconHeight} />,
+    4: <SafetyHealthIcon fill="white" className={iconHeight} />,
+    5: <FreightIcon fill="white" className={iconHeight} />,
+    6: <EnvironmnentIcon fill="white" className={iconHeight} />,
+    7: <TransitIcon fill="white" className={iconHeight} />,
+    8: <RoadwaysIcon fill="white" className={iconHeight} />,
   };
-
-  const entries = getTypedObjectEntries(iconMap);
 
   useEffect(() => {
     if (!stickyRef.current) return;
@@ -50,7 +53,7 @@ export default function CategoryNav(props: Props) {
       },
       {
         threshold: [1],
-      }
+      },
     );
 
     observer.observe(stickyRef.current);
@@ -62,29 +65,34 @@ export default function CategoryNav(props: Props) {
     };
   }, []);
 
-
+  const subcategories = useMemo(() => {
+    const foundSubcats = tree.find(
+      (category) => category.id === activeCategoryId,
+    )?.subcategories;
+    return foundSubcats ? foundSubcats : [];
+  }, [activeCategoryId, tree]);
   return (
     <div
       ref={stickyRef}
       className="bg-dvrpc-blue-3 flex flex-col z-100000 sticky top-[-1px]"
     >
       <div className={`justify-center px-4 pt-4 grid grid-cols-8`}>
-        {entries.map(([key, value]) => {
+        {tree.map((category) => {
           return (
             <CategoryButton
-              key={key}
-              name={categoryTitleMap[key]}
-              icon={value}
-              href={`#${key}`}
-              isActive={isPinned && activeCategory == key}
+              key={category.id}
+              name={category.label}
+              icon={iconMap[category.id]}
+              href={`#${category.url_id}`}
+              isActive={isPinned && activeCategoryId === category.id}
             />
           );
         })}
       </div>
       <SubcategoryNav
         isVisible={isPinned}
-        subcategories={categoryKeyMap[activeCategory].subcategories}
-        activeSubcategory={activeSubcategory}
+        subcategories={subcategories}
+        activeSubcategoryId={activeSubcategoryId}
       />
     </div>
   );

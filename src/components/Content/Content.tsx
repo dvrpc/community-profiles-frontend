@@ -2,7 +2,7 @@ import {
   CategoryKeyMap,
   CategoryKeys,
   ProfileBundle,
-  ProfileContent,
+  Category as CategoryType,
 } from "@/types/types";
 import Category from "./Category";
 import CategoryNav from "../CategoryNav/CategoryNav";
@@ -10,31 +10,25 @@ import ScrollProvider from "@/context/ScrollProvider";
 import { API_BASE_URL } from "@/consts";
 import { CartProvider } from "../DataCart/CartProvider";
 import DataCartModal from "../DataCart/DataCartModal";
+import { useTree } from "@/lib/hooks";
 
 interface Props {
-  content: ProfileContent;
+  contentTree: CategoryType[];
 }
 
 export default async function Content(props: Props & ProfileBundle) {
-  const { content, ...profileBundle } = props;
-
-  const treeResponse = await fetch(
-    `${API_BASE_URL}/tree/${profileBundle.geoLevel}`,
-  );
-  const categoryKeyMap = (await treeResponse.json()) as CategoryKeyMap;
+  const { contentTree, ...profileBundle } = props;
 
   return (
     <ScrollProvider>
-      <CategoryNav categoryKeyMap={categoryKeyMap} />
+      <CategoryNav geoLevel={profileBundle.geoLevel} />
       <CartProvider>
         <div>
-          {Object.entries(content).map(([key, value]) => {
-            const category = key as CategoryKeys;
+          {contentTree.map((category) => {
             return (
               <Category
-                key={category}
+                key={category.id}
                 category={category}
-                categoryContent={value}
                 {...profileBundle}
               />
             );

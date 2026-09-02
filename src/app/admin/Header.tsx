@@ -1,7 +1,6 @@
 import { useSession } from "next-auth/react";
 import { Mode, TreeLevel } from "./Dashboard";
-import { signOut } from "next-auth/react";
-import Button from "@/components/Buttons/Button";
+import Image from "next/image";
 
 interface Props {
   currentTab: Mode;
@@ -97,8 +96,31 @@ export default function Header(props: Props) {
 
   if (!session) return <></>;
   return (
-    <>
-      <div className="text-sm font-medium text-center text-dvrpc-gray-2 pt-4">
+    <div className="flex w-full items-center gap-5">
+      <a
+        href="https://www.dvrpc.org/"
+        target="_blank"
+        rel="noreferrer"
+        className="flex shrink-0 items-center border-r border-dvrpc-gray-6 pr-5"
+        aria-label="Visit DVRPC"
+      >
+        <Image
+          src="/dvrpc-mini.svg"
+          alt="DVRPC"
+          width={74}
+          height={30}
+          className="h-8 w-auto brightness-0"
+        />
+      </a>
+
+      <div className="shrink-0 border-r border-dvrpc-gray-6 pr-5">
+        <h1 className="text-lg font-semibold tracking-tight text-dvrpc-blue-1">
+          Community Profiles
+        </h1>
+        <p className="mt-0.5 text-xs text-dvrpc-gray-3">Admin dashboard</p>
+      </div>
+
+      <div className="min-w-0 flex-1 self-stretch text-center text-sm font-medium text-dvrpc-gray-2">
         <ul className="flex flex-wrap -mb-px">
           {treeLevel != "subcategory" && contentTab()}
           {treeLevel == "topic" && vizTab()}
@@ -110,14 +132,16 @@ export default function Header(props: Props) {
         </ul>
       </div>
 
-      <div className="flex items-center gap-2 pr-4">
+      <div className="flex shrink-0 items-center gap-2 rounded-lg bg-dvrpc-gray-7 px-3 py-2 text-sm">
         <img
           src={session.user.image}
           alt="User Avatar"
-          className="h-12 w-12 rounded-full align-middle justify-center"
+          className="h-9 w-9 rounded-full align-middle justify-center"
         />
-        <h2>{session.user.name}</h2>
+        <h2 className="max-w-32 truncate font-medium text-dvrpc-gray-1">
+          {session.user.name}
+        </h2>
       </div>
-    </>
+    </div>
   );
 }

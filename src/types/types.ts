@@ -131,18 +131,24 @@ export interface CategoryBase {
   sort_weight: number;
 }
 export interface Category extends CategoryBase {
-  subcategories?: Subcategory[];
+  subcategories: Subcategory[];
+  content: string;
 }
 
 export interface Subcategory extends CategoryBase {
   category_id: number;
   geo_level: GeoLevel;
-  topics?: Topic[];
+  topics: Topic[];
 }
 
 export interface Topic extends CategoryBase {
   subcategory_id: number;
   is_visible?: boolean;
+  content: string;
+  citations: string[];
+  products: string[];
+  links: Link[];
+  variables: string[];
 }
 
 export interface SubcategoryCreate {
@@ -232,8 +238,7 @@ export interface TopicContent {
   variables: string[];
 }
 
-export type Visualization = MapVisualization | ChartVisualization
-
+export type Visualization = MapVisualization | ChartVisualization;
 
 export type Geometry = "Point" | "Line" | "Polygon";
 
@@ -312,6 +317,7 @@ export interface Link {
   id: number;
   link: string;
   type: "catalog" | "census" | "other";
+  topic_id: number;
   mutation?: LinkMutation;
 }
 

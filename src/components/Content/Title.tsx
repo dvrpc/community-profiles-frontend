@@ -6,15 +6,16 @@ import { useEffect, useRef } from "react";
 
 interface Props {
   title: string;
+  urlId: string;
   type: "h2" | "h3";
-  category: CategoryKeys;
-  subcategory: string;
+  categoryId: number;
+  subcategoryId: number;
 }
 
 const SCROLL_THRESHOLD = 250;
 
 export default function Title(props: Props) {
-  const { title, type, category, subcategory } = props;
+  const { title, urlId, type, categoryId, subcategoryId } = props;
   const { setActiveCategories } = useScrollContext();
   const ref = useRef<HTMLHeadingElement>(null);
 
@@ -24,7 +25,7 @@ export default function Title(props: Props) {
       const position = ref.current.getBoundingClientRect();
 
       if (position.top - SCROLL_THRESHOLD <= 0) {
-        setActiveCategories(category, subcategory);
+        setActiveCategories(categoryId, subcategoryId);
       }
     });
   }, []);
@@ -32,7 +33,7 @@ export default function Title(props: Props) {
   if (type == "h2") {
     return (
       <h2
-        id={category}
+        id={urlId}
         className="text-4xl text-dvrpc-blue-1 font-bold mb-8 text-center scroll-mt-32"
         ref={ref}
       >
@@ -41,7 +42,7 @@ export default function Title(props: Props) {
     );
   } else {
     return (
-      <h3 id={subcategory} className="text-3xl scroll-mt-32 mt-16" ref={ref}>
+      <h3 id={urlId} className="text-3xl scroll-mt-32 mt-16" ref={ref}>
         {title}
       </h3>
     );

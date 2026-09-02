@@ -3,9 +3,9 @@ import { CategoryKeys } from "@/types/types";
 import React, { createContext, useContext, useState } from "react";
 
 interface ScrollContext {
-  activeCategory: CategoryKeys;
-  activeSubcategory: string;
-  setActiveCategories: (cat: CategoryKeys, subcat: string) => void;
+  activeCategoryId: number;
+  activeSubcategoryId: number;
+  setActiveCategories: (cat: number, subcat: number) => void;
 }
 const ScrollContext = createContext<ScrollContext | null>(null);
 
@@ -14,21 +14,19 @@ export default function ScrollProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [activeCategory, setActiveCategory] = useState<CategoryKeys>(
-    "demographics-housing"
-  );
-  const [activeSubcategory, setActiveSubcategory] = useState<string>("");
+  const [activeCategoryId, setActiveCategoryId] = useState<number>(1);
+  const [activeSubcategoryId, setActiveSubcategoryId] = useState<number>(0);
 
-  function setActiveCategories(cat: CategoryKeys, subcat: string) {
-    setActiveCategory(cat);
-    setActiveSubcategory(subcat);
+  function setActiveCategories(cat: number, subcat: number) {
+    setActiveCategoryId(cat);
+    setActiveSubcategoryId(subcat);
   }
 
   return (
     <ScrollContext.Provider
       value={{
-        activeCategory,
-        activeSubcategory,
+        activeCategoryId,
+        activeSubcategoryId,
         setActiveCategories,
       }}
     >

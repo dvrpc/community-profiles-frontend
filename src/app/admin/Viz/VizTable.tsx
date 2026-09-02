@@ -20,17 +20,13 @@ import VizModal from "./VizModal";
 import VizPreview from "./VizPreview";
 import VizVersionControl from "./VizVersionControl";
 
-const defaultGeoids = {
-  county: "42101",
-  municipality: "4201704976",
-};
-
 interface Props {
   topicId: number;
   geoLevel: GeoLevel;
+  geoid?: string;
 }
 
-export default function VizTable({ topicId, geoLevel }: Props) {
+export default function VizTable({ topicId, geoLevel, geoid }: Props) {
   const { data: session } = useSession();
   const { data, isLoading } = useVisualizations(topicId);
   const { mutate: createMutation, status: createStatus } =
@@ -88,8 +84,7 @@ export default function VizTable({ topicId, geoLevel }: Props) {
   }, [activePreviewFile]);
 
   const previewGeoLevel = geoLevel;
-  const previewGeoid =
-    geoLevel === "region" ? undefined : defaultGeoids[geoLevel as "county" | "municipality"];
+  const previewGeoid = geoLevel === "region" ? undefined : geoid;
 
   const { data: profile } = useProfile(previewGeoLevel, previewGeoid);
   const { data: preview } = useVizPreview(
@@ -345,7 +340,7 @@ export default function VizTable({ topicId, geoLevel }: Props) {
         <VizModal
           initialData={editing}
           geoLevel={geoLevel}
-          geoid={geoLevel === "region" ? undefined : defaultGeoids[geoLevel as "county" | "municipality"]}
+          geoid={previewGeoid}
           onCancel={() => {
             setShowModal(false);
             setEditing(null);

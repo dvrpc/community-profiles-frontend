@@ -7,14 +7,14 @@ import ResultsTable from "./ResultsTable";
 
 const emptyForm: SqlForm = {
   name: "",
-  data_source: "",
+  data_source: "gis",
   geo_level: "",
   body: "",
 };
 
 const DATA_SOURCES = [
   { value: "gis", label: "GIS" },
-  { value: "ckan", label: "CKAN" },
+  { value: "ckan", label: "CKAN (temporarily unavailable)", disabled: true },
 ];
 
 const GEO_LEVELS = [
@@ -167,12 +167,16 @@ export default function SqlModal(props: Props) {
                 name="data_source"
                 value={form.data_source}
                 onChange={handleChange}
+                disabled
                 required
-                className="w-full border rounded-lg p-2"
+                className="w-full cursor-not-allowed rounded-lg border bg-dvrpc-gray-7 p-2 text-dvrpc-gray-2"
               >
-                <option value="">Select a data source</option>
                 {DATA_SOURCES.map((source) => (
-                  <option key={source.value} value={source.value}>
+                  <option
+                    key={source.value}
+                    value={source.value}
+                    disabled={source.disabled}
+                  >
                     {source.label}
                   </option>
                 ))}

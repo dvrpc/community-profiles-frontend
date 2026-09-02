@@ -10,9 +10,6 @@ import { useCartVizVars } from "../DataCart/CartProvider";
 
 interface Props {
   id: number;
-  category: CategoryKeys;
-  subcategory: string;
-  topic: string;
   geoLevel: GeoLevel;
   geoid: string;
   buffer_bbox: string;

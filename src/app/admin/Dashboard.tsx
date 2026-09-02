@@ -18,11 +18,6 @@ import { useAdminToast } from "./Toast/AdminToast";
 import TopicPropertiesForm from "./Form/TopicPropertiesForm";
 import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
 
-const defaultGeoids = {
-  county: "42101",
-  municipality: "4201704976",
-};
-
 export type Mode =
   | "content"
   | "viz"
@@ -39,9 +34,11 @@ type PendingChange =
 
 export default function Dashboard() {
   const [selectedGeoLevel, setSelectedGeoLevel] = useState<GeoLevel>("county");
+  const [selectedGeoid, setSelectedGeoid] = useState<string>("42017");
   const [selectedMode, setSelectedMode] = useState<Mode>("content");
-  const [selectedId, setSelectedId] = useState<number>(0);
-  const [selectedTreeLevel, setSelectedTreeLevel] = useState<TreeLevel>("");
+  const [selectedId, setSelectedId] = useState<number>(1);
+  const [selectedTreeLevel, setSelectedTreeLevel] =
+    useState<TreeLevel>("category");
   const [contentText, setContentText] = useState<string>("");
 
   const [hasEdits, setHasEdits] = useState(false);
@@ -49,13 +46,13 @@ export default function Dashboard() {
   const [pendingChange, setPendingChange] = useState<PendingChange>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const geoid =
-    selectedGeoLevel === "region" ? undefined : defaultGeoids[selectedGeoLevel];
+  const geoid = selectedGeoLevel === "region" ? undefined : selectedGeoid;
   const { data: session } = useSession();
   const { data: content } = useContent(selectedId, selectedTreeLevel);
   const updateContentMutation = useUpdateContent();
   const { showToast, showError } = useAdminToast();
 
+  console.log(selectedId, selectedTreeLevel, selectedMode, geoid);
   useEffect(() => {
     if (selectedMode === "content" && content) setContentText(content["file"]);
   }, [content, selectedMode]);
@@ -64,12 +61,28 @@ export default function Dashboard() {
     setContentText("");
   }
 
+  function handleGeolevelChange(geoLevel: GeoLevel) {
+    setSelectedGeoLevel(geoLevel);
+    if (selectedTreeLevel !== "category") {
+      setSelectedId(1);
+      setSelectedTreeLevel("category");
+      if (selectedMode === "properties" || selectedMode === "viz") {
+        setSelectedMode("content");
+      }
+    }
+  }
+
   function applySelection(id: number, treeLevel: TreeLevel) {
     setSelectedTreeLevel(treeLevel);
     setSelectedId(id);
 
     if (treeLevel === "subcategory") {
       setSelectedMode("properties");
+      return;
+    }
+
+    if (treeLevel === "category") {
+      setSelectedMode("content");
       return;
     }
 
@@ -143,32 +156,32 @@ export default function Dashboard() {
   }
 
   function handleVersionChange(file: string, index: number) {
-    console.log(file, index)
+    console.log(file, index);
     setContentText(file);
     setHasEdits(index > 0);
   }
 
   return (
-    <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] gap-2 p-2">
-      <div className="col-span-3 col-start-2 p-2 bg-white flex justify-between rounded-md">
+    <div className="grid h-screen min-h-0 grid-cols-[280px_minmax(0,1fr)_minmax(0,1fr)_280px] grid-rows-[88px_minmax(0,1fr)] gap-2 bg-dvrpc-gray-7 p-2">
+      <div className="col-span-4 col-start-1 flex items-center rounded-xl border border-dvrpc-gray-6 bg-white px-5 shadow-sm">
         <Header
           currentTab={selectedMode}
           setCurrentTab={handleModeChange}
           treeLevel={selectedTreeLevel}
         />
       </div>
-      <div className="p-2 col-start-1 row-start-1">
-        <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
-        <span>Admin Dashboard</span>
-      </div>
-      <div className="row-span-3 p-2 overflow-auto">
+      <aside className="col-start-1 row-start-2 min-h-0 overflow-y-auto rounded-xl border border-dvrpc-gray-6 bg-white p-3 shadow-sm">
         <CategorySidebar
           handleClick={handleCategorySidebarSelect}
           geoLevel={selectedGeoLevel}
-          setGeoLevel={setSelectedGeoLevel}
+          setGeoLevel={handleGeolevelChange}
+          geoid={geoid}
+          setGeoid={setSelectedGeoid}
+          selectedId={selectedId}
+          selectedTreeLevel={selectedTreeLevel}
         />
-      </div>
-      {selectedMode == 'content' && (
+      </aside>
+      {selectedMode == "content" && (
         <>
           {content && (
             <ContentWrapper
@@ -186,31 +199,37 @@ export default function Dashboard() {
           )}
         </>
       )}
-      {selectedMode == 'viz' && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
-          <VizTable topicId={selectedId} geoLevel={selectedGeoLevel} />
+      {selectedMode == "viz" && (
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm">
+          <VizTable
+            topicId={selectedId}
+            geoLevel={selectedGeoLevel}
+            geoid={geoid}
+          />
         </div>
       )}
       {selectedMode === "properties" && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
-          {selectedTreeLevel === "topic" ?
-            <TopicPropertiesForm id={selectedId} /> : <SubcategoryPropertiesForm id={selectedId} />
-          }
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm">
+          {selectedTreeLevel === "topic" ? (
+            <TopicPropertiesForm id={selectedId} />
+          ) : (
+            <SubcategoryPropertiesForm id={selectedId} />
+          )}
         </div>
       )}
       {selectedMode === "sources" && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm">
           <SourceEditor />
         </div>
       )}
       {selectedMode === "variables" && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md flex-col flex">
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm flex flex-col">
           <BuildStatus />
           <VariableEditor />
         </div>
       )}
       {selectedMode === "sql" && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md flex-col flex">
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm flex flex-col">
           <BuildStatus />
           <SqlEditor />
         </div>

@@ -52,7 +52,7 @@ export default function BuildStatus() {
           <Button
             key={category}
             type="primary"
-            disabled={isBuilding || isPending}
+            disabled={isBuilding || isPending || category === "ckan"}
             handleClick={() => setPendingCategory(category)}
           >
             <Hammer size={18} />

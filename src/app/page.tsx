@@ -1,7 +1,7 @@
 import Content from "@/components/Content/Content";
 import Hero from "@/components/Hero/Hero";
 import { API_BASE_URL } from "@/consts";
-import { ProfileContent, RegionProfile } from "@/types/types";
+import { Category, ProfileContent, RegionProfile } from "@/types/types";
 import Header from "./Header";
 import Nav from "./Nav";
 import Footer from "./Footer";
@@ -11,11 +11,11 @@ export default async function Home() {
     next: { tags: ["region"] },
   });
   const regionData = (await regionResponse.json()) as RegionProfile;
-  const contentResponse = await fetch(`${API_BASE_URL}/content/region`, {
+
+  const contentTreeResponse = await fetch(`${API_BASE_URL}/content/region`, {
     next: { tags: ["region"] },
   });
-  const content = (await contentResponse.json()) as ProfileContent;
-
+  const contentTree = (await contentTreeResponse.json()) as Category[];
   return (
     <>
       <Header />
@@ -26,7 +26,11 @@ export default async function Home() {
           profileData={regionData}
           geoLevel="region"
         />
-        <Content content={content} profileData={regionData} geoLevel="region" />
+        <Content
+          contentTree={contentTree}
+          profileData={regionData}
+          geoLevel="region"
+        />
       </main>
       <Footer />
     </>
