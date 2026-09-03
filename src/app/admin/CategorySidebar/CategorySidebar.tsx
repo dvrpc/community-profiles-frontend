@@ -142,10 +142,18 @@ export default function CategorySidebar(props: Props) {
 
   const confirmDeletion = () => {
     if (!pendingDelete) return;
-    if (pendingDelete.type === "subcategory")
-      subcategoryDeleteMutation.mutate(pendingDelete.id);
-    if (pendingDelete.type === "topic")
-      topicDeleteMutation.mutate(pendingDelete.id);
+    const { id, name, type } = pendingDelete;
+    const onSuccess = () =>
+      showToast(`${type} "${name}" deleted successfully.`);
+    const onError = (error: unknown) =>
+      showError(error, `Failed to delete ${type} "${name}"`);
+
+    if (type === "subcategory") {
+      subcategoryDeleteMutation.mutate(id, { onSuccess, onError });
+    }
+    if (type === "topic") {
+      topicDeleteMutation.mutate(id, { onSuccess, onError });
+    }
     setDeleteModalOpen(false);
     setPendingDelete(null);
   };
@@ -296,9 +304,7 @@ export default function CategorySidebar(props: Props) {
                                       ? "border-dvrpc-blue-1 bg-dvrpc-blue-1/10 font-medium text-dvrpc-blue-1"
                                       : "hover:border-dvrpc-blue-1/40 hover:bg-gray-100"
                                   }`}
-                                  onClick={() =>
-                                    handleTopicClick(topic.id)
-                                  }
+                                  onClick={() => handleTopicClick(topic.id)}
                                 >
                                   <span className="break-words whitespace-normal">
                                     {topic.label}
@@ -319,20 +325,10 @@ export default function CategorySidebar(props: Props) {
                                       topic.label,
                                     )
                                   }
-                                  disabled={
-                                    (subcategory.topics ?? []).length === 1
-                                  }
                                   aria-label={`Delete ${topic.label}`}
                                   className="p-2 rounded-sm hover:bg-red-50 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
                                 >
-                                  <Trash2
-                                    size={16}
-                                    color={
-                                      (subcategory.topics ?? []).length !== 1
-                                        ? "red"
-                                        : "black"
-                                    }
-                                  />
+                                  <Trash2 size={16} color="red" />
                                 </button>
                               </li>
                             ))}

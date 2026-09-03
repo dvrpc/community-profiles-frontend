@@ -12,20 +12,19 @@ export default function SubcategoryNav(props: Props) {
 
   return (
     <div
-      className={`flex bg-dvrpc-blue-1 text-white justify-center gap-4 transition-all duration-300 ease-out ${
+      className={`flex bg-dvrpc-blue-1 text-white justify-center gap-4 overflow-hidden transition-all duration-300 ease-out ${
         !isVisible ? "max-h-0" : "max-h-8"
       }`}
     >
-      {isVisible &&
-        subcategories.map((subcategory) => (
-          <SubcategoryDropdown
-            key={subcategory.id}
-            subcategory={subcategory.label}
-            topics={subcategory.topics}
-            isActive={subcategory.id === activeSubcategoryId}
-            navOpen={isVisible}
-          />
-        ))}
+      {subcategories.map((subcategory) => (
+        <SubcategoryDropdown
+          key={subcategory.id}
+          subcategory={subcategory.label}
+          topics={subcategory.topics}
+          isActive={subcategory.id === activeSubcategoryId}
+          navOpen={isVisible}
+        />
+      ))}
     </div>
   );
 }

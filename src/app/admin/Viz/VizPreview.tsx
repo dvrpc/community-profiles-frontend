@@ -1,10 +1,10 @@
 import VegaChart from "@/components/Visualizations/Chart/VegaChart";
 import VizMap from "@/components/Visualizations/VizMap/VizMap";
-import { GeoLevel, Visualization } from "@/types/types";
+import { GeoLevel, VizFile } from "@/types/types";
 
 interface Props {
   id?: number;
-  visualization: Visualization | null;
+  visualization: VizFile | null;
   geoLevel: GeoLevel;
   geoid: string;
   buffer_bbox: string;
@@ -13,7 +13,8 @@ interface Props {
 export default function VizPreview(props: Props) {
   const { visualization, buffer_bbox, geoLevel, geoid, id } = props;
 
-  function getViz(viz: Visualization, i: number) {
+  function getViz(viz: VizFile, i: number) {
+    console.log("viz", viz);
     if (viz.type == "map") {
       return (
         <VizMap
@@ -35,9 +36,5 @@ export default function VizPreview(props: Props) {
     return null;
   }
 
-  return (
-    <div className="relative">
-      {getViz(visualization, id ?? 0)}
-    </div>
-  );
+  return <div className="relative">{getViz(visualization, id ?? 0)}</div>;
 }

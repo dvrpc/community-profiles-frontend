@@ -36,7 +36,6 @@ export default async function County(props: Params) {
     },
   );
   const contentTree = (await contentTreeResponse.json()) as Category[];
-  console.log(contentTree);
 
   return (
     <>

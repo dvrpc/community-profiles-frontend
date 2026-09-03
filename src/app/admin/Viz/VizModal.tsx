@@ -3,7 +3,7 @@ import { Loader2 } from "lucide-react";
 import { JsonEditor, JsonData } from "json-edit-react";
 import Button from "@/components/Buttons/Button";
 import VizPreview from "./VizPreview";
-import { GeoLevel, Visualization, Viz } from "@/types/types";
+import { GeoLevel, VizFile, Viz } from "@/types/types";
 import { useProfile, useVizPreview } from "@/lib/hooks";
 
 interface Props {
@@ -44,21 +44,21 @@ export default function VizModal({
 
   const previewGeoLevel = geoLevel;
   const previewGeoid =
-    geoLevel === "region" ? undefined : geoid ?? defaultGeoids[geoLevel];
+    geoLevel === "region" ? undefined : (geoid ?? defaultGeoids[geoLevel]);
 
-  const previewPayload = useMemo<Visualization | null>(() => {
+  const previewPayload = useMemo<VizFile | null>(() => {
     if (!data || typeof data !== "object") return null;
 
-    const candidate = JSON.parse(JSON.stringify(data)) as Partial<Visualization>;
+    const candidate = JSON.parse(JSON.stringify(data)) as Partial<VizFile>;
     if (
       candidate &&
       typeof candidate === "object" &&
       (candidate.type === "map" || candidate.type === "chart")
     ) {
-      return candidate as Visualization;
+      return candidate as VizFile;
     }
 
-    return candidate as Visualization;
+    return candidate as VizFile;
   }, [data]);
 
   const { data: profile } = useProfile(previewGeoLevel, previewGeoid);
@@ -84,7 +84,9 @@ export default function VizModal({
         </h2>
         {error && <p className="text-red-600 mb-2">{error}</p>}
         <div className="mb-4 flex flex-col gap-1">
-          <label className="font-medium text-sm text-gray-700">Sort Weight</label>
+          <label className="font-medium text-sm text-gray-700">
+            Sort Weight
+          </label>
           <input
             type="number"
             value={sortWeight}

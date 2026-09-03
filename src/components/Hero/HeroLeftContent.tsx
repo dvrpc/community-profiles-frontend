@@ -19,7 +19,7 @@ export default function HeroLeftContent(props: HeroProps) {
       {geoLevel != "region" && (
         <BackLink
           parentCounty={
-            geoLevel == "municipality" ? profileData.geography.name : ""
+            geoLevel == "municipality" ? profileData.county.geography.name : ""
           }
         />
       )}

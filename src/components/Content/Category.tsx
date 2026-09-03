@@ -1,9 +1,4 @@
-import { categoryTitleMap } from "@/consts";
-import {
-  Category as CategoryType,
-  CategoryKeys,
-  ProfileBundle,
-} from "@/types/types";
+import { Category as CategoryType, ProfileBundle } from "@/types/types";
 import Subcategory from "./Subcategory";
 import Title from "./Title";
 
@@ -17,7 +12,6 @@ export default function Category(props: Props & ProfileBundle) {
   const geoLevel = profileBundle.geoLevel;
   const profileData = profileBundle.profileData;
 
-  console.log(category.content);
   return (
     <div className="p-16">
       <Title

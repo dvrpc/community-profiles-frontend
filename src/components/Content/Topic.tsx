@@ -72,7 +72,7 @@ export default function Topic(props: Props) {
 
         <div className="w-2/3 ml-16">
           <Visualizations
-            id={topic.id}
+            topicId={topic.id}
             geoLevel={geoLevel}
             geoid={geoid}
             buffer_bbox={buffer_bbox}

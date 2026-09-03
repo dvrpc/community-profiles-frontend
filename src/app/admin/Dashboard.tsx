@@ -52,7 +52,6 @@ export default function Dashboard() {
   const updateContentMutation = useUpdateContent();
   const { showToast, showError } = useAdminToast();
 
-  console.log(selectedId, selectedTreeLevel, selectedMode, geoid);
   useEffect(() => {
     if (selectedMode === "content" && content) setContentText(content["file"]);
   }, [content, selectedMode]);
@@ -156,7 +155,6 @@ export default function Dashboard() {
   }
 
   function handleVersionChange(file: string, index: number) {
-    console.log(file, index);
     setContentText(file);
     setHasEdits(index > 0);
   }

@@ -74,12 +74,14 @@ export interface ContentUpdate {
 
 export interface Viz {
   id: number;
-  file: string;
+  file: VizFile;
   created_at: Date;
   updated_at: Date;
   last_edited_by: string;
+  topic_id: number;
   source_ids: number[];
   sort_weight: number;
+  variables: string[];
 }
 
 export interface VizCreate {
@@ -238,7 +240,7 @@ export interface TopicContent {
   variables: string[];
 }
 
-export type Visualization = MapVisualization | ChartVisualization;
+export type VizFile = MapVisualization | ChartVisualization;
 
 export type Geometry = "Point" | "Line" | "Polygon";
 
@@ -378,19 +380,26 @@ type Geography = {
   buffer_bbox: string;
 };
 
-type Profile<
-  Parent = null,
-  Metrics extends Record<string, Metric> = Record<string, Metric>,
-> = Metrics & {
-  parent?: Parent;
-  geography: Geography;
+type Profile<Metrics extends Record<string, Metric> = Record<string, Metric>> =
+  Metrics & {
+    geography: Geography;
+    metadata: {
+      acs_year: number;
+      ckan_last_updated: Date | null;
+      acs_last_updated: Date | null;
+      gis_last_updated: Date | null;
+    };
+  };
+
+export type RegionProfile = Profile & {};
+
+export type CountyProfile = Profile & {
+  region: RegionProfile;
 };
 
-export type RegionProfile = Profile<null>;
-
-export type CountyProfile = Profile<RegionProfile>;
-
-export type MunicipalityProfile = Profile<CountyProfile>;
+export type MunicipalityProfile = Profile & {
+  county: CountyProfile;
+};
 
 export type ProfileMap = {
   region: RegionProfile;

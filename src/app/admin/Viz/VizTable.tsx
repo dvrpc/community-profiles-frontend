@@ -5,7 +5,7 @@ import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
-import { GeoLevel, Viz, Visualization } from "@/types/types";
+import { GeoLevel, Viz, VizFile } from "@/types/types";
 import {
   useCreateVisualization,
   useDeleteVisualization,
@@ -48,7 +48,9 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
     deleteStatus === "pending";
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [selectedHistoryFile, setSelectedHistoryFile] = useState<string | null>(null);
+  const [selectedHistoryFile, setSelectedHistoryFile] = useState<string | null>(
+    null,
+  );
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Viz | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Viz | null>(null);
@@ -74,10 +76,10 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
 
   const activePreviewFile = selectedHistoryFile ?? selectedViz?.file ?? null;
 
-  const selectedVisualization: Visualization | null = useMemo(() => {
+  const selectedVisualization: VizFile | null = useMemo(() => {
     if (!activePreviewFile) return null;
     try {
-      return JSON.parse(activePreviewFile) as Visualization;
+      return JSON.parse(activePreviewFile) as VizFile;
     } catch {
       return null;
     }
@@ -120,10 +122,15 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
       {
         onSuccess: () => {
           setSelectedHistoryFile(null);
-          showToast(`Visualization (ID: ${selectedViz.id}) reverted successfully.`);
+          showToast(
+            `Visualization (ID: ${selectedViz.id}) reverted successfully.`,
+          );
         },
         onError: (error) =>
-          showError(error, `Failed to revert visualization (ID: ${selectedViz.id})`),
+          showError(
+            error,
+            `Failed to revert visualization (ID: ${selectedViz.id})`,
+          ),
       },
     );
   };
@@ -154,7 +161,11 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
         },
       );
     } else {
-      const nextPayload: { file?: string; sort_weight?: number; last_edited_by: string } = {
+      const nextPayload: {
+        file?: string;
+        sort_weight?: number;
+        last_edited_by: string;
+      } = {
         last_edited_by: user,
       };
 
@@ -272,7 +283,6 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
                     <td className="py-2 px-3 font-medium">
                       <div className="flex items-center gap-2">
                         <span>{viz.id}</span>
-
                       </div>
                     </td>
                     <td className="py-2 px-3 text-dvrpc-gray-3">

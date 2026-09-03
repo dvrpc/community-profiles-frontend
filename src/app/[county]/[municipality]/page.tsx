@@ -34,7 +34,7 @@ export default async function Municipality(props: Params) {
     (await profileResponse.json()) as MunicipalityProfile;
 
   const contentTreeResponse = await fetch(
-    `${API_BASE_URL}/content/county/${geoid}`,
+    `${API_BASE_URL}/content/municipality/${geoid}`,
     {
       next: { tags: ["region"] },
     },
