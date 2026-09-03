@@ -7,11 +7,10 @@ interface Props {
   isActive: boolean;
   subcategory: string;
   topics: Topic[];
-  navOpen: boolean;
 }
 
 export default function SubcategoryDropdown(props: Props) {
-  const { isActive, subcategory, topics, navOpen } = props;
+  const { isActive, subcategory, topics } = props;
   const [isOpen, setIsOpen] = useState(false);
 
   const handleHover = () => {

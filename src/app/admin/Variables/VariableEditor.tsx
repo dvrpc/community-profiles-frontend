@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import VariableModal from "./VariableModal";
 import DeleteModal from "../Components/DeleteModal";
-import BuildStatus from "../Build/BuildStatus";
 import { GeoLevel, Variable, VariableForm } from "@/types/types";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
@@ -16,7 +15,6 @@ import {
 import { useAdminToast } from "../Toast/AdminToast";
 
 export default function VariableManager() {
-  const [geoLevel, setGeoLevel] = useState<GeoLevel | "all">("all");
   const { data: variables, isLoading } = useVariable();
   const { data: appMetadata } = useAppMetadata();
   const { mutate: createMutation, status: createStatus } = useCreateVariable();

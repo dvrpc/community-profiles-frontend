@@ -1,16 +1,12 @@
 import {
-  CategoryKeyMap,
-  CategoryKeys,
   ProfileBundle,
   Category as CategoryType,
 } from "@/types/types";
 import Category from "./Category";
 import CategoryNav from "../CategoryNav/CategoryNav";
 import ScrollProvider from "@/context/ScrollProvider";
-import { API_BASE_URL } from "@/consts";
 import { CartProvider } from "../DataCart/CartProvider";
 import DataCartModal from "../DataCart/DataCartModal";
-import { useTree } from "@/lib/hooks";
 
 interface Props {
   contentTree: CategoryType[];

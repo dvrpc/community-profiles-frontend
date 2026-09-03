@@ -31,7 +31,6 @@ import {
   Sql,
   ProfileMap,
   Category,
-  SubcategoryUpdate,
   TopicCreate,
   SubcategoryCreate,
   ContentUpdate,
@@ -40,7 +39,7 @@ import {
   VizCreate,
   VizUpdate,
 } from "@/types/types";
-import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
+import { PRODUCT_BASE_URL } from "@/consts";
 import { TreeLevel } from "@/app/admin/Dashboard";
 
 export function useTree(geoLevel: GeoLevel) {

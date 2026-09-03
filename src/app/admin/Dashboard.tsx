@@ -6,7 +6,7 @@ import CategorySidebar from "./CategorySidebar/CategorySidebar";
 import ContentWrapper from "./Content/ContentWrapper";
 import VizTable from "./Viz/VizTable";
 import UnsavedChangesModal from "./UnsavedChangesModal";
-import { GeoLevel, SubcategoryPropertyForm } from "@/types/types";
+import { GeoLevel } from "@/types/types";
 import Header from "./Header";
 import SourceEditor from "./Source/SourceEditor";
 

@@ -1,7 +1,7 @@
 import { Topic as TopicType, GeoLevel } from "@/types/types";
 import Visualizations from "../Visualizations/Vizualizations";
 import RelatedProducts from "./RelatedProducts";
-import { Share2, ShoppingCart, Sheet } from "lucide-react";
+import { Share2, Sheet } from "lucide-react";
 import LinkButton from "../Buttons/LinkButton";
 import AddDataToCartButton from "../DataCart/AddDataToCartButton";
 

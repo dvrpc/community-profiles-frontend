@@ -1,8 +1,7 @@
-import Button from "@/components/Buttons/Button";
 import { useACSMetadata, useAppMetadata } from "@/lib/hooks";
-import { categoryTitleMap, CATEGORIES } from "@/consts";
 import { Variable, VariableForm } from "@/types/types";
 import { useEffect, useState } from "react";
+import Button from "@/components/Buttons/Button";
 
 interface Props {
   initialData: Variable | null;

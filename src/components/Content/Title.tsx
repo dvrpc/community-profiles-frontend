@@ -1,7 +1,6 @@
 "use client";
 
 import { useScrollContext } from "@/context/ScrollProvider";
-import { CategoryKeys } from "@/types/types";
 import { useEffect, useRef } from "react";
 
 interface Props {

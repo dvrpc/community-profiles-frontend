@@ -1,7 +1,7 @@
 import Content from "@/components/Content/Content";
 import Hero from "@/components/Hero/Hero";
 import { API_BASE_URL } from "@/consts";
-import { Category, ProfileContent, RegionProfile } from "@/types/types";
+import { Category, RegionProfile } from "@/types/types";
 import Header from "./Header";
 import Nav from "./Nav";
 import Footer from "./Footer";

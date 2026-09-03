@@ -1,10 +1,5 @@
-import {
-  CategoryKeys,
-  GeoLevel,
-  Subcategory as SubcategoryType,
-} from "@/types/types";
+import { GeoLevel, Subcategory as SubcategoryType } from "@/types/types";
 import Topic from "./Topic";
-import { isValidUrl } from "@/utils";
 import Title from "./Title";
 
 interface Props {

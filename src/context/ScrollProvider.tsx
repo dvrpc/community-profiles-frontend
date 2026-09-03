@@ -1,5 +1,4 @@
 "use client";
-import { CategoryKeys } from "@/types/types";
 import React, { createContext, useContext, useState } from "react";
 
 interface ScrollContext {

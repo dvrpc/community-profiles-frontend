@@ -2,12 +2,7 @@ import { Metadata } from "next";
 import { titleCase } from "@/utils";
 import { API_BASE_URL, countyInfoMap } from "@/consts";
 import Hero from "@/components/Hero/Hero";
-import {
-  ProfileContent,
-  CountySlug,
-  CountyProfile,
-  Category,
-} from "@/types/types";
+import { CountySlug, CountyProfile, Category } from "@/types/types";
 import Content from "@/components/Content/Content";
 import Footer from "../Footer";
 import SmallHeader from "../SmallHeader";

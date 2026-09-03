@@ -259,7 +259,7 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
               </tr>
             </thead>
             <tbody>
-              {vizItems.map((viz, index) => {
+              {vizItems.map((viz) => {
                 const isSelected = viz.id === selectedId;
                 return (
                   <tr

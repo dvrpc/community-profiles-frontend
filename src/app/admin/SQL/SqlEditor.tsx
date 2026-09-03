@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Pencil, Trash2, Plus, Loader2 } from "lucide-react";
 import DeleteModal from "../Components/DeleteModal";
-import { Sql, SqlForm, Variable, VariableForm } from "@/types/types";
+import { Sql, SqlForm } from "@/types/types";
 import Button from "@/components/Buttons/Button";
 import IconButton from "@/components/Buttons/IconButton";
 import { useCreateSql, useUpdateSql, useDeleteSql, useSql } from "@/lib/hooks";
-import BuildStatus from "../Build/BuildStatus";
 import SqlModal from "./SqlModal";
 import { useAdminToast } from "../Toast/AdminToast";
 

@@ -1,4 +1,4 @@
-import { Subcategory, SubcategoryTree } from "@/types/types";
+import { Subcategory } from "@/types/types";
 import SubcategoryDropdown from "./SubcategoryDropdown";
 
 interface Props {
@@ -22,7 +22,6 @@ export default function SubcategoryNav(props: Props) {
           subcategory={subcategory.label}
           topics={subcategory.topics}
           isActive={subcategory.id === activeSubcategoryId}
-          navOpen={isVisible}
         />
       ))}
     </div>

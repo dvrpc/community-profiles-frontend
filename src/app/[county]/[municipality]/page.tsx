@@ -3,7 +3,6 @@ import { titleCase } from "@/utils";
 import Hero from "@/components/Hero/Hero";
 import { API_BASE_URL, municipalityInfoMap } from "@/consts";
 import {
-  ProfileContent,
   CountySlug,
   MunicipalitySlug,
   MunicipalityProfile,
