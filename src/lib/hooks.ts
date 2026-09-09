@@ -12,15 +12,14 @@ import {
   apiPutAuthorized,
 } from "@/lib/api";
 import {
-  CategoryKeyMap,
   Content,
   GeoLevel,
   ProductResponse,
   TopicPropertyForm,
+  SubcategoryPropertyForm,
   Source,
   SourceBase,
-  TopicRequest,
-  Visualization,
+  VizFile,
   Viz,
   SubcategoryRequest,
   Variable,
@@ -31,13 +30,22 @@ import {
   SqlBase,
   Sql,
   ProfileMap,
+  Category,
+  TopicCreate,
+  SubcategoryCreate,
+  ContentUpdate,
+  Link,
+  LinkCreate,
+  VizCreate,
+  VizUpdate,
 } from "@/types/types";
-import { PRODUCT_BASE_URL, PRODUCT_IMAGE_BASE_URL } from "@/consts";
+import { PRODUCT_BASE_URL } from "@/consts";
+import { TreeLevel } from "@/app/admin/Dashboard";
 
 export function useTree(geoLevel: GeoLevel) {
   return useQuery({
     queryKey: ["tree", geoLevel],
-    queryFn: () => apiGet<CategoryKeyMap>(`/content/tree/${geoLevel}`),
+    queryFn: () => apiGet<Category[]>(`/category/tree?geo_level=${geoLevel}`),
   });
 }
 
@@ -50,27 +58,106 @@ export function useProfile<T extends GeoLevel>(geoLevel: T, geoid?: string) {
   });
 }
 
-export function useContent(id: number) {
+export function useContent(id: number, treeLevel: TreeLevel) {
+  return useQuery({
+    queryKey: ["content", id, treeLevel],
+    queryFn: () => apiGet<Content>(`/content/${treeLevel}/${id}`),
+    enabled: id != 0 && (treeLevel == "category" || treeLevel == "topic"),
+  });
+}
+
+export function useCategoryContent(id: number) {
   return useQuery({
     queryKey: ["content", id],
-    queryFn: () => apiGet<Content>(`/content/${id}`),
+    queryFn: () => apiGet<Content>(`/content/category/${id}`),
     enabled: id != 0,
   });
 }
 
-export function useViz(id: number) {
+export function useTopic(id: number) {
   return useQuery({
-    queryKey: ["viz", id],
-    queryFn: () => apiGet<Viz>(`/viz/${id}`),
+    queryKey: ["topic", id],
+    queryFn: () => apiGet<TopicPropertyForm>(`/topic/${id}`),
     enabled: id != 0,
   });
 }
 
-export function useHistory(mode: string, id: number) {
+export function useSubcategory(id: number) {
   return useQuery({
-    queryKey: ["history", mode, id],
-    queryFn: () => apiGet<Content[]>(`/${mode}/${id}/history`),
-    enabled: id != 0 && (mode == "content" || mode == "viz"),
+    queryKey: ["subcategory", id],
+    queryFn: () => apiGet<SubcategoryPropertyForm>(`/subcategory/${id}`),
+    enabled: id != 0,
+  });
+}
+
+export function useTopicContent(id: number) {
+  return useQuery({
+    queryKey: ["content", id],
+    queryFn: () => apiGet<Content>(`/content/topic/${id}`),
+    enabled: id != 0,
+  });
+}
+
+export function useVisualizations(topic_id: number) {
+  return useQuery({
+    queryKey: ["viz", topic_id],
+    queryFn: () => apiGet<Viz[]>(`/viz/${topic_id}`),
+    enabled: topic_id != 0,
+  });
+}
+
+export function useCreateVisualization() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ viz }: { viz: VizCreate }) =>
+      apiPostAuthorized<number>("/viz", viz),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["viz"] });
+    },
+  });
+}
+
+export function useUpdateVisualization() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, viz }: { id: number; viz: VizUpdate }) =>
+      apiPutAuthorized(`/viz/${id}`, viz),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["viz"] });
+      qc.invalidateQueries({ queryKey: ["viz-history"] });
+    },
+  });
+}
+
+export function useDeleteVisualization() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/viz/${id}`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["viz"] });
+    },
+  });
+}
+
+export function useVizHistory(viz?: { id?: number }) {
+  return useQuery({
+    queryKey: ["viz-history", viz?.id],
+    queryFn: () => {
+      if (!viz?.id) throw new Error("Missing viz ID");
+      return apiGet<Viz[]>(`/viz/${viz.id}/history`);
+    },
+    enabled: !!viz?.id && viz.id !== 0,
+  });
+}
+
+export function useContentHistory(content?: Content) {
+  return useQuery({
+    queryKey: ["history", content?.id],
+    queryFn: () => {
+      if (!content?.id) throw new Error("Missing content ID");
+      return apiGet<Content[]>(`/content/${content.id}/history`);
+    },
+    enabled: !!content?.id && content.id !== 0,
   });
 }
 
@@ -102,6 +189,24 @@ export function useSource() {
   });
 }
 
+export function useLinks() {
+  return useQuery({
+    queryKey: ["link"],
+    queryFn: () => apiGet<Link[]>("/link"),
+  });
+}
+
+export function useCreateLink() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (link: LinkCreate) => apiPostAuthorized<Link>("/link", link),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["link"] });
+    },
+  });
+}
+
 export function useAllProducts() {
   return useQuery({
     queryKey: ["product"],
@@ -128,18 +233,6 @@ export function useProducts(productIds: string[]) {
   }));
 
   return useQueries({ queries });
-}
-
-export function useCreateSource() {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: (source: SourceBase) =>
-      apiPostAuthorized<Source>("/source", source),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["source"] });
-    },
-  });
 }
 
 export function useCreateVariable() {
@@ -176,21 +269,24 @@ export function useTestSql(isDetailed: boolean = false) {
     },
   });
 }
+export function useCreateSource() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: (source: SourceBase) =>
+      apiPostAuthorized<Source>("/source", source),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["source"] });
+    },
+  });
+}
 
 export function useCreateSubcategory() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      categoryId,
-      newSubcat,
-    }: {
-      categoryId: number;
-      newSubcat: string;
-    }) =>
-      apiPostAuthorized<number>(
-        `/tree/subcategory?category_id=${categoryId}&name=${newSubcat}`,
-      ),
+    mutationFn: (subcategory: SubcategoryCreate) =>
+      apiPostAuthorized<number>(`/subcategory`, subcategory),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -201,16 +297,8 @@ export function useCreateTopic() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      subcatId,
-      newTopic,
-    }: {
-      subcatId: number;
-      newTopic: string;
-    }) =>
-      apiPostAuthorized<number>(
-        `/tree/topic?subcategory_id=${subcatId}&name=${newTopic}`,
-      ),
+    mutationFn: (topic: TopicCreate) =>
+      apiPostAuthorized<number>(`/topic`, topic),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -228,10 +316,7 @@ export function useUpdateSubcategory() {
       subcategoryId: number;
       subcategory: SubcategoryRequest;
     }) =>
-      apiPutAuthorized<number>(
-        `/tree/subcategory/${subcategoryId}`,
-        subcategory,
-      ),
+      apiPutAuthorized<number>(`/subcategory/${subcategoryId}`, subcategory),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -247,8 +332,8 @@ export function useUpdateTopic() {
       topic,
     }: {
       topicId: number;
-      topic: TopicRequest;
-    }) => apiPutAuthorized<number>(`/tree/topic/${topicId}`, topic),
+      topic: Partial<TopicPropertyForm>;
+    }) => apiPutAuthorized<number>(`/topic/${topicId}`, topic),
 
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
@@ -329,7 +414,7 @@ export function useDeleteTopic() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/tree/topic/${id}`),
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/topic/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
@@ -340,29 +425,45 @@ export function useDeleteSubcategory() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) =>
-      apiDeleteAuthorized<void>(`/tree/subcategory/${id}`),
+    mutationFn: (id: number) => apiDeleteAuthorized<void>(`/subcategory/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tree"] });
     },
   });
 }
 
-export function usePreview(
-  template: string | Visualization[] | null,
-  mode: string,
+export function useContentPreview(
+  template: string,
   geoLevel: GeoLevel,
   geoid?: string,
 ) {
-  return useQuery({
-    queryKey: ["preview", mode, geoLevel, template, geoid],
+  return useQuery<string>({
+    queryKey: ["preview", "content", template, geoLevel, geoid],
     queryFn: () =>
-      apiPostAuthorized<string | Visualization[]>(
-        `/${mode}/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""
-        }`,
-        mode === "viz" ? JSON.stringify(template) : template ?? undefined,
+      apiPostAuthorized<string>(
+        `/content/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""}`,
+        template,
       ),
-    enabled: template !== "" && template !== "[]" && template !== null,
+    enabled: template !== "",
+    retry: false,
+    staleTime: 0,
+  });
+}
+
+export function useVizPreview(
+  template: VizFile | null,
+  geoLevel: GeoLevel,
+  geoid?: string,
+) {
+  return useQuery<VizFile>({
+    queryKey: ["preview", "viz", geoLevel, template, geoid],
+    queryFn: () =>
+      apiPostAuthorized<VizFile>(
+        `/viz/preview/${geoLevel}${geoLevel !== "region" ? `?geoid=${geoid}` : ""}`,
+        JSON.stringify(template),
+      ),
+    enabled: !!template,
+    retry: false,
     staleTime: 0,
   });
 }
@@ -375,7 +476,7 @@ export function useUpdateProperties() {
       payload,
     }: {
       id: number;
-      payload: Partial<TopicPropertyForm>;
+      payload: Partial<TopicPropertyForm> | { viz_sources: number[] };
     }) => apiPutAuthorized(`/content/${id}/properties`, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["content"] });
@@ -385,6 +486,17 @@ export function useUpdateProperties() {
   });
 }
 
+export function useUpdateContent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: ContentUpdate }) =>
+      apiPutAuthorized(`/content/${id}`, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["content"] });
+      qc.invalidateQueries({ queryKey: ["history"] });
+    },
+  });
+}
 export function useSave() {
   const qc = useQueryClient();
   return useMutation({
@@ -444,11 +556,8 @@ export function useAppMetadata() {
 export function useTriggerBuild() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      category,
-    }: {
-      category: "acs" | "gis" | "ckan" | "all";
-    }) => apiPostAuthorized(`/build/${category}`),
+    mutationFn: ({ category }: { category: "acs" | "gis" | "ckan" | "all" }) =>
+      apiPostAuthorized(`/build/${category}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["build-status"] });
       queryClient.invalidateQueries({ queryKey: ["app-metadata"] });

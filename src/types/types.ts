@@ -62,29 +62,51 @@ export type BuildStatus = {
 
 export interface Content {
   id: number;
-  topic_id: number;
-  label: string;
-  sort_weight: number;
-  category_id: number;
-  geo_level: string;
   file: string;
-  create_date: Date;
-  is_visible: boolean;
-  last_edited_by?: string;
-  source_ids: number[];
-  product_ids: string[];
-  catalog_link: string;
-  census_link: string;
-  other_link: string;
+  last_edited_by: string;
+  updated_at: Date;
+}
+
+export interface ContentUpdate {
+  file: string;
+  last_edited_by: string;
 }
 
 export interface Viz {
   id: number;
+  file: VizFile;
+  created_at: Date;
+  updated_at: Date;
+  last_edited_by: string;
   topic_id: number;
-  geo_level: string;
-  file: string;
-  create_date: Date;
   source_ids: number[];
+  sort_weight: number;
+  variables: string[];
+}
+
+export interface VizCreate {
+  file: string;
+  topic_id: number;
+  last_edited_by: string;
+  sort_weight: number;
+}
+
+export interface VizUpdate {
+  file?: string;
+  sort_weight?: number;
+  last_edited_by: string;
+}
+
+export type VizMutation = "none" | "create" | "update" | "delete";
+
+export interface EditableViz {
+  id?: number;
+  file: string;
+  source_ids: number[];
+  mutation: VizMutation;
+  created_at?: Date;
+  updated_at?: Date;
+  last_edited_by?: string;
 }
 
 export interface SelectOption {
@@ -92,21 +114,71 @@ export interface SelectOption {
   label: string;
 }
 
-export interface TopicPropertyForm {
-  label: string;
-  sort_weight: number;
-  content_sources: number[];
-  viz_sources: number[];
-  related_products: string[];
-  catalog_link: string;
-  census_link: string;
-  other_link: string;
-  is_visible: boolean;
+export interface TopicPropertyForm extends TopicUpdate {
+  content_ids: number[];
+  product_ids: string[];
+  links: TopicLink[];
 }
 
 export interface SubcategoryPropertyForm {
   label: string;
+  url_id: string;
   sort_weight: number;
+}
+
+export interface CategoryBase {
+  id: number;
+  label: string;
+  url_id: string;
+  sort_weight: number;
+}
+export interface Category extends CategoryBase {
+  subcategories: Subcategory[];
+  content: string;
+}
+
+export interface Subcategory extends CategoryBase {
+  category_id: number;
+  geo_level: GeoLevel;
+  topics: Topic[];
+}
+
+export interface Topic extends CategoryBase {
+  subcategory_id: number;
+  is_visible?: boolean;
+  content: string;
+  citations: string[];
+  products: string[];
+  links: Link[];
+  variables: string[];
+}
+
+export interface SubcategoryCreate {
+  label: string;
+  url_id: string;
+  sort_weight: number;
+  geo_level: GeoLevel;
+  category_id: number;
+}
+
+export interface SubcategoryUpdate {
+  label?: string;
+  url_id?: string;
+  sort_weight?: number;
+}
+
+export interface TopicCreate {
+  label: string;
+  url_id: string;
+  sort_weight: number;
+  subcategory_id: number;
+}
+
+export interface TopicUpdate {
+  label?: string;
+  url_id?: string;
+  sort_weight?: number;
+  is_visible?: boolean;
 }
 
 export type ProfileContent = Record<CategoryKeys, CategoryContent>;
@@ -149,22 +221,6 @@ export type SubcategoryTree = {
   topics: TreeTopic[];
 };
 
-export type Topic = TopicBase & {
-  id: number;
-};
-
-export type TopicBase = {
-  name: string;
-  label: string;
-  sort_weight: number;
-};
-
-export type TopicRequest = {
-  name?: string;
-  label?: string;
-  sort_weight?: number;
-};
-
 export type SubcategoryRequest = {
   name?: string;
   label?: string;
@@ -184,10 +240,7 @@ export interface TopicContent {
   variables: string[];
 }
 
-export type Visualization = (MapVisualization | ChartVisualization) & {
-  subcategory: string;
-  topic?: string;
-};
+export type VizFile = MapVisualization | ChartVisualization;
 
 export type Geometry = "Point" | "Line" | "Polygon";
 
@@ -266,7 +319,17 @@ export interface Link {
   id: number;
   link: string;
   type: "catalog" | "census" | "other";
+  topic_id: number;
+  mutation?: LinkMutation;
 }
+
+export type TopicLink = Omit<Link, "id" | "mutation"> & {
+  id?: number;
+  mutation: LinkMutation;
+};
+
+export type LinkCreate = Omit<Link, "id">;
+export type LinkMutation = "none" | "create" | "update" | "delete";
 
 export interface AppMetadata {
   key: string;
@@ -317,19 +380,26 @@ type Geography = {
   buffer_bbox: string;
 };
 
-type Profile<
-  Parent = null,
-  Metrics extends Record<string, Metric> = Record<string, Metric>,
-> = Metrics & {
-  parent?: Parent;
-  geography: Geography;
+type Profile<Metrics extends Record<string, Metric> = Record<string, Metric>> =
+  Metrics & {
+    geography: Geography;
+    metadata: {
+      acs_year: number;
+      ckan_last_updated: Date | null;
+      acs_last_updated: Date | null;
+      gis_last_updated: Date | null;
+    };
+  };
+
+export type RegionProfile = Profile & {};
+
+export type CountyProfile = Profile & {
+  region: RegionProfile;
 };
 
-export type RegionProfile = Profile<null>;
-
-export type CountyProfile = Profile<RegionProfile>;
-
-export type MunicipalityProfile = Profile<CountyProfile>;
+export type MunicipalityProfile = Profile & {
+  county: CountyProfile;
+};
 
 export type ProfileMap = {
   region: RegionProfile;

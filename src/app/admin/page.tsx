@@ -3,6 +3,7 @@
 import Dashboard from "./Dashboard";
 import { SessionProvider } from "next-auth/react";
 import LoginWrapper from "./LoginWrapper";
+import { AdminToastProvider } from "./Toast/AdminToast";
 
 export default function Page() {
   return (
@@ -12,9 +13,11 @@ export default function Page() {
       })}
     >
       <main className="bg-gray-100">
-        <LoginWrapper>
-          <Dashboard />
-        </LoginWrapper>
+        <AdminToastProvider>
+          <LoginWrapper>
+            <Dashboard />
+          </LoginWrapper>
+        </AdminToastProvider>
       </main>
     </SessionProvider>
   );
