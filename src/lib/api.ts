@@ -1,9 +1,9 @@
 import { API_BASE_URL } from "@/consts";
-import { getSession, signOut } from "next-auth/react";
+import { getSession } from "next-auth/react";
 
 async function authorizedRequest<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> {
   const session = await getSession();
 
@@ -20,7 +20,7 @@ async function authorizedRequest<T>(
 
   if (res.status === 401) {
     if (typeof window !== "undefined") {
-      await signOut({ callbackUrl: window.location.href });
+      window.dispatchEvent(new Event("session-expired"));
     }
     throw new Error("Unauthorized");
   }
@@ -59,7 +59,7 @@ export async function apiGetAuthorized<T>(path: string) {
 
 export async function apiPostAuthorized<T>(
   path: string,
-  body?: string | object
+  body?: string | object,
 ) {
   const { headers, body: finalBody } = buildBodyOptions(body);
   return authorizedRequest<T>(path, {
@@ -71,7 +71,7 @@ export async function apiPostAuthorized<T>(
 
 export async function apiPutAuthorized<T>(
   path: string,
-  body?: string | object
+  body?: string | object,
 ) {
   const { headers, body: finalBody } = buildBodyOptions(body);
   return authorizedRequest<T>(path, {

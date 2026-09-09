@@ -14,11 +14,32 @@ export default function Header() {
           />
         </a>
         <div className="flex content-center text-white items-center text-lg">
-          <a className="px-4 border-r-2 border-r-dvrpc-blue-4">
+          <a
+            href="https://dev-dvrpc.pantheonsite.io/node/5"
+            target="_blank"
+            rel="noreferrer"
+            className="px-4 border-r-2 border-r-dvrpc-blue-4"
+          >
             DVRPC Products
           </a>
-          <a className="px-4 border-r-2 border-r-dvrpc-blue-4">Data Center</a>
-          <a className="px-4">Long-Range Plan</a>
+
+          <a
+            href="https://dev-dvrpc.pantheonsite.io/long-range-plan"
+            target="_blank"
+            rel="noreferrer"
+            className="px-4 border-r-2 border-r-dvrpc-blue-4"
+          >
+            Long-Range Plan
+          </a>
+
+          <a
+            href="https://dev-dvrpc.pantheonsite.io/data-tools"
+            target="_blank"
+            rel="noreferrer"
+            className="px-4"
+          >
+            Data Center
+          </a>
           <div className="text-dvrpc-blue-3 bg-white w-8 h-8 rounded-2xl flex justify-center items-center text-base">
             <Search />
           </div>

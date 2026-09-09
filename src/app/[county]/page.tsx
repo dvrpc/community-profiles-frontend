@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { titleCase } from "@/utils";
 import { API_BASE_URL, countyInfoMap } from "@/consts";
 import Hero from "@/components/Hero/Hero";
-import { ProfileContent, CountySlug, CountyProfile } from "@/types/types";
+import { CountySlug, CountyProfile, Category } from "@/types/types";
 import Content from "@/components/Content/Content";
 import Footer from "../Footer";
 import SmallHeader from "../SmallHeader";
@@ -23,18 +23,25 @@ export default async function County(props: Params) {
     { next: { tags: ["county"] } },
   );
   const countyData = (await profileResponse.json()) as CountyProfile;
-  const contentResponse = await fetch(
+
+  const contentTreeResponse = await fetch(
     `${API_BASE_URL}/content/county/${geoid}`,
-    { next: { tags: ["county"] } },
+    {
+      next: { tags: ["region"] },
+    },
   );
-  const content = (await contentResponse.json()) as ProfileContent;
+  const contentTree = (await contentTreeResponse.json()) as Category[];
 
   return (
     <>
       <SmallHeader />
       <main>
         <Hero title={countyName} profileData={countyData} geoLevel="county" />
-        <Content content={content} profileData={countyData} geoLevel="county" />
+        <Content
+          contentTree={contentTree}
+          profileData={countyData}
+          geoLevel="county"
+        />
       </main>
       <Footer />
     </>

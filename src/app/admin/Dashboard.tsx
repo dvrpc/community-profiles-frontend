@@ -1,50 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  useTree,
-  useProfile,
-  useHistory,
-  usePreview,
-  useSave,
-  useContent,
-  useViz,
-  useUpdateSubcategory,
-  useUpdateTopic,
-  useCreateSubcategory,
-  useCreateTopic,
-  useDeleteTopic,
-  useDeleteSubcategory,
-  useUpdateProperties,
-} from "../../lib/hooks";
+import { useContent, useUpdateContent } from "../../lib/hooks";
 import CategorySidebar from "./CategorySidebar/CategorySidebar";
-import MarkdownEditor from "./Content/MarkdownEditor";
-import MarkdownPreview from "./Content/MarkdownPreview";
-import VizEditor from "./Viz/VizEditor";
-import VizPreview from "./Viz/VizPreview";
-import VersionControl from "./VersionControl";
+import ContentWrapper from "./Content/ContentWrapper";
+import VizTable from "./Viz/VizTable";
 import UnsavedChangesModal from "./UnsavedChangesModal";
-import Button from "@/components/Buttons/Button";
-import {
-  CategoryKeyMap,
-  GeoLevel,
-  SubcategoryPropertyForm,
-  TopicPropertyForm,
-  Visualization,
-} from "@/types/types";
+import { GeoLevel } from "@/types/types";
 import Header from "./Header";
 import SourceEditor from "./Source/SourceEditor";
-import TopicPropertiesForm from "./Form/TopicPropertiesForm";
-import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
+
 import { useSession } from "next-auth/react";
 import VariableEditor from "./Variables/VariableEditor";
 import SqlEditor from "./SQL/SqlEditor";
 import BuildStatus from "./Build/BuildStatus";
-
-const defaultGeoids = {
-  county: "42101",
-  municipality: "4201704976",
-};
+import { useAdminToast } from "./Toast/AdminToast";
+import TopicPropertiesForm from "./Form/TopicPropertiesForm";
+import SubcategoryPropertiesForm from "./Form/SubcategoryPropertiesForm";
 
 export type Mode =
   | "content"
@@ -60,79 +32,59 @@ type PendingChange =
   | { type: "mode"; mode: Mode }
   | null;
 
-function getSubcategoryById(subcategoryId: number, tree?: CategoryKeyMap) {
-  if (tree) {
-    for (const category of Object.values(tree)) {
-      const subcat = category.subcategories.find(
-        (sub) => sub.id === subcategoryId,
-      );
-      if (subcat) return subcat;
-    }
-  }
-  return null;
-}
-
 export default function Dashboard() {
   const [selectedGeoLevel, setSelectedGeoLevel] = useState<GeoLevel>("county");
+  const [selectedGeoid, setSelectedGeoid] = useState<string>("42017");
   const [selectedMode, setSelectedMode] = useState<Mode>("content");
-  const [selectedId, setSelectedId] = useState<number>(0);
-  const [selectedSubcategoryId, setSelectedSubcategoryId] = useState<number>(0);
-  const [selectedTreeLevel, setSelectedTreeLevel] = useState<TreeLevel>("");
+  const [selectedId, setSelectedId] = useState<number>(1);
+  const [selectedTreeLevel, setSelectedTreeLevel] =
+    useState<TreeLevel>("category");
   const [contentText, setContentText] = useState<string>("");
-  const [vizData, setVizData] = useState<Visualization[] | null>(null);
 
   const [hasEdits, setHasEdits] = useState(false);
 
   const [pendingChange, setPendingChange] = useState<PendingChange>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const geoid =
-    selectedGeoLevel === "region" ? undefined : defaultGeoids[selectedGeoLevel];
+  const geoid = selectedGeoLevel === "region" ? undefined : selectedGeoid;
   const { data: session } = useSession();
-  const { data: tree } = useTree(selectedGeoLevel);
-  const { data: profile } = useProfile(selectedGeoLevel, geoid);
-  const { data: content } = useContent(selectedId);
-  const { data: viz } = useViz(selectedId);
-  const { data: history } = useHistory(selectedMode, selectedId);
-  const editText = selectedMode === "content" ? contentText : vizData;
-  const { data: preview } = usePreview(
-    editText,
-    selectedMode,
-    selectedGeoLevel,
-    geoid,
-  );
-
-  const saveMutation = useSave();
-  const subcategoryUpdateMutation = useUpdateSubcategory();
-  const topicUpdateMutation = useUpdateTopic();
-  const subcategoryCreateMutation = useCreateSubcategory();
-  const topicCreateMutation = useCreateTopic();
-  const topicDeleteMutation = useDeleteTopic();
-  const subcategoryDeleteMutation = useDeleteSubcategory();
-  const propertiesMutation = useUpdateProperties();
-
-  const selectedSubcategory = getSubcategoryById(selectedSubcategoryId, tree);
+  const { data: content } = useContent(selectedId, selectedTreeLevel);
+  const updateContentMutation = useUpdateContent();
+  const { showToast, showError } = useAdminToast();
 
   useEffect(() => {
     if (selectedMode === "content" && content) setContentText(content["file"]);
-    if (selectedMode === "viz" && viz) setVizData(JSON.parse(viz["file"]));
-  }, [content, viz, selectedMode]);
+  }, [content, selectedMode]);
 
   function resetEditors() {
     setContentText("");
-    setVizData(null);
+  }
+
+  function handleGeolevelChange(geoLevel: GeoLevel) {
+    setSelectedGeoLevel(geoLevel);
+    if (selectedTreeLevel !== "category") {
+      setSelectedId(1);
+      setSelectedTreeLevel("category");
+      if (selectedMode === "properties" || selectedMode === "viz") {
+        setSelectedMode("content");
+      }
+    }
   }
 
   function applySelection(id: number, treeLevel: TreeLevel) {
     setSelectedTreeLevel(treeLevel);
+    setSelectedId(id);
 
     if (treeLevel === "subcategory") {
-      setSelectedSubcategoryId(id);
       setSelectedMode("properties");
       return;
     }
 
-    setSelectedId(id);
+    if (treeLevel === "category") {
+      setSelectedMode("content");
+      return;
+    }
+
     if (!["content", "viz", "properties"].includes(selectedMode)) {
       setSelectedMode("content");
     }
@@ -170,39 +122,25 @@ export default function Dashboard() {
     setPendingChange(null);
   }
 
-  function handleSaveClick() {
+  const saveContent = () => {
     const user = session?.user.name;
-    if (!user) return;
+    if (!user || !content) return;
 
-    const bodyText =
-      selectedMode === "content" ? contentText : JSON.stringify(vizData);
-
-    const body = {
-      user: user,
-      text: bodyText,
-    };
-    const url = `/${selectedMode}/${selectedId}`;
-
-    saveMutation.mutate(
-      { url, body },
+    updateContentMutation.mutate(
+      { id: content.id, payload: { file: contentText, last_edited_by: user } },
       {
-        onSuccess: () => setHasEdits(false),
-        onError: (err) => {
-          console.error("Failed to save changes", err);
-          // TODO: toast notification for error
+        onSuccess: () => {
+          setHasEdits(false);
+          showToast(`Content (ID: ${content.id}) saved successfully.`);
         },
+        onError: (err) =>
+          showError(err, `Failed to save content (ID: ${content.id})`),
       },
     );
-  }
+  };
 
-  function handleContentEdit(value: string) {
-    setContentText(value);
-    setHasEdits(true);
-  }
-
-  function handleVizEdit(value: Visualization[]) {
-    setVizData(value);
-    setHasEdits(true);
+  function handleSaveClick() {
+    if (selectedMode === "content") saveContent();
   }
 
   function handleModeChange(mode: Mode) {
@@ -217,213 +155,84 @@ export default function Dashboard() {
   }
 
   function handleVersionChange(file: string, index: number) {
-    if (selectedMode === "content") {
-      setContentText(file);
-    } else {
-      setVizData(JSON.parse(file));
-    }
+    setContentText(file);
     setHasEdits(index > 0);
   }
 
-  function handleTopicPropertiesSave(
-    id: number,
-    topicId: number,
-    payload: Partial<TopicPropertyForm>,
-  ) {
-    const { label, sort_weight, ...rest } = payload;
-
-    if (label !== undefined || sort_weight !== undefined) {
-      topicUpdateMutation.mutate({
-        topicId,
-        topic: { label, sort_weight },
-      });
-    }
-    propertiesMutation.mutate({ id, payload: rest });
-  }
-
-  function handleSubcategoryPropertiesSave(
-    subcategoryId: number,
-    payload: Partial<SubcategoryPropertyForm>,
-  ) {
-    subcategoryUpdateMutation.mutate({
-      subcategoryId,
-      subcategory: {
-        label: payload.label,
-        sort_weight: payload.sort_weight,
-      },
-    });
-  }
-
-  function getPreview() {
-    if (!preview) return null;
-
-    if (selectedMode === "content")
-      return <MarkdownPreview content={preview as string} />;
-
-    if (profile) {
-      return (
-        <VizPreview
-          visualizations={preview as Visualization[]}
-          buffer_bbox={profile.geography.buffer_bbox}
-          geoLevel={selectedGeoLevel}
-          geoid={profile.geography.geoid}
-        />
-      );
-    }
-
-    return <p className="text-gray-400 italic">Loading preview…</p>;
-  }
-
-  function addSubcategory(categoryId: number, newSubcat: string) {
-    subcategoryCreateMutation.mutate({ categoryId, newSubcat });
-  }
-
-  function addTopic(subcatId: number, newTopic: string) {
-    topicCreateMutation.mutate({ subcatId, newTopic });
-  }
-
-  function updateSubcategory(subcategoryId: number, newSubcat: string) {
-    subcategoryUpdateMutation.mutate({
-      subcategoryId,
-      subcategory: { name: newSubcat },
-    });
-  }
-
-  function updateTopic(topicId: number, newTopic: string) {
-    topicUpdateMutation.mutate({
-      topicId,
-      topic: { name: newTopic },
-    });
-  }
-
-  function deleteTopic(topicId: number) {
-    if (!window.confirm("Delete this topic? This cannot be undone.")) return;
-    topicDeleteMutation.mutate(topicId);
-  }
-
-  function deleteSubcategory(subcatId: number) {
-    if (!window.confirm("Delete this subcategory? This cannot be undone."))
-      return;
-    subcategoryDeleteMutation.mutate(subcatId);
-  }
-
-  const isEditorMode = selectedMode === "content" || selectedMode === "viz";
-
   return (
-    <div className="h-screen grid grid-cols-[250px_1fr_1fr_250px] grid-rows-[80px_1fr_200px] gap-2 p-2">
-      <div className="col-span-3 col-start-2 p-2 bg-white flex justify-between rounded-md">
+    <div className="grid h-screen min-h-0 grid-cols-[280px_minmax(0,1fr)_minmax(0,1fr)_280px] grid-rows-[88px_minmax(0,1fr)] gap-2 bg-dvrpc-gray-7 p-2">
+      <div className="col-span-4 col-start-1 flex items-center rounded-xl border border-dvrpc-gray-6 bg-white px-5 shadow-sm">
         <Header
           currentTab={selectedMode}
           setCurrentTab={handleModeChange}
           treeLevel={selectedTreeLevel}
         />
       </div>
-      <div className="p-2 col-start-1 row-start-1">
-        <h1 className="text-2xl text-dvrpc-blue-1">Community Profiles</h1>
-        <span>Admin Dashboard</span>
-      </div>
-      <div className="row-span-3 p-2 overflow-auto">
+      <aside className="col-start-1 row-start-2 min-h-0 overflow-y-auto rounded-xl border border-dvrpc-gray-6 bg-white p-3 shadow-sm">
         <CategorySidebar
-          tree={tree}
           handleClick={handleCategorySidebarSelect}
           geoLevel={selectedGeoLevel}
-          setGeoLevel={setSelectedGeoLevel}
-          addSubcategory={addSubcategory}
-          addTopic={addTopic}
-          updateSubcategory={updateSubcategory}
-          updateTopic={updateTopic}
-          deleteTopic={deleteTopic}
-          deleteSubcategory={deleteSubcategory}
+          setGeoLevel={handleGeolevelChange}
+          geoid={geoid}
+          setGeoid={setSelectedGeoid}
+          selectedId={selectedId}
+          selectedTreeLevel={selectedTreeLevel}
         />
-      </div>
-      {isEditorMode && (
+      </aside>
+      {selectedMode == "content" && (
         <>
-          <div className="col-start-2 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto">
-            <h3 className="text-xl p-2 mb-2">Editor</h3>
-
-            {selectedMode === "content" ? (
-              <MarkdownEditor
-                value={contentText}
-                handleChange={handleContentEdit}
-              />
-            ) : (
-              <VizEditor
-                visualizations={vizData ?? []}
-                handleChange={handleVizEdit}
-              />
-            )}
-          </div>
-          <div className="col-start-3 row-start-2 row-span-2 bg-white p-2 rounded-md overflow-auto">
-            <div className="flex justify-between p-2 mb-2">
-              <h3 className="text-xl">Preview</h3>
-              <Button
-                disabled={!hasEdits || saveMutation.isPending}
-                handleClick={handleSaveClick}
-                type={"primary"}
-              >
-                {saveMutation.isPending ? "Saving…" : "Save Changes"}
-              </Button>
-            </div>
-
-            {getPreview()}
-          </div>
-          <div className="row-span-2 col-start-4 row-start-2 bg-white rounded-md">
-            <VersionControl
-              contentHistory={history || []}
-              handleClick={handleVersionChange}
+          {content && (
+            <ContentWrapper
+              value={contentText}
+              content={content}
+              hasEdits={hasEdits}
+              geoLevel={selectedGeoLevel}
+              geoid={geoid}
+              isPending={updateContentMutation.isPending}
+              handleSave={saveContent}
+              setValue={setContentText}
+              setHasEdits={setHasEdits}
+              handleVersionChange={handleVersionChange}
             />
-          </div>
+          )}
         </>
       )}
+      {selectedMode == "viz" && (
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm">
+          <VizTable
+            topicId={selectedId}
+            geoLevel={selectedGeoLevel}
+            geoid={geoid}
+          />
+        </div>
+      )}
+      {selectedMode === "properties" && (
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm">
+          {selectedTreeLevel === "topic" ? (
+            <TopicPropertiesForm id={selectedId} />
+          ) : (
+            <SubcategoryPropertiesForm id={selectedId} />
+          )}
+        </div>
+      )}
       {selectedMode === "sources" && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md">
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm">
           <SourceEditor />
         </div>
       )}
       {selectedMode === "variables" && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md flex-col flex">
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm flex flex-col">
           <BuildStatus />
           <VariableEditor />
         </div>
       )}
       {selectedMode === "sql" && (
-        <div className="col-start-2 row-span-3 col-span-3 bg-white p-2 rounded-md flex-col flex">
+        <div className="col-start-2 row-start-2 col-span-3 min-h-0 overflow-auto rounded-xl border border-dvrpc-gray-6 bg-white p-4 shadow-sm flex flex-col">
           <BuildStatus />
           <SqlEditor />
         </div>
       )}
-      {selectedMode === "properties" && (
-        <div className="col-span-3 col-start-2 row-span-2 row-start-2 bg-white p-2 rounded-md overflow-auto">
-          {selectedTreeLevel === "topic" && content && viz && (
-            <TopicPropertiesForm
-              id={content.id}
-              topic_id={content.topic_id}
-              initialData={{
-                label: content.label,
-                sort_weight: content.sort_weight,
-                content_sources: content.source_ids,
-                viz_sources: viz.source_ids,
-                related_products: content.product_ids,
-                is_visible: content.is_visible,
-                catalog_link: content.catalog_link,
-                census_link: content.census_link,
-                other_link: content.other_link,
-              }}
-              handleSave={handleTopicPropertiesSave}
-            />
-          )}
-          {selectedTreeLevel === "subcategory" && selectedSubcategory && (
-            <SubcategoryPropertiesForm
-              id={selectedSubcategoryId}
-              initialData={{
-                label: selectedSubcategory?.label,
-                sort_weight: selectedSubcategory?.sort_weight,
-              }}
-              handleSave={handleSubcategoryPropertiesSave}
-            />
-          )}
-        </div>
-      )}
+
       <UnsavedChangesModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
