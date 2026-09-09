@@ -48,9 +48,8 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
     deleteStatus === "pending";
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [selectedHistoryFile, setSelectedHistoryFile] = useState<string | null>(
-    null,
-  );
+  const [selectedHistoryFile, setSelectedHistoryFile] =
+    useState<VizFile | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Viz | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Viz | null>(null);
@@ -74,16 +73,8 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
 
   const selectedViz = vizItems?.find((viz) => viz.id === selectedId) ?? null;
 
-  const activePreviewFile = selectedHistoryFile ?? selectedViz?.file ?? null;
-
-  const selectedVisualization: VizFile | null = useMemo(() => {
-    if (!activePreviewFile) return null;
-    try {
-      return JSON.parse(activePreviewFile) as VizFile;
-    } catch {
-      return null;
-    }
-  }, [activePreviewFile]);
+  const selectedVisualization =
+    selectedHistoryFile ?? selectedViz?.file ?? null;
 
   const previewGeoLevel = geoLevel;
   const previewGeoid = geoLevel === "region" ? undefined : geoid;
@@ -106,7 +97,7 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
     setShowModal(true);
   };
 
-  const handleRevertHistory = (file: string) => {
+  const handleRevertHistory = (file: VizFile) => {
     if (!selectedViz) return;
     const user = session?.user.name;
     if (!user) return;
@@ -115,7 +106,7 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
       {
         id: selectedViz.id,
         viz: {
-          file,
+          file: JSON.stringify(file),
           last_edited_by: user,
         },
       },
@@ -135,7 +126,12 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
     );
   };
 
-  const handleSave = (file: string, sortWeight: number, id?: number) => {
+  const handleSave = (
+    file: string,
+    sortWeight: number,
+    sourceIds: number[],
+    id?: number,
+  ) => {
     const user = session?.user.name;
     if (!user) return;
     setShowModal(false);
@@ -149,6 +145,7 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
             topic_id: topicId,
             last_edited_by: user,
             sort_weight: sortWeight,
+            source_ids: sourceIds,
           },
         },
         {
@@ -165,16 +162,23 @@ export default function VizTable({ topicId, geoLevel, geoid }: Props) {
         file?: string;
         sort_weight?: number;
         last_edited_by: string;
+        source_ids?: number[];
       } = {
         last_edited_by: user,
       };
 
-      if (file !== editing?.file) {
+      if (file !== JSON.stringify(editing?.file)) {
         nextPayload.file = file;
       }
 
       if (sortWeight !== editing?.sort_weight) {
         nextPayload.sort_weight = sortWeight;
+      }
+
+      if (
+        JSON.stringify(sourceIds) !== JSON.stringify(editing?.source_ids ?? [])
+      ) {
+        nextPayload.source_ids = sourceIds;
       }
 
       updateMutation(

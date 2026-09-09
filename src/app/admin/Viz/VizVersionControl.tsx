@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { Viz } from "@/types/types";
+import { Viz, VizFile } from "@/types/types";
 import { useVizHistory } from "@/lib/hooks";
 
 interface Props {
   viz?: Viz | null;
-  onSelectHistory?: (file: string) => void;
-  onRevert?: (file: string) => void;
+  onSelectHistory?: (file: VizFile) => void;
+  onRevert?: (file: VizFile) => void;
 }
 
 export default function VizVersionControl(props: Props) {
   const { viz, onSelectHistory, onRevert } = props;
-  const [selectedHistoryIndex, setSelectedHistoryIndex] = useState<number | null>(null);
+  const [selectedHistoryIndex, setSelectedHistoryIndex] = useState<
+    number | null
+  >(null);
   const vizWithId = viz && viz.id !== undefined ? viz : undefined;
   const { data: history = [] } = useVizHistory(vizWithId);
 
@@ -20,9 +22,7 @@ export default function VizVersionControl(props: Props) {
 
   return (
     <>
-      <h3 className="text-xl">
-        {viz ? `History (Viz ${viz.id})` : "History"}
-      </h3>
+      <h3 className="text-xl">{viz ? `History (Viz ${viz.id})` : "History"}</h3>
 
       <div className="flex flex-col overflow-y-auto">
         {!viz ? (
@@ -35,8 +35,11 @@ export default function VizVersionControl(props: Props) {
             return (
               <div
                 key={i}
-                className={`border-b border-dvrpc-gray-6 px-3 py-2 text-sm transition-all ${isSelected ? "bg-dvrpc-blue-6 shadow-inner ring-1 ring-dvrpc-blue-3" : "hover:bg-dvrpc-gray-6"
-                  }`}
+                className={`border-b border-dvrpc-gray-6 px-3 py-2 text-sm transition-all ${
+                  isSelected
+                    ? "bg-dvrpc-blue-6 shadow-inner ring-1 ring-dvrpc-blue-3"
+                    : "hover:bg-dvrpc-gray-6"
+                }`}
               >
                 <button
                   type="button"
