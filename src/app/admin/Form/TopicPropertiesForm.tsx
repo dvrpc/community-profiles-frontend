@@ -118,10 +118,11 @@ export default function TopicPropertiesForm(props: Props) {
     label: s.citation,
   }));
   const productOptions = products.map((p) => ({ value: p.id, label: p.title }));
+
   const handleAddLink = () => {
     setLinkRows((current) => [
       ...current,
-      { link: "", type: "other", mutation: "create" },
+      { topic_id: id, link: "", type: "other", mutation: "create" },
     ]);
   };
 

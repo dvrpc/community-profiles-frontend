@@ -14,7 +14,6 @@ export default function VizPreview(props: Props) {
   const { visualization, buffer_bbox, geoLevel, geoid, id } = props;
 
   function getViz(viz: VizFile, i: number) {
-    console.log("viz", viz);
     if (viz.type == "map") {
       return (
         <VizMap

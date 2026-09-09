@@ -89,12 +89,14 @@ export interface VizCreate {
   topic_id: number;
   last_edited_by: string;
   sort_weight: number;
+  source_ids: number[];
 }
 
 export interface VizUpdate {
   file?: string;
   sort_weight?: number;
   last_edited_by: string;
+  source_ids?: number[];
 }
 
 export type VizMutation = "none" | "create" | "update" | "delete";

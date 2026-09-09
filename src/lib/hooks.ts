@@ -98,10 +98,22 @@ export function useTopicContent(id: number) {
   });
 }
 
+type VizApiResponse = Omit<Viz, "file"> & { file: string | VizFile };
+
+function parseVizFile(viz: VizApiResponse): Viz {
+  return {
+    ...viz,
+    file: typeof viz.file === "string" ? JSON.parse(viz.file) : viz.file,
+  };
+}
+
 export function useVisualizations(topic_id: number) {
   return useQuery({
     queryKey: ["viz", topic_id],
-    queryFn: () => apiGet<Viz[]>(`/viz/${topic_id}`),
+    queryFn: async () => {
+      const visualizations = await apiGet<VizApiResponse[]>(`/viz/${topic_id}`);
+      return visualizations.map(parseVizFile);
+    },
     enabled: topic_id != 0,
   });
 }
@@ -142,9 +154,10 @@ export function useDeleteVisualization() {
 export function useVizHistory(viz?: { id?: number }) {
   return useQuery({
     queryKey: ["viz-history", viz?.id],
-    queryFn: () => {
+    queryFn: async () => {
       if (!viz?.id) throw new Error("Missing viz ID");
-      return apiGet<Viz[]>(`/viz/${viz.id}/history`);
+      const history = await apiGet<VizApiResponse[]>(`/viz/${viz.id}/history`);
+      return history.map(parseVizFile);
     },
     enabled: !!viz?.id && viz.id !== 0,
   });

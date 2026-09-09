@@ -2,16 +2,22 @@ import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { JsonEditor, JsonData } from "json-edit-react";
 import Button from "@/components/Buttons/Button";
+import MultiSelect from "../Form/MultiSelect";
 import VizPreview from "./VizPreview";
-import { GeoLevel, VizFile, Viz } from "@/types/types";
-import { useProfile, useVizPreview } from "@/lib/hooks";
+import { GeoLevel, SelectOption, VizFile, Viz } from "@/types/types";
+import { useProfile, useSource, useVizPreview } from "@/lib/hooks";
 
 interface Props {
   initialData: Viz | null;
   geoLevel: GeoLevel;
   geoid?: string;
   onCancel: () => void;
-  onSave: (file: string, sortWeight: number, id?: number) => void;
+  onSave: (
+    file: string,
+    sortWeight: number,
+    sourceIds: number[],
+    id?: number,
+  ) => void;
 }
 
 const emptyTemplate = {};
@@ -29,16 +35,24 @@ export default function VizModal({
 }: Props) {
   const [data, setData] = useState<JsonData>(() => {
     if (initialData) {
-      try {
-        return JSON.parse(initialData.file);
-      } catch {
-        return emptyTemplate;
-      }
+      return initialData.file;
     }
     return emptyTemplate;
   });
   const [sortWeight, setSortWeight] = useState<number>(
     initialData?.sort_weight ?? 0,
+  );
+  const { data: sources } = useSource();
+  const sourceOptions =
+    sources?.map((source) => ({
+      value: source.id,
+      label: source.citation,
+    })) ?? [];
+  const selectedSourceOptions = sourceOptions.filter((source) =>
+    initialData?.source_ids?.includes(Number(source.value)),
+  );
+  const [selectedSources, setSelectedSources] = useState<SelectOption[]>(
+    selectedSourceOptions,
   );
   const [error, setError] = useState<string>("");
 
@@ -49,16 +63,16 @@ export default function VizModal({
   const previewPayload = useMemo<VizFile | null>(() => {
     if (!data || typeof data !== "object") return null;
 
-    const candidate = JSON.parse(JSON.stringify(data)) as Partial<VizFile>;
+    const vizPreview = JSON.parse(JSON.stringify(data)) as Partial<VizFile>;
     if (
-      candidate &&
-      typeof candidate === "object" &&
-      (candidate.type === "map" || candidate.type === "chart")
+      vizPreview &&
+      typeof vizPreview === "object" &&
+      (vizPreview.type === "map" || vizPreview.type === "chart")
     ) {
-      return candidate as VizFile;
+      return vizPreview as VizFile;
     }
 
-    return candidate as VizFile;
+    return vizPreview as VizFile;
   }, [data]);
 
   const { data: profile } = useProfile(previewGeoLevel, previewGeoid);
@@ -70,7 +84,12 @@ export default function VizModal({
 
   const handleSave = () => {
     try {
-      onSave(JSON.stringify(data), sortWeight, initialData?.id);
+      onSave(
+        JSON.stringify(data),
+        sortWeight,
+        selectedSources.map((source) => Number(source.value)),
+        initialData?.id,
+      );
     } catch {
       setError("Unable to save. The visualization JSON is invalid.");
     }
@@ -92,6 +111,15 @@ export default function VizModal({
             value={sortWeight}
             onChange={(e) => setSortWeight(Number(e.target.value) || 0)}
             className="border border-dvrpc-gray-5 p-2 rounded-md"
+          />
+        </div>
+
+        <div className="mb-4 flex flex-col gap-1">
+          <label className="font-medium text-sm text-gray-700">Sources</label>
+          <MultiSelect
+            value={selectedSources}
+            options={sourceOptions}
+            onChange={(values) => setSelectedSources([...values])}
           />
         </div>
 
